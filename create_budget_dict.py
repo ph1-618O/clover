@@ -261,3 +261,6 @@ for i in csv.columns:
 pp.pprint(csv.head())
 pp.pprint(split_purchases(csv.head()))
 #pp.pprint(split_purchases(ninety_days.head(), dictionary))
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+## Create budget dict. py takes a given csv and sorts the data from the csv
+# into a dictionary with a budget category as the key
+# it also asks the user what are the necessary columns for their budget
+# once the program begins it passes a unique identifier to each row entry
+# this unique identifier is also stored at the end of the dictionary of lists
+# so that once it is within the dictionary the program will recognize
+# all future occurences of identifier and add it without input
+
 import platform
 
 # working with dates, month abbrev, and the 
@@ -252,15 +260,16 @@ dictionary = {
 # z = search_dict(trans_type, ['01/14/21', 'HOME_DEPOT', -100], 'HOME_DEPOT')
 
 
+def main():
 # WORKING< 
 # Exception Program is not matching Data within Dictionary and adding without asking
-csv = read_csv()
-#print(csv.columns)
-for i in csv.columns:
-    csv = csv.rename(columns={i:i.lower()})
-pp.pprint(csv.head())
-pp.pprint(split_purchases(csv.head()))
-#pp.pprint(split_purchases(ninety_days.head(), dictionary))
+    csv = read_csv()
+    #print(csv.columns)
+    for i in csv.columns:
+        csv = csv.rename(columns={i:i.lower()})
+    pp.pprint(csv.head())
+    pp.pprint(split_purchases(csv.head()))
+    #pp.pprint(split_purchases(ninety_days.head(), dictionary))
 
 if __name__ == "__main__":
     main()

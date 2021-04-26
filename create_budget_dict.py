@@ -252,6 +252,7 @@ def split_purchases(df, budget_dict=0):
 #sample dictionary
 # budget_type: [date, data, amount, identifier]
 dictionary = {
+    'format': ['date', 'location data', 'float amount', 'identifier'],
     'home': [
     ['01/24/21', 'HOME_DEPOT',  -57, 'HOME'],
     ['01/12/21', 'LOWES', -100, 'LOWES'],

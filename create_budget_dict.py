@@ -53,11 +53,13 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 # most of the data I began to work with to generate the working test data
 # i had to get from the clipboard on websites
-# clipDF = pd.read_clipboard()
-# csvName = input('What type of account is it?')
-# csvName = csvName + '.csv'
-# clipDF.to_csv(csvName, index = False)
+def reading_clipboard():
+    clipDF = pd.read_clipboard()
+    csvName = input('What type of account is it?')
+    csvName = csvName + '.csv'
+    clipDF.to_csv(csvName, index = False)
 
+## Need to add in portion from other notebook that asked user if they want to install these dependencies if they are not included
 def version_assistant():
     # print versions
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
@@ -268,13 +270,37 @@ dictionary = {
 
 def main():
 # WORKING< 
-    csv = read_csv()
-    #print(csv.columns)
-    for i in csv.columns:
-        csv = csv.rename(columns={i:i.lower()})
-    pp.pprint(csv.head())
-    pp.pprint(split_purchases(csv.head()))
-    #pp.pprint(split_purchases(ninety_days.head(), dictionary))
+# change csv variable to data
+# add loop that continues until a yes or no is given or an exit request
+
+    csv_or_clip = input('DATA IS CSV OR CLIPBOARD INPUT?\n').lower()
+    if 'csv' in csv_or_clip:
+        # Normalizing the column names to lower
+        data = read_csv()
+        for i in data.columns:
+            data = data.rename(columns={i:i.lower()})
+        print('IMPORTED DATASET\n')
+        print('------------------------------------------------------------------------------------------------------')
+        pp.pprint(data.head())
+        print('------------------------------------------------------------------------------------------------------')
+
+    elif 'clip' in csv_or_clip:
+        # import format_data
+        format_q = ('FORMAT CLIP BOARD DATA? Y/N').lower()
+        if 'y' in format_q.lower():
+            data = format_data()
+            for i in data.columns:
+                data = data.rename(columns={i:i.lower()})
+            print('IMPORTED DATASET\n')
+            print('------------------------------------------------------------------------------------------------------')
+            pp.pprint(data.head())
+            print('------------------------------------------------------------------------------------------------------')
+    else:
+        print('INVALID INPUT, PLEASE TRY AGAIN')
+        exit()
+    
+
+    pp.pprint(split_purchases(data.head()))
 
 if __name__ == "__main__":
     main()

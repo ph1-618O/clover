@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+## WORKING 
+# ADD DATETIME FORMATTING FOR DATE COLUMN
+# export data to MONGO DB
+
+
+
 import platform
 
 # working with dates, month abbrev, and the 
@@ -51,14 +57,16 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 # clipDF.to_csv(csvName, index = False)
 
 # print versions
-print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-print('PYTHON VERSIONS')
-print('-----------------------------------------')
-print("python     : ",  platform.python_version())
-print("pandas     : ", pd.__version__)
-print("matplotlib : ", matplotlib.__version__)
-print("squarify   :  0.4.3")
-print('-----------------------------------------\n\n')
+def version_assistant():
+    # print versions
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    print('PYTHON VERSIONS')
+    print('-----------------------------------------')
+    print("python     : ",  platform.python_version())
+    print("pandas     : ", pd.__version__)
+    print("matplotlib : ", matplotlib.__version__)
+    print("squarify   :  0.4.3")
+    print('-----------------------------------------\n\n')
 
 
 # Getting Data from Clipboard copied from Website DataFrame
@@ -160,37 +168,34 @@ def read_csv():
         csvName = csvName + '.csv'
         return pd.read_csv(csvName)
 
-
-#cols = ['date1', 'date2', 'location', 'amount']
-print('FORMATTING CLIPBOARD CSV INPUT')
-print('------------------------------------------------------------------------------------------------------')
-#cols = ['date1', 'date2', 'location', 'amount']
-df = read_csv()
-print(f'\n{" - ".join(list(df.columns))}\n\n')
-format_input = input('RENAME COLUMNS? Y/N\n')
-if 'y' in format_input:
+def main():
+    print('FORMATTING CLIPBOARD CSV INPUT')
     print('------------------------------------------------------------------------------------------------------')
-    print('WARNING COLUMN NAMES MUST BE UNIQUE')
-    print('------------------------------------------------------------------------------------------------------')
-    cols = input('ENTER COLUMN NAMES\n')
-    cat = ''
-    for i in cols:
-        if ',' in cols:
-            cat += i.strip(',')
-        else:
-            cat += i
-    cols = cat.split(' ')
+    df = read_csv()
+    print(f'\n{" - ".join(list(df.columns))}\n\n')
+    format_input = input('RENAME COLUMNS? Y/N\n')
+    if 'y' in format_input:
+        print('------------------------------------------------------------------------------------------------------')
+        print('WARNING COLUMN NAMES MUST BE UNIQUE')
+        print('------------------------------------------------------------------------------------------------------')
+        cols = input('ENTER COLUMN NAMES\n')
+        cat = ''
+        for i in cols:
+            if ',' in cols:
+                cat += i.strip(',')
+            else:
+                cat += i
+        cols = cat.split(' ')
 
-formatted_csv = format_clipCSV(df, cols)
-print('------------------------------------------------------------------------------------------------------')
-print('FORMATTED DATAFRAME')
-print('------------------------------------------------------------------------------------------------------')
-pp.pprint(formatted_csv.head())
-#ninety_days = format_clipCSV(ninety_days, cols)
-print('------------------------------------------------------------------------------------------------------')
-print('FORMATTING CLIPBOARD CSV COMPLETE')
-print('------------------------------------------------------------------------------------------------------')
-print('------------------------------------------------------------------------------------------------------\n\n\n')
+    formatted_csv = format_clipCSV(df, cols)
+    print('------------------------------------------------------------------------------------------------------')
+    print('FORMATTED DATAFRAME')
+    print('------------------------------------------------------------------------------------------------------')
+    pp.pprint(formatted_csv.head())
+    print('------------------------------------------------------------------------------------------------------')
+    print('FORMATTING CLIPBOARD CSV COMPLETE')
+    print('------------------------------------------------------------------------------------------------------')
+    print('------------------------------------------------------------------------------------------------------\n\n\n')
 
 
 if __name__ == "__main__":

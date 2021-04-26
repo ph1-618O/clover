@@ -35,19 +35,8 @@ from matplotlib.lines import Line2D
 import squarify
 import plotly.graph_objects as go
 
-# for generating random data from original to test and share to github
-from random import seed
-from random import randint
-import random
-
 # Dealing with number input inconsistencies, avoids VALUE ERROR, ATTRIBUTE ERROR
 from fastnumbers import fast_float
-
-# trying to grab the trans data from google, need another way to do it
-from googlesearch import search
-from bs4 import BeautifulSoup as soup
-import requests
-import re
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 

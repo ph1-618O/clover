@@ -49,13 +49,6 @@ import re
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
-# most of the data I began to work with to generate the working test data
-# i had to get from the clipboard on websites
-# clipDF = pd.read_clipboard()
-# csvName = input('What type of account is it?')
-# csvName = csvName + '.csv'
-# clipDF.to_csv(csvName, index = False)
-
 # print versions
 def version_assistant():
     # print versions
@@ -70,6 +63,8 @@ def version_assistant():
 
 
 # Getting Data from Clipboard copied from Website DataFrame
+# most of the data I began to work with to generate the working test data
+# i had to get from the clipboard on websites
 
 
 def read_clip():
@@ -123,18 +118,6 @@ def get_sort_by(df):
     print('------------------------------------------------------------------------------------------------------')
     sort = ' '.join(str(elem) for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
-
-# def get_sort_by(df, index):
-#     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-#     counter = 0
-#     for i in df.columns:
-#         print(f'{counter}, COLUMN NAME {i}: {df[i][index]}')
-#         counter += 1
-#     sort_col = input(
-#         f'Which column do you want to sort your budget by?:: {list(df.columns)}\n')
-#     sort = ' '.join(str(elem)
-#                     for elem in [i for i in df.columns if i == sort_col.lower()])
-#     return sort
 
 
 def format_clipCSV(df, columns_list):

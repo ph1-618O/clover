@@ -70,7 +70,7 @@ def version_assistant():
 def read_clip():
     clipDF = pd.read_clipboard()
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-    csvName = input('What type of account is it?')
+    csvName = input('WHAT TYPE OF ACCOUNT FOR FILENAME?\n')
     csvName = csvName + '.csv'
     clipDF.to_csv(csvName, index=False)
     return pd.read_csv(csvName)
@@ -114,7 +114,7 @@ def get_sort_by(df):
     print('OPTIONS:::')
     print('------------------------------------------------------------------------------------------------------')
     none_in = [print(list(df.columns)[i].upper(), end =" ") for i in range(len(list(df.columns)))]
-    sort_col = input(f'\n\nCHOOSE COLUMN TO SORT BY?:: \n').lower()
+    sort_col = input(f'\n\nCHOOSE COLUMN TO SORT PURCHASES BY?:: \n').lower()
     print('------------------------------------------------------------------------------------------------------')
     sort = ' '.join(str(elem) for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
@@ -128,20 +128,29 @@ def format_clipCSV(df, columns_list):
         df.rename(columns={df.columns[i]: columns_list[i]}, inplace=True)
     # inserting the data into row 0
     df = (insertRow(0, df, row1)).reset_index(drop=True)
+    # Asking user what columns they want to keep
+    remove_cols = input('COLUMNS TO REMOVE::\n')
+    remove = ''
+    for k in remove_cols:
+        if ',' in k:
+            remove += k.strip(',')
+        else:
+            remove += k
+    remove = remove.split(' ')
+    for c in remove:
+        try:
+            df[c.lower()]
+            df = df.drop(columns = c, axis = 1)
+        except KeyError:
+            print('ERROR, RE-ENTER COLUMN\n')
     if 'amount' in df.columns:
         make_num(df, 'amount')
     ## Giving examples of data
     sort_which = get_sort_by(df)
-    counter = 0
-    # for i in columns_list:
-    #     print(f'{counter}, COLUMN NAME {i}: {df[i][1]}')
-    #     counter += 1
-    # sort_which = input(f'What column do you want to sort the Imported DataFrame by? {columns_list}\n')
     df = df.sort_values(sort_which.lower()).reset_index(drop=True)
     return df
 
 # Bringing in Data
-
 def read_csv():
     csvName = input('ENTER CSV NAME\n')
     print('-----------------------------------------')
@@ -151,10 +160,7 @@ def read_csv():
         csvName = csvName + '.csv'
         return pd.read_csv(csvName)
 
-def main():
-    print('FORMATTING CLIPBOARD CSV INPUT')
-    print('------------------------------------------------------------------------------------------------------')
-    df = read_csv()
+def get_column_names(df):
     print(f'\n{" - ".join(list(df.columns))}\n\n')
     format_input = input('RENAME COLUMNS? Y/N\n')
     if 'y' in format_input:
@@ -169,6 +175,25 @@ def main():
             else:
                 cat += i
         cols = cat.split(' ')
+        return cols
+    else:
+        return list(df.columns)
+
+def initiate_format(df = 0):
+    print('FORMATTING CLIPBOARD OR CSV INPUT')
+    print('------------------------------------------------------------------------------------------------------')
+    #df = read_clip()
+    df = read_csv()
+# Asking user if they want to rename the columns
+    cols = get_column_names(df)
+    if len(cols) == len(df.columns):
+        for i in range(len(df.columns)):
+            df.rename(columns = {df.columns[i]:cols[i]})
+    else:
+        print(f'PLEASE ENTER {len(df.columns)} COLUMN NAMES\n')
+        verify_cols = input(f'ARE THESE THE CORRECT COLUMN NAMES:: Y OR N {cols}\n')
+        if 'n' in verify_cols:
+            cols = get_column_names(df)
 
     formatted_csv = format_clipCSV(df, cols)
     print('------------------------------------------------------------------------------------------------------')
@@ -176,10 +201,13 @@ def main():
     print('------------------------------------------------------------------------------------------------------')
     pp.pprint(formatted_csv.head())
     print('------------------------------------------------------------------------------------------------------')
-    print('FORMATTING CLIPBOARD CSV COMPLETE')
+    print('FORMATTING CLIPBOARD OR CSV COMPLETE')
     print('------------------------------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------------------------------\n\n\n')
+    return formatted_csv
 
+def main():
+    initiate_format()
 
 if __name__ == "__main__":
     main()

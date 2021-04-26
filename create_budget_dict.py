@@ -99,7 +99,7 @@ def get_categories():
         categories = cat.split(' ')
     return categories
 
-
+## ADD EXIT QUERY FOR LOOP
 def add_trans_type(df, i, sort_by=0):
     ####################################################get_sort_by####################################################
     if sort_by:
@@ -144,6 +144,7 @@ def add_data(budget_dict, data):
             print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
             print('ADDITION SUCCESSFUL')
             time.sleep(2)
+    print(location)
     return budget_dict
 
 
@@ -195,25 +196,26 @@ def split_purchases(df, budget_dict=0):
         categories = get_categories()
         ############################################## make_dict ##############################################
         trans_type = make_dict(categories)
+        ############################################## get_sort_by ##############################################
         sort_by = get_sort_by(df)
         
 
 # this block asks the reader what columns to keep within the list of data
 # Need to add functionality that allows for spaces, and the word and and splits on spaces
 # Add a loop that asks again and again until user enters the correct input or asks to exit
-    cols = input('COLUMNS TO KEEP::\n')
-    cat = ''
-    for k in cols:
-        if ',' in cols:
-            cat += k.strip(',')
-        else:
-            cat += k
-    cols = cat.split(' ')
-    for c in cols:
-        try:
-            df[c.lower()]
-        except KeyError:
-            print('ERROR, RE-ENTER COLUMN\n')
+    # cols = input('COLUMNS TO KEEP::\n')
+    # cat = ''
+    # for k in cols:
+    #     if ',' in cols:
+    #         cat += k.strip(',')
+    #     else:
+    #         cat += k
+    # cols = cat.split(' ')
+    # for c in cols:
+    #     try:
+    #         df[c.lower()]
+    #     except KeyError:
+    #         print('ERROR, RE-ENTER COLUMN\n')
 
 
     for i in range(len(df)): 
@@ -221,12 +223,12 @@ def split_purchases(df, budget_dict=0):
         get_col = add_trans_type(df, i, sort_by)
         organize_by = get_col[0]
         identity = get_col[1]
-        # data_to_sort = df.iloc[i][organize_by]
+        data_to_sort = df.iloc[i][organize_by]
     # PRINT TESTING STATEMENTS
-        # print(f'SORTING BY:: "{sort_by.upper()}" COLUMN')
-        # print(f'IDENTIFIER IS:: {identity}')
-        # print(f'COL NAME IS:: {organize_by}')
-        # print(f'CATEGORIZE DATA:: {data_to_sort}\n')
+        print(f'SORTING BY:: "{sort_by.upper()}" COLUMN')
+        print(f'IDENTIFIER IS:: {identity}')
+        print(f'COL NAME IS:: {organize_by}')
+        print(f'CATEGORIZE DATA:: {data_to_sort}\n')
         ############################################## search_dict ##############################################
         data = []
         for col in cols:
@@ -237,6 +239,15 @@ def split_purchases(df, budget_dict=0):
     print('PROGRAM COMPLETE')
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     return new_dict
+
+
+def read_clip():
+    clipDF = pd.read_clipboard()
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    csvName = input('WHAT TYPE OF ACCOUNT FOR FILENAME?\n')
+    csvName = csvName + '.csv'
+    clipDF.to_csv(csvName, index=False)
+    return pd.read_csv(csvName)
 
 #sample dictionary
 # budget_type: [date, data, amount, identifier]
@@ -275,22 +286,29 @@ def main():
         print('------------------------------------------------------------------------------------------------------')
 
     elif 'clip' in csv_or_clip:
-        # import format_data
         format_q = ('FORMAT CLIP BOARD DATA? Y/N').lower()
         if 'y' in format_q.lower():
-            data = format_data()
+            # Fix Module import statement
+            print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+            print('RUNNING FORMAT_DATA PROGRAM')
+            import format_data
+            data = read_clip()
+            data = format_data.initiate_format(data)
             for i in data.columns:
                 data = data.rename(columns={i:i.lower()})
             print('IMPORTED DATASET\n')
             print('------------------------------------------------------------------------------------------------------')
-            pp.pprint(data.head())
-            print('------------------------------------------------------------------------------------------------------')
+            print(data)
+            # pp.pprint(data.head())
+            # print('------------------------------------------------------------------------------------------------------')
     else:
         print('INVALID INPUT, PLEASE TRY AGAIN')
         exit()
-    
-
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    print('RUNNING SPLIT PURCHASES PROGRAM')
     pp.pprint(split_purchases(data.head()))
+    return data
+    #pp.pprint(pd.DataFrame.from_dict(data, orient='index', columns = data.keys()))
 
 if __name__ == "__main__":
     main()

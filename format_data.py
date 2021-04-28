@@ -105,25 +105,32 @@ def make_num(df, col_name):
     df[col_name] = newCol
     return df
 
-
+# Another place that if I had the dataset I could use machine learning to figure out
+# the actual date format without asking
+# Begin coding to ask user if 04 is month or day, 19 is day and 2021 is year
 def split_date(date_str):
     import re
     clean_list = re.sub(r"[,-/.]", " ", date_str) #,-/ and . are all common separators of a date
     return clean_list
 
-# Begin coding to ask user if 04 is month or day, 19 is day and 2021 is year
 # print((split_date(df['date'][0])).split())
 
 def convert_date2(df):
     import datetime
-    get_date_col = input('Enter the name of the date column\n').lower()
+    get_date_col = input('DATE COLUMN NAME:: \n').lower()
     date_time = []
     if isinstance(df[get_date_col][0], str):
-        print((split_date(df[get_date_col][0])).split())
+        date_list = (split_date(df[get_date_col][0])).split()
+        print(date_list)
+        date_format_part1 = []
+        for i in date_list:
+            date_format_part1.append((input(f'ENTER MONTH DAY OR YEAR FOR {i}\n')).lower())
+        print(date_format_part1)
+        date_format = '%m/%d/%Y'
         for i in df[get_date_col]:
             break   
         for i in df[get_date_col]:
-            date_time.append(datetime.datetime.strptime(i, original_date))
+            date_time.append(datetime.datetime.strptime(i, date_format))
     elif isinstance(df[get_date_col[0], datetime.date]):
         return df
     else:

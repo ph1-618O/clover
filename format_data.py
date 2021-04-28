@@ -106,6 +106,44 @@ def make_num(df, col_name):
     return df
 
 
+def split_date(date_str):
+    import re
+    clean_list = re.sub(r"[,-/.]", " ", date_str) #,-/ and . are all common separators of a date
+    return clean_list
+
+# Begin coding to ask user if 04 is month or day, 19 is day and 2021 is year
+# print((split_date(df['date'][0])).split())
+
+def convert_date2(df):
+    import datetime
+    get_date_col = input('Enter the name of the date column\n').lower()
+    date_time = []
+    if isinstance(df[get_date_col][0], str):
+        print((split_date(df[get_date_col][0])).split())
+        for i in df[get_date_col]:
+            break   
+        for i in df[get_date_col]:
+            date_time.append(datetime.datetime.strptime(i, original_date))
+    elif isinstance(df[get_date_col[0], datetime.date]):
+        return df
+    else:
+        print('INCORRECT DATE COLUMN')
+
+def convert_date(df):
+    import datetime
+    date_time = []
+    for i in df['date']:
+        date_time.append(datetime.datetime.strptime(i, '%m/%d/%Y'))
+    df['date'] = date_time
+    return df
+
+# def make_date(df, col_name):
+#     newCol = []
+#     for in in range(len(df)):
+#         newCol.append(make_date(df[col_name][i]))
+#         df[col_name] = newCol
+#     return df
+
 def get_sort_by(df):
     print('------------------------------------------------------------------------------------------------------')
     print('UNSORTED DATAFRAME')
@@ -114,7 +152,8 @@ def get_sort_by(df):
     print('OPTIONS:::')
     print('------------------------------------------------------------------------------------------------------')
     none_in = [print(list(df.columns)[i].upper(), end =" ") for i in range(len(list(df.columns)))]
-    sort_col = input(f'\n\nCHOOSE COLUMN TO SORT PURCHASES BY?:: \n').lower()
+    print('\n\nIT LOOKS LIKE YOUR DATES ARE OUT OF ORDER\n')
+    sort_col = input(f'\nCHOOSE COLUMN TO SORT DATA BY?:: \n').lower()
     print('------------------------------------------------------------------------------------------------------')
     sort = ' '.join(str(elem) for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
@@ -143,8 +182,12 @@ def format_clipCSV(df, columns_list):
             df = df.drop(columns = c, axis = 1)
         except KeyError:
             print('ERROR, RE-ENTER COLUMN\n')
+    # Formatting amount column into floats
     if 'amount' in df.columns:
         make_num(df, 'amount')
+    # Formatting date column into datetime obj
+    if 'date' in df.columns:
+        convert_date(df)
     ## Giving examples of data
     sort_which = get_sort_by(df)
     df = df.sort_values(sort_which.lower()).reset_index(drop=True)
@@ -182,7 +225,7 @@ def get_column_names(df):
 def initiate_format(df = 0):
     print('FORMATTING CLIPBOARD OR CSV INPUT')
     print('------------------------------------------------------------------------------------------------------')
-    #df = read_clip()
+    # df = read_clip()
     df = read_csv()
 # Asking user if they want to rename the columns
     cols = get_column_names(df)

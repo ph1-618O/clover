@@ -267,6 +267,18 @@ dictionary = {
     ['03/15/21', 'FARM_FRESH', -150, 'FRESH']]
 }
 
+def dict_to_Frame(data):
+    converted_DF = pd.DataFrame.from_dict(data, orient='index')
+    convert_DF.reset_index(inplace = True)
+# Adding the category key to the end of each list of data to later add to df as column
+    for i in range(len(converted_DF[0])):
+        converted_DF[0][i].append(converted_DF['index'][i])
+    df = pd.DataFrame()
+    for i in range(len(imported[0])):
+        df = df.rename(columns = {df.columns[i]: col_name[i]}).reset_index(drop = True)
+    df = df.drop([0,0]).reset_index(drop = True)
+    df = df.rename(columns = {'format':'category'})
+    return df
 
 
 def main():
@@ -306,8 +318,12 @@ def main():
         exit()
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('RUNNING SPLIT PURCHASES PROGRAM')
+    print('------------------------------------------------------------------------------------------------------')
     pp.pprint(split_purchases(data.head()))
-    return data
+    print('------------------------------------------------------------------------------------------------------')
+    converted_DF = dict_to_Frame(data)
+    pp.pprint(converted_DF)
+    return data, convertedDF
     #pp.pprint(pd.DataFrame.from_dict(data, orient='index', columns = data.keys()))
 
 if __name__ == "__main__":

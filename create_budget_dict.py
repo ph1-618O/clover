@@ -119,7 +119,8 @@ def add_trans_type(df, i, sort_by=0):
                 continue
 
 def make_dict(categories):
-    trans_type = {}
+    trans_type = {'format':[
+        'date', 'transaction', 'amount', 'identifier']}
     for i in categories:
         trans_type[i] = []
     return trans_type
@@ -203,19 +204,21 @@ def split_purchases(df, budget_dict=0):
 # this block asks the reader what columns to keep within the list of data
 # Need to add functionality that allows for spaces, and the word and and splits on spaces
 # Add a loop that asks again and again until user enters the correct input or asks to exit
-    # cols = input('COLUMNS TO KEEP::\n')
-    # cat = ''
-    # for k in cols:
-    #     if ',' in cols:
-    #         cat += k.strip(',')
-    #     else:
-    #         cat += k
-    # cols = cat.split(' ')
-    # for c in cols:
-    #     try:
-    #         df[c.lower()]
-    #     except KeyError:
-    #         print('ERROR, RE-ENTER COLUMN\n')
+# This block is already in format_data.py, maybe add an if statement or run this portion if the chosen
+# option is CSV instead of clipboard data(bc clipboard data gets run thru format_data.py)
+    cols = input('COLUMNS TO KEEP::\n')
+    cat = ''
+    for k in cols:
+        if ',' in cols:
+            cat += k.strip(',')
+        else:
+            cat += k
+    cols = cat.split(' ')
+    for c in cols:
+        try:
+            df[c.lower()]
+        except KeyError:
+            print('ERROR, RE-ENTER COLUMN\n')
 
 
     for i in range(len(df)): 
@@ -268,15 +271,19 @@ dictionary = {
 }
 
 def dict_to_Frame(data):
-    converted_DF = pd.DataFrame.from_dict(data, orient='index')
-    convert_DF.reset_index(inplace = True)
-# Adding the category key to the end of each list of data to later add to df as column
-    for i in range(len(converted_DF[0])):
-        converted_DF[0][i].append(converted_DF['index'][i])
     df = pd.DataFrame()
+    imported = pd.DataFrame.from_dict(data, orient='index')
+    imported.reset_index(inplace = True)
+# Adding the category key to the end of each list of data to later add to df as column
     for i in range(len(imported[0])):
-        df = df.rename(columns = {df.columns[i]: col_name[i]}).reset_index(drop = True)
-    df = df.drop([0,0]).reset_index(drop = True)
+        imported[0][i].append(imported['index'][i])
+    for i in range(len(imported[0])):
+        df = pd.concat([df, pd.DataFrame([imported[0][i]])])
+
+    col_names = df.iloc[0]
+    for i in range(len(col_names)):
+        df = df.rename(columns={df.columns[i]: col_names[i]}).reset_index(drop=True)
+    df = df.drop([0,0]).reset_index(drop=True)
     df = df.rename(columns = {'format':'category'})
     return df
 

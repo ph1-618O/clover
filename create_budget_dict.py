@@ -75,13 +75,13 @@ def get_sort_by(df):
     print('OPTIONS:::')
     print('------------------------------------------------------------------------------------------------------')
     #none_in = [print(list(df.columns)[i].upper(), end =" ") for i in range(len(list(df.columns)))]
-    sort_col = input(f'\n\nCHOOSE COLUMN TO SORT BY?:: \n').lower()
+    sort_col = input(f'\n\nCHOOSE COLUMN TO SORT BUDGET CATEGORIES BY?:: \n').lower()
     sort = ' '.join(str(elem) for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
 
 def get_categories():
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-    defaults = ['food', 'fast_food', 'home_maintenance', 'pets', 'restaurants', 'utilities', 'car_maintenance', 'gas', 'medical', 'entertainment', 'family']
+    defaults = ['food', 'fast_food', 'home', 'pets', 'restaurants', 'utilities', 'car', 'gas', 'medical', 'fun', 'family']
     print(f'\nDEFAULT CATEGORIES::: \n{" - ".join(defaults)}\n')
     use_defaults = input('USE DEFAULTS::: Y/N\n')
     if 'y' in use_defaults:
@@ -252,39 +252,27 @@ def read_clip():
     clipDF.to_csv(csvName, index=False)
     return pd.read_csv(csvName)
 
-#sample dictionary
-# budget_type: [date, data, amount, identifier]
-dictionary = {
-    'format': ['date', 'location data', 'float amount', 'identifier'],
-    'home': [
-    ['01/24/21', 'HOME_DEPOT',  -57, 'HOME'],
-    ['01/12/21', 'LOWES', -100, 'LOWES'],
-    ['02/14/21', 'TRUE_VALUE', -60, 'TRUE']],
-
-    'fast_food': [
-    ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A']],
-
-    'food':[
-    ['01/22/21', 'FOOD LION',  -200, 'FOOD LION'],
-    ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS'],
-    ['03/15/21', 'FARM_FRESH', -150, 'FRESH']]
-}
-
+# First iteration assummed that data was perfect, all categories full, equal amounts of purchases ea category
+# Need to code for zero data in categories and fluctuations in purchases for ea cat type
 def dict_to_Frame(data):
     df = pd.DataFrame()
     imported = pd.DataFrame.from_dict(data, orient='index')
     imported.reset_index(inplace = True)
 # Adding the category key to the end of each list of data to later add to df as column
+# Try accept statement and dropna clears out categories that are not used/empty
     for i in range(len(imported[0])):
-        imported[0][i].append(imported['index'][i])
+        try:
+            imported[0][i].append(imported['index'][i])
+        except AttributeError:
+            continue
     for i in range(len(imported[0])):
         df = pd.concat([df, pd.DataFrame([imported[0][i]])])
-
     col_names = df.iloc[0]
     for i in range(len(col_names)):
         df = df.rename(columns={df.columns[i]: col_names[i]}).reset_index(drop=True)
     df = df.drop([0,0]).reset_index(drop=True)
     df = df.rename(columns = {'format':'category'})
+    df = df.dropna().reset_index(drop=True)
     return df
 
 
@@ -330,8 +318,26 @@ def main():
     print('------------------------------------------------------------------------------------------------------')
     converted_DF = dict_to_Frame(data)
     pp.pprint(converted_DF)
-    return data, convertedDF
+    return data, converted_DF
     #pp.pprint(pd.DataFrame.from_dict(data, orient='index', columns = data.keys()))
 
 if __name__ == "__main__":
     main()
+
+# sample dictionary for testing
+# budget_type: [date, data, amount, identifier]
+dictionary = {
+    'format': ['date', 'location data', 'float amount', 'identifier'],
+    'home': [
+    ['01/24/21', 'HOME_DEPOT',  -57, 'HOME'],
+    ['01/12/21', 'LOWES', -100, 'LOWES'],
+    ['02/14/21', 'TRUE_VALUE', -60, 'TRUE']],
+
+    'fast_food': [
+    ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A']],
+
+    'food':[
+    ['01/22/21', 'FOOD LION',  -200, 'FOOD LION'],
+    ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS'],
+    ['03/15/21', 'FARM_FRESH', -150, 'FRESH']]
+}

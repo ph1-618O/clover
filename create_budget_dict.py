@@ -372,7 +372,8 @@ def main():
 if __name__ == "__main__":
     main()
 
-# sample dictionary for testing
+# Create test case.py that uses this dictionary and the sample dataframe
+#  sample dictionary for testing
 # budget_type: [date, data, amount, identifier]
 dictionary = {
     'format': ['date', 'location data', 'float amount', 'identifier'],

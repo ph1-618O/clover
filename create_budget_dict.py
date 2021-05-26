@@ -280,9 +280,9 @@ def conn_mongo(data):
     import pymongo
     conn = 'mongodb://localhost:27017'
     client = pymongo.MongoClient(conn)
-    db = client.budgetDB
+    db = client.clover
     db.budgetDB.insert_one(data)
-    db.budgetDB.find().pretty()
+    #db.budgetDB.find().pretty()
 
 def main():
 # WORKING< 
@@ -322,16 +322,18 @@ def main():
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('RUNNING SPLIT PURCHASES PROGRAM')
     print('------------------------------------------------------------------------------------------------------')
-    pp.pprint(split_purchases(data.head()))
+    trans_dict = split_purchases(data.head(1))
+    pp.pprint(trans_dict)
     print('------------------------------------------------------------------------------------------------------')
     
     #Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
     #converted_DF = dict_to_Frame(data)
     #pp.pprint(converted_DF)
-
+    conn_mongo(trans_dict)
+    print('MongoDB Successful')
     return data#, converted_DF
 
-    
+
     #pp.pprint(pd.DataFrame.from_dict(data, orient='index', columns = data.keys()))
 
 

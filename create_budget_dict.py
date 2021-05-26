@@ -40,19 +40,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
-# most of the data I began to work with to generate the working test data
-# i had to get from the clipboard on websites
-
-
-def reading_clipboard():
-    clipDF = pd.read_clipboard()
-    csvName = input('What type of account is it?')
-    csvName = csvName + '.csv'
-    clipDF.to_csv(csvName, index=False)
 
 # Need to add in portion from other notebook that asked user if they want to install these dependencies if they are not included
-
-
 def version_assistant():
     # print versions
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
@@ -64,6 +53,13 @@ def version_assistant():
     print("squarify   :  0.4.3")
     print('-----------------------------------------\n\n')
 
+# most of the data I began to work with to generate the working test data
+# i had to get from the clipboard on websites
+def reading_clipboard():
+    clipDF = pd.read_clipboard()
+    csvName = input('What type of account is it?')
+    csvName = csvName + '.csv'
+    clipDF.to_csv(csvName, index=False)
 
 def read_csv():
     csvName = input('ENTER CSV NAME\n')
@@ -73,6 +69,14 @@ def read_csv():
     else:
         csvName = csvName + '.csv'
         return pd.read_csv(csvName)
+
+def save_csv(df):
+    save_csv = input('SAVE NEW DATAFRAME TO CSV? Y/N\n')
+    if 'y' in save_csv.lower():
+        csvName = input('ENTER NEW CSV NAME\n')
+        csvName = csvName + '.csv'
+        df.to_csv(csvName)
+        print('DATA SUCCESSFULLY STORED TO CSV\n')
 
 
 def get_sort_by(df):
@@ -359,6 +363,7 @@ def main():
     if 'y' in create_database:
         conn_mongo(trans_dict)
         print('MongoDB Successful')
+    save_csv(converted_DF)
     return data, converted_DF
 
     #pp.pprint(pd.DataFrame.from_dict(data, orient='index', columns = data.keys()))

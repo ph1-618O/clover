@@ -294,7 +294,7 @@ def read_clip():
 def dict_to_Frame(data_dict):
     skip_list = []
     for key, value in data_dict.items():
-    # Skipping the first entry which is the columns
+        # Skipping the first entry which is the columns
         if key == '0_format':
             continue
         elif len(value) == 0:
@@ -304,9 +304,10 @@ def dict_to_Frame(data_dict):
             db = pd.DataFrame()
             li = []
             for i in range(len(value)):
-                li.append(value[i])
+                li.append(value[i]+[key])
+    cols = data_dict['0_format'] + ['category']
+    df = pd.DataFrame(np.array(li), columns=cols)
     print((f'{skip_list} = NONE, SKIPPING'))
-    df = pd.DataFrame(np.array(li), columns=data_dict['0_format'])
     return df
 
 # Adding PYMONGO DB functionality
@@ -369,18 +370,18 @@ def main():
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('RUNNING SPLIT PURCHASES PROGRAM')
     print('------------------------------------------------------------------------------------------------------')
-    trans_dict = split_purchases(data.head(1))
+    trans_dict = split_purchases(data)
     pp.pprint(trans_dict)
     print('------------------------------------------------------------------------------------------------------')
 
     # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
-    converted_DF = dict_to_Frame(data)
+    converted_DF = dict_to_Frame(trans_dict)
     pp.pprint(converted_DF)
-    create_database = input('ADD TO DATABASE? Y/N')
+    create_database = input('ADD TO DATABASE? Y/N \n')
     if 'y' in create_database:
         conn_mongo(trans_dict)
         print('MongoDB Successful')
-    return data  # , converted_DF
+    return data, converted_DF
 
     #pp.pprint(pd.DataFrame.from_dict(data, orient='index', columns = data.keys()))
 

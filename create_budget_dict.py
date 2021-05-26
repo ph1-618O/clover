@@ -267,29 +267,6 @@ def read_clip():
     clipDF.to_csv(csvName, index=False)
     return pd.read_csv(csvName)
 
-# First iteration assumed that data was perfect, all categories full, equal amounts of purchases ea category
-# Need to code for zero data in categories and fluctuations in purchases for ea cat type
-# def dict_to_Frame(data):
-#     df = pd.DataFrame()
-#     imported = pd.DataFrame.from_dict(data, orient='index')
-#     imported.reset_index(inplace = True)
-# # Adding the category key to the end of each list of data to later add to df as column
-# # Try accept statement and dropna clears out categories that are not used/empty
-#     for i in range(len(imported[0])):
-#         try:
-#             imported[0][i].append(imported['index'][i])
-#         except AttributeError:
-#             continue
-#     for i in range(len(imported[0])):
-#         df = pd.concat([df, pd.DataFrame([imported[0][i]])])
-#     col_names = df.iloc[0]
-#     for i in range(len(col_names)):
-#         df = df.rename(columns={df.columns[i]: col_names[i]}).reset_index(drop=True)
-#     df = df.drop([0,0]).reset_index(drop=True)
-#     df = df.rename(columns = {'format':'category'})
-#     df = df.dropna().reset_index(drop=True)
-#     return df
-
 
 def dict_to_Frame(data_dict):
     skip_list = []
@@ -307,7 +284,7 @@ def dict_to_Frame(data_dict):
                 li.append(value[i]+[key])
     cols = data_dict['0_format'] + ['category']
     df = pd.DataFrame(np.array(li), columns=cols)
-    print((f'{skip_list} = NONE, SKIPPING'))
+    print((f'{skip_list} = NO AVAILABLE DATA, SKIPPING'))
     return df
 
 # Adding PYMONGO DB functionality

@@ -291,7 +291,8 @@ def dict_to_Frame(data_dict):
 # Need to add a print statement, also pymongo install based on the users OS
 # For consistent use of program need to add searchability that the db connection only adds if the data is new
 
-
+# Notes https://docs.mongodb.com/manual/reference/method/db.collection.find/
+# https://www.analyticsvidhya.com/blog/2020/08/query-a-mongodb-database-using-pymongo/
 def conn_mongo(data):
     import pymongo
     conn = 'mongodb://localhost:27017'

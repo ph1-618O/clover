@@ -293,6 +293,7 @@ def read_clip():
 
 def dict_to_Frame(data_dict):
     skip_list = []
+    li = []
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
         if key == '0_format':
@@ -302,7 +303,6 @@ def dict_to_Frame(data_dict):
         else:
             # print(f'{value}')
             db = pd.DataFrame()
-            li = []
             for i in range(len(value)):
                 li.append(value[i]+[key])
     cols = data_dict['0_format'] + ['category']

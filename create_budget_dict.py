@@ -81,7 +81,7 @@ def get_sort_by(df):
 
 def get_categories():
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-    defaults = ['food', 'fast_food', 'home', 'pets', 'restaurants', 'utilities', 'car', 'gas', 'medical', 'fun', 'family']
+    defaults = ['food', 'fast_food', 'home', 'pets', 'restaurants', 'utilities', 'car', 'gas', 'medical', 'fun', 'family', 'deposits', 'interest']
     print(f'\nDEFAULT CATEGORIES::: \n{" - ".join(defaults)}\n')
     use_defaults = input('USE DEFAULTS::: Y/N\n')
     if 'y' in use_defaults:
@@ -119,7 +119,7 @@ def add_trans_type(df, i, sort_by=0):
                 continue
 
 def make_dict(categories):
-    trans_type = {'format':[
+    trans_type = {'0_format':[
         'date', 'transaction', 'amount', 'identifier']}
     for i in categories:
         trans_type[i] = []
@@ -252,7 +252,7 @@ def read_clip():
     clipDF.to_csv(csvName, index=False)
     return pd.read_csv(csvName)
 
-# First iteration assummed that data was perfect, all categories full, equal amounts of purchases ea category
+# First iteration assumed that data was perfect, all categories full, equal amounts of purchases ea category
 # Need to code for zero data in categories and fluctuations in purchases for ea cat type
 def dict_to_Frame(data):
     df = pd.DataFrame()
@@ -275,6 +275,14 @@ def dict_to_Frame(data):
     df = df.dropna().reset_index(drop=True)
     return df
 
+# Adding PYMONGO DB functionality
+def conn_mongo(data):
+    import pymongo
+    conn = 'mongodb://localhost:27017'
+    client = pymongo.MongoClient(conn)
+    db = client.budgetDB
+    db.budgetDB.insert_one(data)
+    db.budgetDB.find().pretty()
 
 def main():
 # WORKING< 
@@ -316,10 +324,24 @@ def main():
     print('------------------------------------------------------------------------------------------------------')
     pp.pprint(split_purchases(data.head()))
     print('------------------------------------------------------------------------------------------------------')
-    converted_DF = dict_to_Frame(data)
-    pp.pprint(converted_DF)
-    return data, converted_DF
+    
+    #Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
+    #converted_DF = dict_to_Frame(data)
+    #pp.pprint(converted_DF)
+
+    return data#, converted_DF
+
+    
     #pp.pprint(pd.DataFrame.from_dict(data, orient='index', columns = data.keys()))
+
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     main()

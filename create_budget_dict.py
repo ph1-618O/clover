@@ -75,7 +75,7 @@ def save_csv(df):
     if 'y' in save_csv.lower():
         csvName = input('ENTER NEW CSV NAME\n')
         csvName = csvName + '.csv'
-        df.to_csv(csvName)
+        df.to_csv(csvName, index=False)
         print('DATA SUCCESSFULLY STORED TO CSV\n')
 
 

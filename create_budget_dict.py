@@ -7,7 +7,7 @@
 # once the program begins it passes a unique identifier to each row entry
 # this unique identifier is also stored at the end of the dictionary of lists
 # so that once it is within the dictionary the program will recognize
-# all future occurences of identifier and add it without input
+# all future occurrences of identifier and add it without input
 
 from fastnumbers import fast_float
 import plotly.graph_objects as go

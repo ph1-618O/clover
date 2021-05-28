@@ -70,7 +70,7 @@ def reading_clipboard():
     clipDF.to_csv(csvName, index=False)
 
 def read_csv():
-    csvName = input('ENTER CSV NAME\n')
+    csvName = input('ENTER CSV LOCATION\\NAME\n')
     print('-----------------------------------------')
     if csvName.endswith('.csv'):
         return pd.read_csv(csvName)
@@ -87,14 +87,14 @@ def save_csv(df):
         print('DATA SUCCESSFULLY STORED TO CSV\n')
 
 
-def get_sort_by(df):
+def get_sort_by(df, sort_query):
     pp.pprint(df.head())
     print('------------------------------------------------------------------------------------------------------')
     print('OPTIONS:::')
     print('------------------------------------------------------------------------------------------------------')
     #none_in = [print(list(df.columns)[i].upper(), end =" ") for i in range(len(list(df.columns)))]
     sort_col = input(
-        f'\n\nCHOOSE COLUMN TO SORT BUDGET CATEGORIES BY?:: \n').lower()
+        f'\n\nCHOOSE COLUMN TO SORT {sort_query} BY?:: \n').lower()
     sort = ' '.join(str(elem)
                     for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
@@ -237,7 +237,7 @@ def split_purchases(df, budget_dict=0):
         categories = budget_dict.keys()
         trans_type = budget_dict
         pp.pprint(df)
-        sort_by = get_sort_by(df)
+        sort_by = get_sort_by(df, 'CATEGORY DATA')
 
     else:
         ######################################### get_categories ##############################################
@@ -245,7 +245,7 @@ def split_purchases(df, budget_dict=0):
         ############################################## make_dict ##############################################
         trans_type = make_dict(categories)
         ############################################## get_sort_by ##############################################
-        sort_by = get_sort_by(df)
+        sort_by = get_sort_by(df, 'CATEGORY DATA')
 
 
 # this block asks the reader what columns to keep within the list of data
@@ -374,16 +374,16 @@ def main():
     print('RUNNING SPLIT PURCHASES PROGRAM')
     print('------------------------------------------------------------------------------------------------------')
     trans_dict = split_purchases(data)
-    pp.pprint(trans_dict)
-    print('------------------------------------------------------------------------------------------------------')
 
     # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
     converted_DF = dict_to_Frame(trans_dict)
     print('Please enter the row that has the date\n')
-    sort_by = get_sort_by(converted_DF)
+    pp.pprint(trans_dict)
+    print('------------------------------------------------------------------------------------------------------')
+    sort_by = get_sort_by(converted_DF, 'DATE')
     converted_DF = converted_DF.sort_values(by=sort_by)
     print('Please enter the row that has the amounts\n')
-    sort_by = get_sort_by(converted_DF)
+    sort_by = get_sort_by(converted_DF, 'AMOUNTS')
     converted_DF = make_num(converted_DF, sort_by)
     pp.pprint(converted_DF)
     create_database = input('ADD TO DATABASE? Y/N \n')

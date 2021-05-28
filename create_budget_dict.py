@@ -55,6 +55,14 @@ def version_assistant():
 
 # most of the data I began to work with to generate the working test data
 # i had to get from the clipboard on websites
+def read_clip():
+    clipDF = pd.read_clipboard()
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    csvName = input('WHAT TYPE OF ACCOUNT FOR FILENAME?\n')
+    csvName = csvName + '.csv'
+    clipDF.to_csv(csvName, index=False)
+    return pd.read_csv(csvName)
+
 def reading_clipboard():
     clipDF = pd.read_clipboard()
     csvName = input('What type of account is it?')
@@ -135,6 +143,25 @@ def add_trans_type(df, i, sort_by=0):
                     '//////////////////////////////////////////////////////////////////////////////////////////////////////')
                 print('CHOOSE AGAIN')
                 continue
+
+def convert_amount(entry):
+    # there are entries where there is no balance listed
+    entry = str(entry)
+    if '--' in entry:
+        return 0
+    # making the float negative
+    if '-' in entry:
+        return (float(entry.translate({ord(i): None for i in '$-,'})) * -1)
+    else:
+        return float(entry.translate({ord(i): None for i in '$-,'}))
+
+
+def make_num(df, col_name):
+    newCol = []
+    for i in range(len(df)):
+        newCol.append(convert_amount(df[col_name][i]))
+    df[col_name] = newCol
+    return df
 
 
 def make_dict(categories):
@@ -263,13 +290,7 @@ def split_purchases(df, budget_dict=0):
     return new_dict
 
 
-def read_clip():
-    clipDF = pd.read_clipboard()
-    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-    csvName = input('WHAT TYPE OF ACCOUNT FOR FILENAME?\n')
-    csvName = csvName + '.csv'
-    clipDF.to_csv(csvName, index=False)
-    return pd.read_csv(csvName)
+
 
 
 def dict_to_Frame(data_dict):
@@ -358,8 +379,12 @@ def main():
 
     # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
     converted_DF = dict_to_Frame(trans_dict)
+    print('Please enter the row that has the date\n')
     sort_by = get_sort_by(converted_DF)
     converted_DF = converted_DF.sort_values(by=sort_by)
+    print('Please enter the row that has the amounts\n')
+    sort_by = get_sort_by(converted_DF)
+    converted_DF = make_num(converted_DF, sort_by)
     pp.pprint(converted_DF)
     create_database = input('ADD TO DATABASE? Y/N \n')
     if 'y' in create_database:

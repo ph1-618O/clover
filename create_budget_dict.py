@@ -358,6 +358,8 @@ def main():
 
     # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
     converted_DF = dict_to_Frame(trans_dict)
+    sort_by = get_sort_by(converted_DF)
+    converted_DF = converted_DF.sort_values(by=sort_by)
     pp.pprint(converted_DF)
     create_database = input('ADD TO DATABASE? Y/N \n')
     if 'y' in create_database:

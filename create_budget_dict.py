@@ -55,6 +55,8 @@ def version_assistant():
 
 # most of the data I began to work with to generate the working test data
 # i had to get from the clipboard on websites
+
+
 def read_clip():
     clipDF = pd.read_clipboard()
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
@@ -63,11 +65,13 @@ def read_clip():
     clipDF.to_csv(csvName, index=False)
     return pd.read_csv(csvName)
 
+
 def reading_clipboard():
     clipDF = pd.read_clipboard()
     csvName = input('What type of account is it?')
     csvName = csvName + '.csv'
     clipDF.to_csv(csvName, index=False)
+
 
 def read_csv():
     csvName = input('ENTER CSV LOCATION\\NAME\n')
@@ -78,13 +82,33 @@ def read_csv():
         csvName = csvName + '.csv'
         return pd.read_csv(csvName)
 
+
 def save_csv(df):
     save_csv = input('SAVE NEW DATAFRAME TO CSV? Y/N\n')
     if 'y' in save_csv.lower():
-        csvName = input('ENTER NEW CSV NAME\n')
-        csvName = csvName + '.csv'
-        df.to_csv(csvName, index=False)
-        print('DATA SUCCESSFULLY STORED TO CSV\n')
+        csvName = input('ENTER NEW CSV LOCATION\\NAME\n')
+        accept_name = input(
+                        f'IS THIS THE CORRECT LOCATION\\FILENAME {csvName} Y\\N\n')
+        while 'y' not in accept_name.lower(): 
+            if csvName[:-4] == '.csv':
+                accept_name = input(
+                        f'IS THIS THE CORRECT LOCATION\\FILENAME {csvName} Y\\N\n')
+            else:
+                accept_name = input(
+                        f'IS THIS THE CORRECT LOCATION\\FILENAME {csvName + ".csv"} Y\\N\n')       
+                csvName = csvName + '.csv'
+            accept_name = input('WOULD YOU LIKE TO EXIT THE PROGRAM? Y\\N').lower()
+    df.to_csv(csvName, index=False)
+    print('DATA SUCCESSFULLY STORED TO CSV\n')
+
+# OLD
+# def save_csv(df):
+#     save_csv = input('SAVE NEW DATAFRAME TO CSV? Y/N\n')
+#     if 'y' in save_csv.lower():
+#         csvName = input('ENTER NEW CSV NAME\n')
+#         csvName = csvName + '.csv'
+#         df.to_csv(csvName, index=False)
+#         print('DATA SUCCESSFULLY STORED TO CSV\n')
 
 
 def get_sort_by(df, sort_query):
@@ -129,20 +153,25 @@ def add_trans_type(df, i, sort_by=0):
     if sort_by:
         purchase_type = df[sort_by][i].split()
         print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-        for index in range(len(purchase_type)):
-            key = input(
-                f'SORT THIS PURCHASE BY:: {purchase_type[index]}, Y/N\n')
-            if 'y' in key:
-                print(
-                    '//////////////////////////////////////////////////////////////////////////////////////////////////////')
-                print(
-                    f'YOU WILL SORT THIS TRANS BY COLUMN:: {str(sort_by)} DATA::{purchase_type[index]}\n')
-                return sort_by, purchase_type[index]
-            else:
-                print(
-                    '//////////////////////////////////////////////////////////////////////////////////////////////////////')
-                print('CHOOSE AGAIN')
-                continue
+        key = ''
+        while 'y' not in key.lower():
+            for index in range(len(purchase_type)):
+                key = input(
+                    f'SORT THIS PURCHASE BY:: {purchase_type[index]}, Y/N\n')
+                if 'y' in key:
+                    print(
+                        '//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                    print(
+                        f'YOU WILL SORT THIS TRANS BY COLUMN:: {str(sort_by)} DATA::{purchase_type[index]}\n')
+                    return sort_by, purchase_type[index]
+                else:
+                    print(
+                        '//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                    print('YOU MUST ENTER YES OR NO')
+                    print('CHOOSE AGAIN')
+                    continue
+            key = input('WOULD YOU LIKE TO EXIT THIS PROGRAM? Y/N\n')
+
 
 def convert_amount(entry):
     # there are entries where there is no balance listed
@@ -179,20 +208,23 @@ def add_data(budget_dict, data):
         f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------\nCATEGORY OPTIONS:: \n\n{" - ".join(list(budget_dict.keys()))}\n------------------------------------------------------\n'))
 
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
-    if location not in budget_dict.keys():
+    # budget_dict.keys():
+    #print([i[:3] for i in budget_dict.keys()])
+    if location[:3] not in [i[:3] for i in budget_dict.keys()]:
         add_key = input(
-            f'{location}:: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n')
+            f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n')
         if 'y' in add_key:
             budget_dict[location] = []
+            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL\n')
 
     # Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
-        if location == key:
+        if location[:3] == key[:3]:
             value.append(data)
-            print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-            print('ADDITION SUCCESSFUL')
+            print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
+            print(f'YOU ENTERED "{location}" WE ARE MATCHING TO "{key.upper()}"')
+            print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
             time.sleep(2)
-    print(location)
     return budget_dict
 
 
@@ -290,9 +322,6 @@ def split_purchases(df, budget_dict=0):
     return new_dict
 
 
-
-
-
 def dict_to_Frame(data_dict):
     skip_list = []
     li = []
@@ -318,6 +347,8 @@ def dict_to_Frame(data_dict):
 
 # Notes https://docs.mongodb.com/manual/reference/method/db.collection.find/
 # https://www.analyticsvidhya.com/blog/2020/08/query-a-mongodb-database-using-pymongo/
+
+
 def conn_mongo(data):
     import pymongo
     conn = 'mongodb://localhost:27017'

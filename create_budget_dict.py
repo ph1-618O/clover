@@ -134,16 +134,19 @@ def get_categories():
         categories = defaults
     else:
         categories = input(
-            'ENTER BUDGET CATEGORIES? USE UNDERSCORES:::\n')
+            'ENTER BUDGET CATEGORIES:::\n')
     cat = ''
     if type(categories) == type('s'):
         #need to add regex to sub a space between words with an underscore but before a comma
-        for i in categories:
-            if ',' in categories:
-                cat += i.strip(',')
-            else:
-                cat += i
-        categories = cat.split(' ')
+        if ',' in categories:
+            categories = [i.strip().replace(' ', '_') for i in categories.split(',')]
+        else:
+            categories = categories.split()# for i in categories:
+        #     if ',' in categories:
+        #         cat += i.strip(',')
+        #     else:
+        #         cat += i
+        # categories = cat.split(' ')
     print(f'YOU ENTERED {categories} AS YOUR CATEGORIES\n')
     return categories
 

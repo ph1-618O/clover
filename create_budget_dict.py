@@ -137,12 +137,14 @@ def get_categories():
             'ENTER BUDGET CATEGORIES? USE UNDERSCORES:::\n')
     cat = ''
     if type(categories) == type('s'):
+        #need to add regex to sub a space between words with an underscore but before a comma
         for i in categories:
             if ',' in categories:
                 cat += i.strip(',')
             else:
                 cat += i
         categories = cat.split(' ')
+    print(f'YOU ENTERED {categories} AS YOUR CATEGORIES\n')
     return categories
 
 # ADD EXIT QUERY FOR LOOP
@@ -151,7 +153,7 @@ def get_categories():
 def add_trans_type(df, i, sort_by=0):
     ####################################################get_sort_by####################################################
     if sort_by:
-        purchase_type = df[sort_by][i].split()
+        purchase_type = df[sort_by][i].replace('*', ' ').split()
         print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
         key = ''
         while 'y' not in key.lower():

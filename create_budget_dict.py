@@ -221,7 +221,7 @@ def make_dict(categories):
 def add_data(budget_dict, data):
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     location = str(input(
-        f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {" - ".join(list(budget_dict.keys()))}\n------------------------------------------------------------------------------------------------------\n'))
+        f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {" - ".join(list(budget_dict.keys())[1:])}\n------------------------------------------------------------------------------------------------------\n'))
 
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
     # budget_dict.keys():

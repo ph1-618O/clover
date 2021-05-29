@@ -97,7 +97,7 @@ def save_csv(df):
                 accept_name = input(
                         f'IS THIS THE CORRECT LOCATION\\FILENAME {csvName + ".csv"} Y\\N\n')       
                 csvName = csvName + '.csv'
-            accept_name = input('WOULD YOU LIKE TO EXIT THE PROGRAM? Y\\N\n').lower()
+            accept_name = input('WOULD YOU LIKE TO EXIT THE PROGRAM? Y\\N').lower()
     df.to_csv(csvName, index=False)
     print('DATA SUCCESSFULLY STORED TO CSV\n')
 
@@ -128,9 +128,8 @@ def get_categories():
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     defaults = ['food', 'fast_food', 'home', 'pets', 'restaurants', 'utilities',
                 'car', 'gas', 'medical', 'fun', 'family', 'deposits', 'interest']
-    print(f'\nDEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n\
-{" - ".join(defaults)}')
-    print('------------------------------------------------------------------------------------------------------')
+
+    print(f'DEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n{" - ".join(defaults)}\n------------------------------------------------------------------------------------------------------')
     use_defaults = input('USE DEFAULTS::: Y/N\n')
     if 'y' in use_defaults:
         categories = defaults
@@ -148,8 +147,8 @@ def get_categories():
     # print out the list with index numbers, ask which number is wrong 
     # add a loop to make sure you fix all the type errors
     print('------------------------------------------------------------------------------------------------------')
-    print(f"YOU ENTERED {', '.join([str(x) for x in [*categories]])} AS YOUR CATEGORIES\n")
-    print('------------------------------------------------------------------------------------------------------')
+    print(f"YOU ENTERED {', '.join([str(x) for x in [*categories]])} AS YOUR CATEGORIES")
+    print('------------------------------------------------------------------------------------------------------\n')
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
     time.sleep(1)
     return categories
@@ -222,7 +221,7 @@ def make_dict(categories):
 def add_data(budget_dict, data):
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     location = str(input(
-        f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\n'))
+        f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {" - ".join(list(budget_dict.keys()))}\n------------------------------------------------------------------------------------------------------\n'))
 
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
     # budget_dict.keys():
@@ -425,13 +424,13 @@ def main():
 
     # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
     converted_DF = dict_to_Frame(trans_dict)
-    # print('Please enter the row that has the date\n')
+    print('Please enter the row that has the date\n')
     pp.pprint(trans_dict)
     print('------------------------------------------------------------------------------------------------------')
     sort_by = get_sort_by(converted_DF, 'DATE')
     converted_DF = converted_DF.sort_values(by=sort_by)
     converted_DF = convert_date(converted_DF)
-    # print('Please enter the row that has the amounts\n')
+    print('Please enter the row that has the amounts\n')
     sort_by = get_sort_by(converted_DF, 'AMOUNTS')
     converted_DF = make_num(converted_DF, sort_by)
     pp.pprint(converted_DF)

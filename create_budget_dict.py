@@ -56,6 +56,77 @@ def version_assistant():
 # most of the data I began to work with to generate the working test data
 # i had to get from the clipboard on websites
 
+def read_data(file_type): 
+    data_file = input(f'ENTER "{file_type.upper()}" LOCATION\\NAME\n')
+    if 'csv' in file_type.lower():
+        if data_file.endswith('.csv'):
+            return pd.read_csv(data_file)
+        else:
+            #ata_file = data_file + '.csv'
+            return pd.read_csv(data_file + '.csv')
+    elif data_file.endswith('.xls') or data_file.endswith('.xlsx'):
+        return pd.read_excel(data_file)
+    elif 'xls' in file_type.lower() or 'excel' in file_type.lower():
+        print('\nERROR::: FILE EXTENSION OMITTED PLEASE RE-ENTER, XLS or XLSX\n')
+        e_type = input('ENTER XLS OR XLSX\n')
+        if 'xlsx' in e_type:
+            return pd.read_excel(data_file + '.xlsx')
+        elif 'xls' in e_type.lower():
+            return pd.read_excel(data_file + '.xls')
+    else: 
+        print('INVALID INPUT, EXITING PLEASE TRY AGAIN')
+        exit()
+
+def get_data_type():
+    import_data = input('DATA IS EXCEL FILE, CSV OR CLIPBOARD INPUT?\n').lower()
+    if 'csv' in import_data.lower():
+        # Normalizing the column names to lower
+        data = read_data('csv')
+        for i in data.columns:
+            data = data.rename(columns={i: i.lower()})
+        print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
+        print('DATASET')
+        print('------------------------------------------------------------------------------------------------------')
+        pp.pprint(data.head())
+        print('------------------------------------------------------------------------------------------------------')
+
+    elif 'clip' in import_data.lower():
+        format_q = ('FORMAT CLIP BOARD DATA? Y/N').lower()
+        if 'y' in format_q.lower():
+            # Fix Module import statement
+            print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+            print('RUNNING FORMAT_DATA PROGRAM')
+            import format_data
+            data = read_clip()
+            data = format_data.initiate_format(data)
+            for i in data.columns:
+                data = data.rename(columns={i: i.lower()})
+            print(f'\n"{import_data.upper()}" DATASET...IMPORT SUCCESS\n')
+            print('DATASET')
+            print('------------------------------------------------------------------------------------------------------')
+            pp.pprint(data.head())
+            # pp.pprint(data.head())
+            # print('------------------------------------------------------------------------------------------------------')
+    
+    elif 'excel' in import_data or 'xls' in import_data:
+        data = read_data('excel')
+        for i in data.columns:
+            data = data.rename(columns={i: i.lower()})
+        print(f'\n"{import_data.upper()}" DATASET...IMPORT SUCCESS\n')
+        print('DATASET')
+        print('------------------------------------------------------------------------------------------------------')
+        pp.pprint(data.head())
+        print('------------------------------------------------------------------------------------------------------')
+    
+    else:
+        print('INVALID INPUT, PLEASE TRY AGAIN')
+        exit()
+    return data
+    # print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    # print('RUNNING SPLIT PURCHASES PROGRAM')
+    # print('------------------------------------------------------------------------------------------------------')
+    # trans_dict = split_purchases(data)
+
 
 def read_clip():
     clipDF = pd.read_clipboard()
@@ -73,14 +144,16 @@ def reading_clipboard():
     clipDF.to_csv(csvName, index=False)
 
 
-def read_csv():
-    csvName = input('ENTER CSV LOCATION\\NAME\n')
-    print('------------------------------------------------------------------------------------------------------')
-    if csvName.endswith('.csv'):
-        return pd.read_csv(csvName)
-    else:
-        csvName = csvName + '.csv'
-        return pd.read_csv(csvName)
+# def read_csv():
+#     csvName = input('ENTER CSV LOCATION\\NAME\n')
+#     print('------------------------------------------------------------------------------------------------------')
+#     if csvName.endswith('.csv'):
+#         return pd.read_csv(csvName)
+#     else:
+#         csvName = csvName + '.csv'
+#         return pd.read_csv(csvName)
+
+
 
 
 def save_csv(df):
@@ -101,15 +174,17 @@ def save_csv(df):
     df.to_csv(csvName, index=False)
     print('DATA SUCCESSFULLY STORED TO CSV\n')
 
-# OLD
-# def save_csv(df):
-#     save_csv = input('SAVE NEW DATAFRAME TO CSV? Y/N\n')
-#     if 'y' in save_csv.lower():
-#         csvName = input('ENTER NEW CSV NAME\n')
-#         csvName = csvName + '.csv'
-#         df.to_csv(csvName, index=False)
-#         print('DATA SUCCESSFULLY STORED TO CSV\n')
-
+def read_excel(path):
+    sheet_or_file = input('IS YOUR EXCEL FILE ON A SHEET? Y/N\n')
+    if 'n' in sheet_or_file.lower():
+        df = pd.read_excel(fr'{path}')
+    elif 'y' in sheet_or_file.lower() or 'sheet' in sheet_or_file.lower():
+        xls_sheet = input('WHAT IS THE SHEETS NAME?\n')
+        df = pd.read_excel(fr'{path}', sheet_name=xls_sheet)
+    else:
+        print('INVALID INPUT EXITING PLEASE TRY AGAIN\n')
+        exit()
+    return df
 
 def get_sort_by(df, sort_query):
     pp.pprint(df.head())
@@ -386,37 +461,8 @@ def main():
     # WORKING<
     # change csv variable to data
     # add loop that continues until a yes or no is given or an exit request
-
-    csv_or_clip = input('DATA IS CSV OR CLIPBOARD INPUT?\n').lower()
-    if 'csv' in csv_or_clip:
-        # Normalizing the column names to lower
-        data = read_csv()
-        for i in data.columns:
-            data = data.rename(columns={i: i.lower()})
-        print('IMPORTED DATASET')
-        print('------------------------------------------------------------------------------------------------------')
-        pp.pprint(data.head())
-        print('------------------------------------------------------------------------------------------------------')
-
-    elif 'clip' in csv_or_clip:
-        format_q = ('FORMAT CLIP BOARD DATA? Y/N').lower()
-        if 'y' in format_q.lower():
-            # Fix Module import statement
-            print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-            print('RUNNING FORMAT_DATA PROGRAM')
-            import format_data
-            data = read_clip()
-            data = format_data.initiate_format(data)
-            for i in data.columns:
-                data = data.rename(columns={i: i.lower()})
-            print('IMPORTED DATASET\n')
-            print('------------------------------------------------------------------------------------------------------')
-            pp.pprint(data.head())
-            # pp.pprint(data.head())
-            # print('------------------------------------------------------------------------------------------------------')
-    else:
-        print('INVALID INPUT, PLEASE TRY AGAIN')
-        exit()
+    print('RUNNING GET DATA TYPE\n')
+    data = get_data_type()
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('RUNNING SPLIT PURCHASES PROGRAM')
     print('------------------------------------------------------------------------------------------------------')

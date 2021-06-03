@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+# format_data.py works to normalize data that is messy, imported from a clipboard or in a 
+# xls format so that it has proper headings, datetime, and numerical formatting for computation
+
+
 ## WORKING 
 # ADD DATETIME FORMATTING FOR DATE COLUMN
 # export data to MONGO DB

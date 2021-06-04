@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-# Create budget dict. py takes a given csv and sorts the data from the csv
+# Create budget dict. py takes a given csv, clipboard copy from a table, or excel file and sorts the data
 # into a dictionary with a budget category as the key
 # it also asks the user what are the necessary columns for their budget
 # once the program begins it passes a unique identifier to each row entry
 # this unique identifier is also stored at the end of the dictionary of lists
 # so that once it is within the dictionary the program will recognize
 # all future occurrences of identifier and add it without input
+# Why clipboard data?? :: most of the data I began to work with to generate the working test data
+# was acquired from the clipboard on websites
+
+
+## <<<<<<<<WORKING>>>>>>>>>>>
+# Clean up import statements
+# Think about separating functions into different .py files based on function
+# Watch the order!! 
 
 from fastnumbers import fast_float
 import plotly.graph_objects as go
@@ -26,9 +34,9 @@ from datetime import date
 from calendar import month_abbr
 import time
 
-# for importing from excel to pandas
-#from pandas import ExcelWriter
-#from pandas import ExcelFile
+# # for importing from excel to pandas
+# from pandas import ExcelWriter
+# from pandas import ExcelFile
 import pandas as pd
 import numpy as np
 pd.options.mode.chained_assignment = None
@@ -36,11 +44,13 @@ pp = pprint.PrettyPrinter(indent=4)
 
 # graphing
 
-# Dealing with number input inconsistencies, avoids VALUE ERROR, ATTRIBUTE ERROR
+## <<<<<<<<WORKING>>>>>>>>>>>
+# Add unit tests and tests dealing with number input inconsistencies, avoids VALUE ERROR, ATTRIBUTE ERROR
+# Use Try, Except and Assert
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
-
+## <<<<<<<<WORKING>>>>>>>>>>>
 # Need to add in portion from other notebook that asked user if they want to install these dependencies if they are not included
 def version_assistant():
     # print versions
@@ -53,8 +63,6 @@ def version_assistant():
     print("squarify   :  0.4.3")
     print('-----------------------------------------\n\n')
 
-# most of the data I began to work with to generate the working test data
-# i had to get from the clipboard on websites
 
 def read_data(file_type): 
     data_file = input(f'ENTER "{file_type.upper()}" LOCATION\\NAME\n')
@@ -62,7 +70,6 @@ def read_data(file_type):
         if data_file.endswith('.csv'):
             return pd.read_csv(data_file)
         else:
-            #ata_file = data_file + '.csv'
             return pd.read_csv(data_file + '.csv')
     elif data_file.endswith('.xls') or data_file.endswith('.xlsx'):
         return pd.read_excel(data_file)
@@ -88,11 +95,12 @@ def get_data_type():
         print('DATASET')
         print('------------------------------------------------------------------------------------------------------')
         pp.pprint(data.head())
-        print('------------------------------------------------------------------------------------------------------')
+        print('------------------------------------------------------------------------------------------------------\n\n')
 
     elif 'clip' in import_data.lower():
         format_q = ('FORMAT CLIP BOARD DATA? Y/N').lower()
         if 'y' in format_q.lower():
+            ## <<<<<<<<WORKING>>>>>>>>>>>
             # Fix Module import statement
             print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
             print('RUNNING FORMAT_DATA PROGRAM')
@@ -105,7 +113,6 @@ def get_data_type():
             print('DATASET')
             print('------------------------------------------------------------------------------------------------------')
             pp.pprint(data.head())
-            # pp.pprint(data.head())
             # print('------------------------------------------------------------------------------------------------------')
     
     elif 'excel' in import_data or 'xls' in import_data:
@@ -122,10 +129,6 @@ def get_data_type():
         print('INVALID INPUT, PLEASE TRY AGAIN')
         exit()
     return data
-    # print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-    # print('RUNNING SPLIT PURCHASES PROGRAM')
-    # print('------------------------------------------------------------------------------------------------------')
-    # trans_dict = split_purchases(data)
 
 
 def read_clip():
@@ -143,7 +146,8 @@ def reading_clipboard():
     csvName = csvName + '.csv'
     clipDF.to_csv(csvName, index=False)
 
-
+## <<<<<<<<WORKING>>>>>>>>>>>
+##  Redundant, kept if needed to add more than one csv file in the future?
 # def read_csv():
 #     csvName = input('ENTER CSV LOCATION\\NAME\n')
 #     print('------------------------------------------------------------------------------------------------------')
@@ -186,49 +190,94 @@ def read_excel(path):
         exit()
     return df
 
+# <<<<<<<<WORKING>>>>>>>>>>>
+# figure out if these comments are useful
 def get_sort_by(df, sort_query):
     pp.pprint(df.head())
     print('------------------------------------------------------------------------------------------------------')
-    print('OPTIONS:::')
+    print(f'OPTIONS::: {" - ".join(list(df.columns))}')
     print('------------------------------------------------------------------------------------------------------')
     #none_in = [print(list(df.columns)[i].upper(), end =" ") for i in range(len(list(df.columns)))]
-    sort_col = input(
-        f'\n\nCHOOSE COLUMN TO SORT {sort_query} BY?:: \n').lower()
+    sort_col = constrain_input_loop(list(df.columns))
+    # sort_col = input(
+    #         f'\n\nCHOOSE COLUMN TO SORT {sort_query} BY?:: \n').lower()
     sort = ' '.join(str(elem)
                     for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
 
 
-def get_categories():
-    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-    defaults = ['food', 'fast_food', 'home', 'pets', 'restaurants', 'utilities',
-                'car', 'gas', 'medical', 'fun', 'family', 'deposits', 'interest']
-
-    print(f'DEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n{" - ".join(defaults)}\n------------------------------------------------------------------------------------------------------')
-    use_defaults = input('USE DEFAULTS::: Y/N\n')
-    if 'y' in use_defaults:
-        categories = defaults
+def get_categories(categories = 0):
+    # look at jupyter notebook with purchases categorized as essential, non essential, fixed, variable, one-time and reoccuring
+    # add these into the make dict with new sub categories
+    defaults = sorted(['food', 'fast_food', 'home', 'pets', 'restaurants', 'utilities',
+                'transportation', 'gas', 'medical', 'fun', 'deposits', 'interest', 'savings', 'debt', 'income'])
+    if type(categories) == type([]):
+        print(f'CURRENT CATEGORIES::: {" - ".join(categories)}\n------------------------------------------------------------------------------------------------------')
+        add_defaults = []
+        for i in defaults:
+            if i not in categories:
+                add_defaults.append(i)
+        {" - ".join(categories)}
+        print(f'DEFAULTS::: "{" - ".join([i.lower() for i in add_defaults])}" NOT IN CURRENT CATEGORIES\n------------------------------------------------------------------------------------------------------')
+        confirm_addition = input('ADD DEFAULTS TO CATEGORIES Y/N\n')
+        if 'y' in confirm_addition.lower():
+            for i in add_defaults:
+                categories.append(i)
+            categories = sorted(categories)
     else:
-        categories = input(
-            'ENTER BUDGET CATEGORIES:::\n')
-    cat = ''
-    if type(categories) == type('s'):
-        #need to add regex to sub a space between words with an underscore but before a comma
-        if ',' in categories:
-            categories = [i.strip().replace(' ', '_') for i in categories.split(',')]
+        print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+        print(f'DEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n{" - ".join(defaults)}\n------------------------------------------------------------------------------------------------------')
+        use_defaults = input('USE DEFAULTS::: Y/N\n')
+        if 'y' in use_defaults:
+            categories = defaults
         else:
-            categories = categories.split()
+            categories = input(
+                'ENTER BUDGET CATEGORIES:::\n')
+        cat = ''
+        if type(categories) == type('s'):
+            #need to add regex to sub a space between words with an underscore but before a comma
+            if ',' in categories:
+                categories = [i.strip().replace(' ', '_') for i in categories.split(',')]
+            else:
+                categories = sorted(categories.split())
+    # <<<<<<<<WORKING>>>>>>>>>>>
     # Add a section that if you ask the user to continue and there is any other value than y
     # print out the list with index numbers, ask which number is wrong 
     # add a loop to make sure you fix all the type errors
     print('------------------------------------------------------------------------------------------------------')
-    print(f"YOU ENTERED {', '.join([str(x) for x in [*categories]])} AS YOUR CATEGORIES")
+    print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories]])}"')
     print('------------------------------------------------------------------------------------------------------\n')
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
     time.sleep(1)
     return categories
 
+# <<<<<<<<WORKING>>>>>>>>>>>
 # ADD EXIT QUERY FOR LOOP
+
+def constrain_input_loop(list_options):
+    correct = ''
+    while 'y' not in correct.lower():
+        for index in range(len(list_options)):
+            correct = input(
+                f'SORT THIS OPTION BY:: "{list_options[index].upper()}", Y/N OR EXIT\n')
+            if 'y' in correct.lower():
+                print(
+                    '//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                print(
+                    f'YOU WILL SORT THIS OPTION BY::"{list_options[index].upper()}"\n')
+                return list_options[index]
+            elif 'n' in correct.lower():
+                print(f'"{correct.upper()}" ENTERED, PLEASE CHOOSE AGAIN')
+                continue
+            else:
+                print('YOU MUST ENTER YES OR NO')
+                exit = input('WOULD YOU LIKE TO EXIT THIS PROGRAM? Y/N\n')
+                if 'y' in exit.lower():
+                    print("EXITING")
+                    exit()
+                # <<<<<<<<WORKING>>>>>>>>>>>
+                # why is error thrown when exit == 'y' ??
+
 
 
 def add_trans_type(df, i, sort_by=0):
@@ -245,7 +294,7 @@ def add_trans_type(df, i, sort_by=0):
                     print(
                         '//////////////////////////////////////////////////////////////////////////////////////////////////////')
                     print(
-                        f'YOU WILL SORT THIS TRANS BY COLUMN:: {str(sort_by)} DATA::{purchase_type[index]}\n')
+                        f'YOU WILL SORT THIS TRANS BY COLUMN:: "{str(sort_by).upper()}" IDENTIFIER::{purchase_type[index]}\n')
                     return sort_by, purchase_type[index]
                 else:
                     print(
@@ -284,14 +333,28 @@ def make_num(df, col_name):
     return df
 
 
-def make_dict(categories):
-    trans_type = {'0_format': [
-        'date', 'transaction', 'amount', 'identifier']}
-    for i in categories:
-        trans_type[i] = []
+def make_dict(categories, old_dict=0):
+    # <<<<<<<<WORKING>>>>>>>>>>>
+    # look at jupyter notebook with purchases categorized as essential, non essential, fixed, variable, one-time and reoccuring
+    # add these into the make dict with new sub categories
+    if type(old_dict) == type({}):
+        #print('DICT CONFIRMED')
+        if '0_format' not in old_dict.keys():
+            #print('0_FORMAT NOT IN DICTIONARY ADDING\n')
+            old_dict['0_format'] = ['date', 'transaction', 'float amount', 'identifier']
+        for i in categories:
+            if i not in old_dict.keys():
+                old_dict[i] = []
+        trans_type = old_dict
+
+    else:
+        trans_type = {'0_format': [
+        'date', 'transaction', 'float amount', 'identifier']}
+        for i in categories:
+            trans_type[i] = []
     return trans_type
 
-
+# <<<<<<<<WORKING>>>>>>>>>>>
 # Need to format location input into a prettier line of code
 def add_data(budget_dict, data):
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
@@ -299,8 +362,6 @@ def add_data(budget_dict, data):
         f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {" - ".join(list(budget_dict.keys())[1:])}\n------------------------------------------------------------------------------------------------------\n'))
 
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
-    # budget_dict.keys():
-    #print([i[:3] for i in budget_dict.keys()])
     if location[:3] not in [i[:3] for i in budget_dict.keys()]:
         add_key = input(
             f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n')
@@ -319,7 +380,7 @@ def add_data(budget_dict, data):
     return budget_dict
 
 
-# WORKING
+# <<<<<<<<WORKING>>>>>>>>>>>
 # Need to clean up add_Data and search_dict
 
 def search_dict(budget_dict, data):  # location is column name
@@ -343,9 +404,8 @@ def search_dict(budget_dict, data):  # location is column name
     budget_dict = add_data(budget_dict, data)
     return budget_dict
 
-
+# <<<<<<<<WORKING>>>>>>>>>>>
 # NEED TO ADD TRY/ACCEPT STATEMENTS for ALL_INPUTS
-
 # pull out each location of purchase and split into keys based on user input
 # Home, Food, Fast_Food, Clothing, Car, Utilities, Entertainment
 
@@ -353,14 +413,17 @@ def search_dict(budget_dict, data):  # location is column name
 def split_purchases(df, budget_dict=0):
     print('BEGIN PURCHASE CATEGORIZATION')
     print('------------------------------------------------------------------------------------------------------')
-    print('------------------------------------------------------------------------------------------------------')
+
 # if statement separates data if a correctly formatted dictionary is passed to it
 # else it creates a dictionary
     if type(budget_dict) == type({}):
-        categories = budget_dict.keys()
-        trans_type = budget_dict
-        pp.pprint(df)
+        ######################################### get_categories ##############################################
+        categories = get_categories(list(budget_dict.keys()))
+        ######################################### make_dict ##############################################
+        trans_type = make_dict(categories, budget_dict)
+        ######################################### get_sort_by ##############################################
         sort_by = get_sort_by(df, 'CATEGORY DATA')
+        #print(f'SORT BY {sort_by} WITH DICT')
 
     else:
         ######################################### get_categories ##############################################
@@ -369,13 +432,14 @@ def split_purchases(df, budget_dict=0):
         trans_type = make_dict(categories)
         ############################################## get_sort_by ##############################################
         sort_by = get_sort_by(df, 'CATEGORY DATA')
+        #print(f'SORT BY {sort_by} WITHOUT DICT')
 
-
+# <<<<<<<<WORKING>>>>>>>>>>>
 # this block asks the reader what columns to keep within the list of data
 # Need to add functionality that allows for spaces, and the word and and splits on spaces
 # Add a loop that asks again and again until user enters the correct input or asks to exit
 # This block is already in format_data.py, maybe add an if statement or run this portion if the chosen
-# option is CSV instead of clipboard data(bc clipboard data gets run thru format_data.py)
+# option is CSV or EXCEL file instead of clipboard data(bc clipboard data gets run thru format_data.py)
     cols = input('COLUMNS TO KEEP::\n')
     cat = ''
     for k in cols:
@@ -396,11 +460,14 @@ def split_purchases(df, budget_dict=0):
         organize_by = get_col[0]
         identity = get_col[1]
         data_to_sort = df.iloc[i][organize_by]
+
     # PRINT TESTING STATEMENTS
-        print(f'SORTING BY:: "{sort_by.upper()}" COLUMN')
-        print(f'IDENTIFIER IS:: {identity}')
-        print(f'COL NAME IS:: {organize_by}')
-        print(f'CATEGORIZE DATA:: {data_to_sort}\n')
+        # print(f'SORTING BY:: "{sort_by.upper()}" COLUMN')
+        # print(f'IDENTIFIER IS:: {identity}')
+        # print(f'COL NAME IS:: {organize_by}')
+        # print(f'CATEGORIZE DATA:: {data_to_sort}\n')
+        ## trans_type is the entire dictionary
+        # print(f'TRANSACTION TYPE IS:: {trans_type}\n')
         ############################################## search_dict ##############################################
         data = []
         for col in cols:
@@ -432,9 +499,10 @@ def dict_to_Frame(data_dict):
     print((f'{skip_list} = NO AVAILABLE DATA, SKIPPING'))
     return df
 
+# <<<<<<<<WORKING>>>>>>>>>>>
 # Adding PYMONGO DB functionality
 # Need to add a print statement, also pymongo install based on the users OS
-# For consistent use of program need to add searchability that the db connection only adds if the data is new
+# For consistent use of program need to add searchability for date and transaction type that the db connection only adds if the data is new
 
 # Notes https://docs.mongodb.com/manual/reference/method/db.collection.find/
 # https://www.analyticsvidhya.com/blog/2020/08/query-a-mongodb-database-using-pymongo/
@@ -446,6 +514,7 @@ def conn_mongo(data):
     client = pymongo.MongoClient(conn)
     db = client.clover
     if db.budgetDB.drop():
+        # Make Input statement, add to database y/n or replace database
         print('MAKING NEW DATABASE')
     else:
         print('DB NOT PRESENT')
@@ -458,27 +527,66 @@ def conn_mongo(data):
 
 
 def main():
-    # WORKING<
-    # change csv variable to data
-    # add loop that continues until a yes or no is given or an exit request
+    # <<<<<<<<WORKING>>>>>>>>>>>
+    # Add import DB from mongo
+    # Right now using written in dictionary
+
+    dictionary = {
+    #'0_format': ['date', 'location data', 'float amount', 'identifier'],
+    'home': [
+        ['01/24/21', 'HOME_DEPOT',  -57, 'HOME'],
+        ['01/12/21', 'LOWES', -100, 'LOWES'],
+        ['02/14/21', 'TRUE_VALUE', -60, 'TRUE']],
+
+    'fast_food': [
+        ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A'],
+        ['03/15/21', 'BOJANGLES 5555 ELIZABETH CITY NY', -12.99, 'BOJANGLES']
+        ],
+
+    'food': [
+        ['01/22/21', 'FOOD LION',  -200, 'FOOD LION'],
+        ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS'],
+        ['03/15/21', 'FARM_FRESH', -150, 'FRESH']],
+    'gas':[
+        ['03/22/21', 'SHELL OIL 2423423423423 LUCY, PA', 'SHELL']
+    ],
+    'utilities':[
+        ['03/18/21', 'DENVER SANITATION 489-4698-06456 CO', -80, 'SANITATION']
+        ]
+}
+
     print('RUNNING GET DATA TYPE\n')
     data = get_data_type()
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('RUNNING SPLIT PURCHASES PROGRAM')
     print('------------------------------------------------------------------------------------------------------')
-    trans_dict = split_purchases(data)
+    if dictionary:
+        trans_dict = split_purchases(data, dictionary)
+    else:
+        trans_dict = split_purchases(data)
 
+    # <<<<<<<<WORKING>>>>>>>>>>>
     # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
     converted_DF = dict_to_Frame(trans_dict)
-    print('Please enter the row that has the date\n')
+
     pp.pprint(trans_dict)
     print('------------------------------------------------------------------------------------------------------')
-    sort_by = get_sort_by(converted_DF, 'DATE')
+
+    # <<<<<<<<WORKING>>>>>>>>>>>
+    #Change this to an input statement attached to the loop
+    print('Please enter the row that has the date\n')
+    col_with_dates = 'DATE'
+    sort_by = get_sort_by(converted_DF, col_with_dates)
     converted_DF = converted_DF.sort_values(by=sort_by)
     converted_DF = convert_date(converted_DF)
-    print('Please enter the row that has the amounts\n')
-    sort_by = get_sort_by(converted_DF, 'AMOUNTS')
+
+    # <<<<<<<<WORKING>>>>>>>>>>>
+    #Change this to an input statement attached to the loop
+    print('Please enter the column that has the amounts\n')
+    col_with_amounts = 'AMOUNTS'
+    sort_by = get_sort_by(converted_DF, col_with_amounts)
     converted_DF = make_num(converted_DF, sort_by)
+
     pp.pprint(converted_DF)
     create_database = input('ADD TO DATABASE? Y/N \n')
     if 'y' in create_database:
@@ -497,7 +605,7 @@ if __name__ == "__main__":
 #  sample dictionary for testing
 # budget_type: [date, data, amount, identifier]
 dictionary = {
-    'format': ['date', 'location data', 'float amount', 'identifier'],
+    #'01_format': ['date', 'location data', 'float amount', 'identifier'],
     'home': [
         ['01/24/21', 'HOME_DEPOT',  -57, 'HOME'],
         ['01/12/21', 'LOWES', -100, 'LOWES'],

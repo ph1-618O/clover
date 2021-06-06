@@ -94,6 +94,9 @@ def get_data_type():
         data = read_data('csv')
         for i in data.columns:
             data = data.rename(columns={i: i.lower()})
+        print('CHECKING COLUMNS')
+        import format_data
+        data = format_data.get_col_names(data)[2]
         print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
         print('DATASET')
         print('------------------------------------------------------------------------------------------------------')
@@ -249,9 +252,9 @@ def get_categories(categories = 0):
                 for i in defaults:
                     if i not in categories:
                         add_defaults.append(i)
-                {" - ".join(categories)}
+                #{" - ".join(categories)}
                 print(f'DEFAULTS::: "{" - ".join([i.lower() for i in add_defaults])}" NOT IN CURRENT CATEGORIES\n------------------------------------------------------------------------------------------------------')
-                confirm_addition = input('ADD DEFAULTS TO CATEGORIES Y/N\n')
+                confirm_addition = input('ADD EXTRA DEFAULTS TO CATEGORIES Y/N\n')
                 if 'y' in confirm_addition.lower():
                     for i in add_defaults:
                         categories.append(i)
@@ -276,10 +279,16 @@ def get_categories(categories = 0):
 # Add a section that if you ask the user to continue and there is any other value than y
 # print out the list with index numbers, ask which number is wrong 
 # add a loop to make sure you fix all the type errors
-    print('------------------------------------------------------------------------------------------------------')
-    print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories[0]]])}"')
-    print('------------------------------------------------------------------------------------------------------\n')
-    print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
+    if categories[0].lower() == '0_format':
+        print('------------------------------------------------------------------------------------------------------')
+        print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories[1:]]])}"')
+        print('------------------------------------------------------------------------------------------------------\n')
+        print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
+    else:
+        print('------------------------------------------------------------------------------------------------------')
+        print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories]])}"')
+        print('------------------------------------------------------------------------------------------------------\n')
+        print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
     time.sleep(1)
     return categories
 
@@ -347,14 +356,6 @@ def convert_amount(entry):
         return (float(entry.translate({ord(i): None for i in '$-,'})) * -1)
     else:
         return float(entry.translate({ord(i): None for i in '$-,'}))
-
-# def convert_date(df):
-#     import datetime
-#     date_time = []
-#     for i in df['date']:
-#         date_time.append(datetime.datetime.strptime(i, '%m/%d/%Y'))
-#     df['date'] = date_time
-#     return df
 
 
 def make_num(df, col_name):
@@ -463,10 +464,13 @@ def confirm_cols(df, formatted_df=0):
                     df[c.lower()]
                 except KeyError:
                     print('ERROR, RE-ENTER COLUMN\n')
+        else:
+            cols = df.columns
     return cols
 
 def split_purchases(df, formatted_df=0, budget_dict=0):
     cols = confirm_cols(df, formatted_df)
+    pp.pprint(df)
     print('BEGIN PURCHASE CATEGORIZATION')
     print('------------------------------------------------------------------------------------------------------')
 # if statement separates data if a correctly formatted dictionary is passed to it
@@ -489,31 +493,6 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
         sort_by = get_sort_by(df, 'CATEGORY DATA')
         print(f'SORT BY "{sort_by.upper()}" WITHOUT DICT')
 
-# <<<<<<<<WORKING>>>>>>>>>>>
-# this block asks the reader what columns to keep within the list of data
-# Need to add functionality that allows for spaces, and the word and and splits on spaces
-# Add a loop that asks again and again until user enters the correct input or asks to exit
-# This block is already in format_data.py, maybe add an if statement or run this portion if the chosen
-# option is CSV or EXCEL file instead of clipboard data(bc clipboard data gets run thru format_data.py)
-    
-    # keep_cols = input('KEEP COLUMN NAMES? Y/N\n')
-    # if 'n' in keep_cols:
-    #     cols = input('COLUMNS TO KEEP::\n')
-    #     cat = ''
-    #     for k in cols:
-    #         if ',' in cols:
-    #             cat += k.strip(',')
-    #         else:
-    #             cat += k
-    #     cols = cat.split(' ')
-    #     for c in cols:
-    #         try:
-    #             df[c.lower()]
-    #         except KeyError:
-    #             print('ERROR, RE-ENTER COLUMN\n')
-    # else:
-    #     cols = list(df.columns)
-#*****
     for i in range(len(df)):
         ##############################################add_trans_type ###############################################
         get_col = add_trans_type(df, i, sort_by)
@@ -558,6 +537,7 @@ def dict_to_Frame(data_dict):
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
         if key == '0_format':
+            print('SKIPPING FORMAT LINE')
             continue
         elif len(value) == 0:
             skip_list.append(key)
@@ -565,9 +545,22 @@ def dict_to_Frame(data_dict):
             # print(f'{value}')
             db = pd.DataFrame()
             for i in range(len(value)):
-                li.append(value[i]+[key])
-    cols = data_dict['0_format'] + ['category']
-    df = pd.DataFrame(np.array(li), columns=cols)
+                if len(value[i]) == len(data_dict['0_format']):
+                    li.append(value[i])
+                else:
+                    li.append(value[i]+[key])
+            if 'category' not in data_dict['0_format']:
+                cols = data_dict['0_format'] + ['category']
+            else:
+                cols = data_dict['0_format']      
+    print('********TEST******')
+    print(cols)
+    print(len(li))
+    pp.pprint(li)
+    print(data_dict['0_format'])
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    df = pd.DataFrame(np.array(li), columns=['date', 'location data', 'float amount', 'identifier', 'category'])
     print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES::: {", ".join(skip_list)}'))
     return df
 
@@ -603,29 +596,29 @@ def main():
     # Add import DB from mongo
     # Right now using written in dictionary
 
-#     dictionary = {
-#     #'0_format': ['date', 'location data', 'float amount', 'identifier'],
-#     'home': [
-#         ['01/24/21', 'HOME_DEPOT',  -57, 'HOME'],
-#         ['01/12/21', 'LOWES', -100, 'LOWES'],
-#         ['02/14/21', 'TRUE_VALUE', -60, 'TRUE']],
+    dictionary = {
+    '0_format': ['date', 'location data', 'float amount', 'identifier', 'category'],
+    'home': [
+        ['01/24/21', 'HOME_DEPOT',  -57, 'HOME','home'],
+        ['01/12/21', 'LOWES', -100, 'LOWES', 'home'],
+        ['02/14/21', 'TRUE_VALUE', -60, 'TRUE', 'home']],
 
-#     'fast_food': [
-#         ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A'],
-#         ['03/15/21', 'BOJANGLES 5555 ELIZABETH CITY NY', -12.99, 'BOJANGLES']
-#         ],
+    'fast_food': [
+        ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A','fast_food'],
+        ['03/15/21', 'BOJANGLES 5555 ELIZABETH CITY NY', -12.99, 'BOJANGLES', 'fast_food']
+        ],
 
-#     'food': [
-#         ['01/22/21', 'FOOD LION',  -200, 'FOOD LION'],
-#         ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS'],
-#         ['03/15/21', 'FARM_FRESH', -150, 'FRESH']],
-#     'gas':[
-#         ['03/22/21', 'SHELL OIL 2423423423423 LUCY, PA', 'SHELL']
-#     ],
-#     'utilities':[
-#         ['03/18/21', 'DENVER SANITATION 489-4698-06456 CO', -80, 'SANITATION']
-#         ]
-# }
+    'food': [
+        ['01/22/21', 'FOOD LION',  -200, 'FOOD LION', 'food'],
+        ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS', 'food'],
+        ['03/15/21', 'FARM_FRESH', -150, 'FRESH', 'food']],
+    'gas':[
+        ['03/22/21', 'SHELL OIL 2423423423423 LUCY, PA', -28, 'SHELL', 'gas']
+    ],
+    'utilities':[
+        ['03/18/21', 'DENVER SANITATION 489-4698-06456 CO', -80, 'SANITATION', 'gas']
+        ]
+}
 
     #dictionary = None
 
@@ -652,7 +645,7 @@ def main():
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('ADDING TO DICTIONARY')
     print('------------------------------------------------------------------------------------------------------')
-    print(trans_dict)
+    pp.pprint(trans_dict)
     # <<<<<<<<WORKING>>>>>>>>>>>
     # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
     converted_DF = dict_to_Frame(trans_dict)

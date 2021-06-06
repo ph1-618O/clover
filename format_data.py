@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-# format_data.py works to normalize data that is messy, imported from a clipboard or in a 
+# format_data.py works to normalize data that is messy, imported from a csv, clipboard or in a 
 # xls format so that it has proper headings, datetime, and numerical formatting for computation
 
 
@@ -119,7 +119,6 @@ def split_date(date_str):
     clean_list = re.sub(r"[,-/.]", " ", date_str) #,-/ and . are all common separators of a date
     return clean_list
 
-# print((split_date(df['date'][0])).split())
 
 # CONVERT DATE 2 is for more complicated date formats
 def convert_date_complicated(df):
@@ -151,12 +150,6 @@ def convert_date(df):
     df['date'] = date_time
     return df.reset_index(drop=True)
 
-# def make_date(df, col_name):
-#     newCol = []
-#     for in in range(len(df)):
-#         newCol.append(make_date(df[col_name][i]))
-#         df[col_name] = newCol
-#     return df
 
 
 def get_sort_by(df, sort_query):
@@ -175,8 +168,6 @@ def get_sort_by(df, sort_query):
     except:
         import create_budget_dict
         sort_col = create_budget_dict.constrain_input_loop(sort_query, list(df.columns))
-        # sort_col = input(
-        #         f'\n\nCHOOSE COLUMN TO SORT {sort_query} BY?:: \n').lower()
         sort = ' '.join(str(elem)
                         for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
@@ -184,27 +175,15 @@ def get_sort_by(df, sort_query):
 
 
 
-def format_data(df, columns_list=0):
-    df = remove_cols(df, columns_list)
-
+def format_data(df, columns_list=0, remove_first=0):
+    if 'y' in remove_first:
+        df = remove_cols(df, columns_list)
     # Formatting amount column into floats
     if 'amount' in df.columns:
         df = make_num(df, 'amount')
     # Formatting date column into datetime obj
     if 'date' in df.columns:
         df = convert_date(df)
-    #     sorted_df = df.sort_values(by=['date']).reset_index(drop=True)
-    #     sort_test = sorted_df['date']
-
-    #     if sort_test.to_list() != list(df.date):
-    #         print('------------------------------------------------------------------------------------------------------') 
-    #         print('IT LOOKS LIKE YOUR DATES ARE OUT OF ORDER')
-    #         print('------------------------------------------------------------------------------------------------------')
-    #         date_col = input(f'CHOOSE COLUMN TO SORT DATE BY?:: \n').lower()
-    #         sort_by = get_sort_by(df, date_col)
-    # #sort_by = get_sort_by(df, col_with_dates)
-    # #sort_which = get_sort_by(df)
-    #         df = df.sort_values(sort_by.lower()).reset_index(drop=True)
     return df
 
 # Bringing in Data
@@ -217,8 +196,7 @@ def read_csv():
         csvName = csvName + '.csv'
         return pd.read_csv(csvName)
 
-
-def remove_cols(df, columns_list):
+def insert_first(df, columns_list):
     row1 = []
     for col in df.columns:
         row1.append(col)
@@ -226,6 +204,17 @@ def remove_cols(df, columns_list):
         df.rename(columns={df.columns[i]: columns_list[i]}, inplace=True)
     # inserting the data into row 0
     df = (insertRow(0, df, row1)).reset_index(drop=True)
+    return df
+
+
+def remove_cols(df, columns_list):
+    # row1 = []
+    # for col in df.columns:
+    #     row1.append(col)
+    # for i in range(len(row1)):
+    #     df.rename(columns={df.columns[i]: columns_list[i]}, inplace=True)
+    # # inserting the data into row 0
+    # df = (insertRow(0, df, row1)).reset_index(drop=True)
     # Asking user what columns they want to keep
     print('------------------------------------------------------------------------------------------------------')
     pp.pprint(df.head(1))
@@ -252,9 +241,11 @@ def get_col_names(df):
     print('------------------------------------------------------------------------------------------------------')
     print(f'CURRENT COLUMNS::: {" - ".join(list(df.columns))}')
     print('------------------------------------------------------------------------------------------------------')
-    format_input = input('RENAME COLUMNS? Y/N\n')
+    remove_cols_query = remove_cols(df, df.columns)
+    df = remove_cols_query
+    rename_cols_query = input('RENAME COLUMNS? Y/N\n')
     suggested_cols = ['Name', 'Date', 'Transaction', 'Account', 'Amount', 'Balance']
-    if 'y' in format_input:
+    if 'y' in rename_cols_query:
         print('------------------------------------------------------------------------------------------------------')
         print('WARNING COLUMN NAMES MUST BE UNIQUE')
         print('------------------------------------------------------------------------------------------------------')
@@ -268,9 +259,9 @@ def get_col_names(df):
             else:
                 cat += i
         cols = cat.split(' ')
-        return cols
+        return cols, rename_cols_query
     else:
-        return list(df.columns)
+        return list(df.columns), rename_cols_query, df
 
 def initiate_format(df = 0):
     print('FORMATTING CLIPBOARD, EXCEL OR CSV INPUT')
@@ -278,7 +269,9 @@ def initiate_format(df = 0):
     # df = read_clip()
     # df = read_csv()
 # Asking user if they want to rename the columns
-    cols = get_col_names(df)
+    test_cols = get_col_names(df)
+    cols = test_cols[0]
+    rename_cols_query = test_cols[1]
     if len(cols) == len(df.columns):
         pass
     #possibly running rename cols twice
@@ -289,22 +282,24 @@ def initiate_format(df = 0):
             #break   
     # ADD constrain_input loop here
     else:
-        print(f'PLEASE ENTER {len(df.columns)} COLUMN NAMES\n')
+        print('COLUMNS ENTERED DO NOT MATCH LENGTH')
+        #print(f'PLEASE ENTER {len(df.columns)} COLUMN NAMES\n')
         verify_cols = input(f'ARE THESE THE CORRECT COLUMN NAMES:: Y OR N {cols}\n')
         if 'n' in verify_cols:
             cols = get_col_names(df)
 
-    formatted_csv = format_data(df, cols)
+    insert_first = input('DOES ORIGINAL COLUMN DATA NEED TO BE INSERTED INTO DF? Y/N\n')
+    formatted = format_data(df, cols, insert_first)
     print('------------------------------------------------------------------------------------------------------')
     print('FORMATTED DATAFRAME')
     print('------------------------------------------------------------------------------------------------------')
-    pp.pprint(formatted_csv.head())
+    pp.pprint(formatted.head())
     print('------------------------------------------------------------------------------------------------------')
     print('FORMATTING CLIPBOARD OR CSV COMPLETE')
     print('------------------------------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------------------------------\n\n')
     time.sleep(2)
-    return formatted_csv
+    return formatted
 
 def main():
     initiate_format()
@@ -312,7 +307,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-
+#data/sample_month.csv
 #data/green_may2621_training.csv
 #date1, date, transaction, card, amount, balance
 #date1, card, balance

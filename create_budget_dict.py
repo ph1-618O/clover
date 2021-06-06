@@ -98,7 +98,7 @@ def get_data_type():
         import format_data
         data = format_data.get_col_names(data)[2]
         print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
-        print('DATASET')
+        print('DATASET SAMPLE')
         print('------------------------------------------------------------------------------------------------------')
         pp.pprint(data.head())
         print('------------------------------------------------------------------------------------------------------\n\n')
@@ -247,7 +247,11 @@ def get_categories(categories = 0):
         #print(len(categories))
         if type(categories) == type([]):
             if len(categories) < len(defaults + ['0_format']):
-                print(f'CURRENT CATEGORIES::: {" - ".join(categories)}\n------------------------------------------------------------------------------------------------------')
+                #Trying to skip printing out 0_format, needs better code
+                if '0_format' in categories:
+                    print(f'CURRENT CATEGORIES::: {" - ".join(sorted(categories)[1:])}\n------------------------------------------------------------------------------------------------------')
+                else:
+                    print(f'CURRENT CATEGORIES::: {" - ".join(sorted(categories))}\n------------------------------------------------------------------------------------------------------')
                 add_defaults = []
                 for i in defaults:
                     if i not in categories:
@@ -296,26 +300,33 @@ def get_categories(categories = 0):
 # ADD EXIT QUERY FOR LOOP
 
 def constrain_input_loop(sort_query, list_options):
-    correct = ''
-    while 'y' not in correct.lower():
-        for index in range(len(list_options)):
-            correct = input(
-                f'SORT THIS {sort_query} BY:: "{list_options[index].upper()}", Y/N OR EXIT\n')
-            if 'y' in correct.lower():
-                print(
-                    '//////////////////////////////////////////////////////////////////////////////////////////////////////')
-                print(
-                    f'YOU WILL SORT THIS "{sort_query}" BY::"{list_options[index].upper()}"\n')
-                return list_options[index]
-            elif 'n' in correct.lower():
-                print(f'"{correct.upper()}" ENTERED, PLEASE CHOOSE AGAIN')
-                continue
-            else:
-                print('YOU MUST ENTER YES OR NO')
-                exit = input('WOULD YOU LIKE TO EXIT THIS PROGRAM? Y/N\n')
-                if 'y' in exit.lower():
-                    print("EXITING")
-                    exit()
+    if sort_query == 'CATEGORY DATA' and 'transaction' in list_options:
+        return 'transaction'
+    elif sort_query.lower() == 'date' and 'date' in list_options:
+        return 'date'
+    elif sort_query.lower() == 'amount' and ('amount' in list_options or 'float amount' in list_options):
+        return 'amount'
+    else:
+        correct = ''
+        while 'y' not in correct.lower():
+            for index in range(len(list_options)):
+                correct = input(
+                    f'SORT THIS {sort_query} BY:: "{list_options[index].upper()}", Y/N OR EXIT\n')
+                if 'y' in correct.lower():
+                    print(
+                        '//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                    print(
+                        f'YOU WILL SORT THIS "{sort_query}" BY::"{list_options[index].upper()}"\n')
+                    return list_options[index]
+                elif 'n' in correct.lower():
+                    print(f'"{correct.upper()}" ENTERED, PLEASE CHOOSE AGAIN')
+                    continue
+                else:
+                    print('YOU MUST ENTER YES OR NO')
+                    exit = input('WOULD YOU LIKE TO EXIT THIS PROGRAM? Y/N\n')
+                    if 'y' in exit.lower():
+                        print("EXITING")
+                        exit()
                 # <<<<<<<<WORKING>>>>>>>>>>>
                 # why is error thrown when exit == 'y' ??
 
@@ -537,7 +548,8 @@ def dict_to_Frame(data_dict):
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
         if key == '0_format':
-            print('SKIPPING FORMAT LINE')
+            print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+            print('SKIPPING FORMAT ROW')
             continue
         elif len(value) == 0:
             skip_list.append(key)
@@ -553,15 +565,14 @@ def dict_to_Frame(data_dict):
                 cols = data_dict['0_format'] + ['category']
             else:
                 cols = data_dict['0_format']      
-    print('********TEST******')
-    print(cols)
-    print(len(li))
-    pp.pprint(li)
-    print(data_dict['0_format'])
-    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    # print('********TEST******')
+    # print(cols)
+    # print(len(li))
+    # pp.pprint(li)
+    # print(data_dict['0_format'])
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     df = pd.DataFrame(np.array(li), columns=['date', 'location data', 'float amount', 'identifier', 'category'])
-    print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES::: {", ".join(skip_list)}'))
+    print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME::: {", ".join(skip_list)}'))
     return df
 
 # <<<<<<<<WORKING>>>>>>>>>>>
@@ -626,6 +637,7 @@ def main():
     formatted_df = None
     data_formatted = get_data_type()
     data = data_formatted[0]
+    #print(data_formatted)
     if data_formatted[1]:
         print(f'CONFIRMED DATA IS {data_formatted[1].upper()}')
         formatted_df = data_formatted[1]
@@ -638,21 +650,23 @@ def main():
     else:
         trans_dict = split_purchases(data.head(3), formatted_df)
 
-    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    # print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('SPLIT PURCHASES PROGRAM COMPLETE')
     print('------------------------------------------------------------------------------------------------------')
 
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('ADDING TO DICTIONARY')
     print('------------------------------------------------------------------------------------------------------')
-    pp.pprint(trans_dict)
+    #pp.pprint(trans_dict)
     # <<<<<<<<WORKING>>>>>>>>>>>
     # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
     converted_DF = dict_to_Frame(trans_dict)
     print('------------------------------------------------------------------------------------------------------')
-    print('DICTIONARY VALUES:::::')
-    pp.pprint(trans_dict)
-    print('------------------------------------------------------------------------------------------------------')
+    show_dict = input('PRINT OUT DICT Y/N\n')
+    if 'y' in show_dict.lower():
+        print('DICTIONARY VALUES:::::')
+        pp.pprint(trans_dict)
+        print('------------------------------------------------------------------------------------------------------')
 
     # <<<<<<<<WORKING>>>>>>>>>>>
     #Change this to an input statement attached to the loop
@@ -660,15 +674,17 @@ def main():
     if data_formatted[1]:
         pass
     else:
-        print('PLEASE ENTER THE COLUMN NAME OF THE DATE\n')
+        print('------------------------------------------------------------------------------------------------------')
+        print('PLEASE ENTER THE COLUMN NAME OF THE DATE')
         col_with_dates = 'DATE'
         sort_by = get_sort_by(converted_DF, col_with_dates)
-        converted_DF = converted_DF.sort_values(by=sort_by)
+        converted_DF = converted_DF.sort_values(by=sort_by).reset_index(drop=True)
+        pp.pprint(converted_DF)
         import format_data
         converted_DF = format_data.convert_date(converted_DF)
         # <<<<<<<<WORKING>>>>>>>>>>>
         #Change this to an input statement attached to the loop
-        print('PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS\n')
+        print('PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS')
         col_with_amounts = 'AMOUNTS'
         sort_by = get_sort_by(converted_DF, col_with_amounts)
         converted_DF = make_num(converted_DF, sort_by)

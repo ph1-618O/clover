@@ -132,7 +132,7 @@ def convert_date_complicated(df):
         for i in date_list:
             date_format_part1.append((input(f'ENTER MONTH DAY OR YEAR FOR {i}\n')).lower())
         print(date_format_part1)
-        date_format = '%m/%d/%Y'
+        date_format = '%m/%d/%y'
         for i in df[get_date_col]:
             break   
         for i in df[get_date_col]:
@@ -146,9 +146,16 @@ def convert_date(df):
     import datetime
     date_time = []
     for i in df['date']:
-        date_time.append(datetime.datetime.strptime(i, '%m/%d/%Y'))
+        if len(i) == 10:
+            date_time.append(datetime.datetime.strptime(i, '%m/%d/%Y'))
+        elif len(i) == 8:
+            date_time.append(datetime.datetime.strptime(i, '%m/%d/%y'))
+        else:
+            print('UNKNOWN DATE FORMAT SKIPPING FORMATTING')
+            return df
     df['date'] = date_time
-    return df.reset_index(drop=True)
+    df = df.reset_index(drop=True)
+    return df
 
 
 

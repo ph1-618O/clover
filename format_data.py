@@ -254,6 +254,7 @@ def get_col_names(df):
     suggested_cols = ['Name', 'Date', 'Transaction', 'Account', 'Amount', 'Balance']
     if 'y' in rename_cols_query:
         print('------------------------------------------------------------------------------------------------------')
+        print(f'PLEASE ENTER {df.columns} COLUMN NAMES')
         print('WARNING COLUMN NAMES MUST BE UNIQUE')
         print('------------------------------------------------------------------------------------------------------')
         print(f'SUGGESTED::: {" - ".join(suggested_cols)}')

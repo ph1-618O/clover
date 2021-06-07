@@ -37,6 +37,7 @@ import time
 # # for importing from excel to pandas
 # from pandas import ExcelWriter
 # from pandas import ExcelFile
+import re
 import pandas as pd
 import numpy as np
 pd.options.mode.chained_assignment = None
@@ -94,6 +95,7 @@ def get_data_type():
         data = read_data('csv')
         for i in data.columns:
             data = data.rename(columns={i: i.lower()})
+        print('------------------------------------------------------------------------------------------------------')
         print('CHECKING COLUMNS')
         import format_data
         check_cols = format_data.get_col_names(data)
@@ -410,6 +412,8 @@ def make_dict(categories, old_dict=0):
 # Need to format location input into a prettier line of code
 def add_data(budget_dict, data):
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    print('RUNNING ADD DATA')
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     location = str(input(
         f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {" - ".join(sorted(list(budget_dict.keys()))[1:])}\n------------------------------------------------------------------------------------------------------\n'))
 
@@ -432,31 +436,31 @@ def add_data(budget_dict, data):
     return budget_dict
 
 
-
-
-
-
 # <<<<<<<<WORKING>>>>>>>>>>>
 # Need to clean up add_Data and search_dict
-def search_dict(budget_dict, data):  # location is column name
+def search_dict(budget_dict, data, data_point):  # location is column name
     print('SEARCHING DICT')
-    data_point = data[-1]
     print(data_point)
+    #pp.pprint(budget_dict)
+    #r = re.compile('.*'+ data_point, re.IGNORECASE)
     for key, value in budget_dict.items():
-        for i in value:
-            if data_point.lower() in i:
-                print(
-                    '//////////////////////////////////////////////////////////////////////////////////////////////////////')
-                print(f'DATA POINT IDENTIFIED')
-                print(f'ADDING TO CATEGORY "{key}"')
-                value.append(data)
-                time.sleep(1)
-                return budget_dict, 'identified'
-            else:
-                pass
+        if len(value) > 0:
+            for i in value:
+                for j in i:
+                    if re.search(rf'{data_point}', str(j), re.IGNORECASE) != None:
+                            print(
+                                '//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                            print(f'DATA POINT IDENTIFIED')
+                            print(f'ADDING TO CATEGORY "{key}"')
+                            for x in data:
+                                value.append(x)
+                            time.sleep(1)
+                            pp.pprint(budget_dict)
+                            return budget_dict, 'identified'
+                    else:
+                        pass
     ######################################### add_data ##########################################################
-    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-    print('RUNNING ADD DATA')
+    exit()
     time.sleep(1)
     return budget_dict, 'not-identified'
 
@@ -549,8 +553,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
                 print('ROWS MATCH\n')
                 data = []
                 for rows in matching_rows.index.tolist():
-                    data.append(list(df.iloc[rows]))
-                    data.append(identity)
+                    data.append(list(df.iloc[rows])+[identity])
                 pp.pprint(data)
             else:
                 data = []
@@ -566,13 +569,13 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             #     data.append(df.iloc[i][col])
             # data.append(identity)
 
-        searched_dict = search_dict(trans_type, data)
+        searched_dict = search_dict(trans_type, data, identity)
         new_dict = searched_dict[0]
-        print(new_dict)
+        #print(new_dict)
         if searched_dict[1] != 'identified':
             budget_dict = add_data(new_dict, data)
         break
-    pp.pprint(budget_dict)
+    #pp.pprint(budget_dict)
         # PROBLEM HERE, BOTH new_dict and budget_dict do the same thing,..... 
         #pp.pprint(new_dict)
     # print('budget_dict')
@@ -615,6 +618,7 @@ def dict_to_Frame(data_dict):
     # pp.pprint(li)
     # print(data_dict['0_format'])
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    ## PLACE TO ADD EXTRA COLUMNS 
     df = pd.DataFrame(np.array(li), columns=['date', 'location data', 'float amount', 'identifier', 'category'])
     print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME::: {", ".join(skip_list)}'))
     return df

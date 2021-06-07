@@ -89,19 +89,21 @@ def get_data_type():
     query_format = input('IS DATA PROPERLY FORMATTED WITH COLUMNS? Y/N\n')
     formatted = None
 
-    if 'csv' in import_data.lower() and 'y' in query_format.lower():
+    if ('csv' in import_data.lower() and 'y' in query_format.lower()) or ('csv' in import_data.lower() and 'n' in query_format.lower()):
         # Normalizing the column names to lower
         data = read_data('csv')
         for i in data.columns:
             data = data.rename(columns={i: i.lower()})
         print('CHECKING COLUMNS')
         import format_data
-        data = format_data.get_col_names(data)[2]
+        check_cols = format_data.get_col_names(data)
+        data = check_cols[2]
         print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
         print('DATASET SAMPLE')
         print('------------------------------------------------------------------------------------------------------')
-        pp.pprint(data.head())
+        pp.pprint(data)
         print('------------------------------------------------------------------------------------------------------\n\n')
+        formatted = 'formatted'
 
     elif 'clip' in import_data.lower() or 'format' in query_format.lower()  or 'n' in query_format.lower():
         format_q = (f'FORMAT "{import_data.upper()}" DATA? Y/N').lower()
@@ -120,6 +122,7 @@ def get_data_type():
                 print('DATASET')
                 print('------------------------------------------------------------------------------------------------------')
                 pp.pprint(data.head())
+                formatted = 'formatted'
                 # print('------------------------------------------------------------------------------------------------------')
             elif 'format' in query_format.lower() or 'n' in query_format.lower():
                 data = read_data('csv')
@@ -133,12 +136,17 @@ def get_data_type():
                 print('------------------------------------------------------------------------------------------------------')
                 pp.pprint(data.head())
                 print('------------------------------------------------------------------------------------------------------\n\n')
+                formatted = 'formatted'
             formatted = 'formatted'
         
     elif 'excel' in import_data or 'xls' in import_data:
         data = read_data('excel')
         for i in data.columns:
             data = data.rename(columns={i: i.lower()})
+        import format_data
+        check_cols = format_data.get_col_names(data)
+        data = check_cols[2]
+        formatted = 'formatted'
         print(f'\n"{import_data.upper()}" DATASET...IMPORT SUCCESS\n')
         print('DATASET')
         print('------------------------------------------------------------------------------------------------------')
@@ -481,7 +489,7 @@ def confirm_cols(df, formatted_df=0):
 
 def split_purchases(df, formatted_df=0, budget_dict=0):
     cols = confirm_cols(df, formatted_df)
-    pp.pprint(df)
+    #pp.pprint(df)
     print('BEGIN PURCHASE CATEGORIZATION')
     print('------------------------------------------------------------------------------------------------------')
 # if statement separates data if a correctly formatted dictionary is passed to it
@@ -504,41 +512,64 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
         sort_by = get_sort_by(df, 'CATEGORY DATA')
         print(f'SORT BY "{sort_by.upper()}" WITHOUT DICT')
 
+    skip_rows = []
     for i in range(len(df)):
         ##############################################add_trans_type ###############################################
-        get_col = add_trans_type(df, i, sort_by)
-        identity = get_col[1]
-        
+        print(skip_rows)
+        if i not in skip_rows:
+            print('TRUE I NOT IN SKIP ROWS')
+            get_col = add_trans_type(df, i, sort_by)
+            identity = get_col[1]
+            
 
-    # PRINT TESTING STATEMENTS
-        # print(f'SORTING BY:: "{sort_by.upper()}" COLUMN')
-        # print(f'IDENTIFIER IS:: {identity}')
-        # organize_by = get_col[0]
-        # print(f'COL NAME IS:: {organize_by}')
-        # data_to_sort = df.iloc[i][organize_by]
-        # print(f'CATEGORIZE DATA:: {data_to_sort}\n')
-        # # trans_type is the entire dictionary
-        # print(f'TRANSACTION TYPE IS:: {trans_type}\n')
-        ############################################## search_dict ##############################################
-        #cols = df.columns
-        data = []
-        for col in cols:
-            data.append(df.iloc[i][col])
-        data.append(identity)
-        searched_dict = search_dict(trans_type, data)
-        new_dict = searched_dict[0]
-        if searched_dict[1] != 'identified':
-            budget_dict = add_data(new_dict, data)
-        # PROBLEM HERE, BOTH new_dict and budget_dict do the same thing,..... 
-        
-        # print('budget_dict')
-        # print(budget_dict)
-        # print('new_dict')
-        # print(new_dict)
-        #####
-    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-    print('PROGRAM COMPLETE')
-    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+        # PRINT TESTING STATEMENTS
+            # print(f'SORTING BY:: "{sort_by.upper()}" COLUMN')
+            # print(f'IDENTIFIER IS:: {identity}')
+            # organize_by = get_col[0]
+            # print(f'COL NAME IS:: {organize_by}')
+            # data_to_sort = df.iloc[i][organize_by]
+            # print(f'CATEGORIZE DATA:: {data_to_sort}\n')
+            # # trans_type is the entire dictionary
+            # print(f'TRANSACTION TYPE IS:: {trans_type}\n')
+            # print("DF is :: ")
+            #pp.pprint(df)
+            ############################################## search_dict ##############################################
+            #cols = df.columns
+            
+            #########data grouping search##############
+            mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
+            matching_rows = df.loc[mask.any(axis=1)]
+            print('ROWS MATCHED:::')
+            pp.pprint(matching_rows)
+            skip_rows.append(matching_rows.index.tolist())
+
+            data = []
+            for col in cols:
+                for rows in matching_rows.index.tolist():
+                    data.append(df.iloc[rows][col])
+            data.append(identity)
+            pp.pprint(data)
+
+            # GOOD OLD CODE
+            # data = []
+            # for col in cols:
+            #     data.append(df.iloc[i][col])
+            # data.append(identity)
+
+            searched_dict = search_dict(trans_type, data)
+            new_dict = searched_dict[0]
+            if searched_dict[1] != 'identified':
+                budget_dict = add_data(new_dict, data)
+            # PROBLEM HERE, BOTH new_dict and budget_dict do the same thing,..... 
+            pp.pprint(new_dict)
+            # print('budget_dict')
+            # print(budget_dict)
+            # print('new_dict')
+            # print(new_dict)
+            #####
+        print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+        print('PROGRAM COMPLETE')
+        print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     return new_dict
 
 
@@ -645,10 +676,11 @@ def main():
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('RUNNING SPLIT PURCHASES PROGRAM')
     print('------------------------------------------------------------------------------------------------------')
+    ### place to limit data use data.head(num)
     if dictionary:
-        trans_dict = split_purchases(data.head(3), formatted_df, dictionary)
+        trans_dict = split_purchases(data, formatted_df, dictionary)
     else:
-        trans_dict = split_purchases(data.head(3), formatted_df)
+        trans_dict = split_purchases(data, formatted_df)
 
     # print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('SPLIT PURCHASES PROGRAM COMPLETE')

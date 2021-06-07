@@ -103,7 +103,8 @@ def get_data_type():
         print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
         print('DATASET SAMPLE')
         print('------------------------------------------------------------------------------------------------------')
-        pp.pprint(data)
+        pp.pprint(data.head())
+        pp.pprint(data.describe())
         print('------------------------------------------------------------------------------------------------------\n\n')
         formatted = 'formatted'
 
@@ -444,21 +445,24 @@ def search_dict(budget_dict, data, data_point):  # location is column name
     #pp.pprint(budget_dict)
     #r = re.compile('.*'+ data_point, re.IGNORECASE)
     for key, value in budget_dict.items():
-        if len(value) > 0:
-            for i in value:
-                for j in i:
-                    if re.search(rf'{data_point}', str(j), re.IGNORECASE) != None:
-                            print(
-                                '//////////////////////////////////////////////////////////////////////////////////////////////////////')
-                            print(f'DATA POINT IDENTIFIED')
-                            print(f'ADDING TO CATEGORY "{key}"')
-                            for x in data:
-                                value.append(x + [key])
-                            time.sleep(1)
-                            #pp.pprint(budget_dict)
-                            return budget_dict, 'identified'
-                    else:
-                        pass
+        if value:
+            if len(value) > 0:
+                for i in value:
+                    if i:
+                        if len(i) > 0:
+                            for j in i:
+                                if re.search(rf'{data_point}', str(j), re.IGNORECASE) != None:
+                                        print(
+                                            '//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                                        print(f'DATA POINT IDENTIFIED')
+                                        print(f'ADDING TO CATEGORY "{key}"')
+                                        for x in data:
+                                            value.append(x + [key])
+                                        time.sleep(1)
+                                        #pp.pprint(budget_dict)
+                                        return budget_dict, 'identified'
+                                else:
+                                    pass
     ######################################### add_data ##########################################################
     time.sleep(1)
     return budget_dict, 'not-identified'
@@ -541,8 +545,10 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
             matching_rows = df.loc[mask.any(axis=1)]
             print(f'{len(matching_rows)} ROWS MATCHED:::\n')
-            #pp.pprint(matching_rows)
-            skip_rows.append(matching_rows.index.tolist())
+            pp.pprint(matching_rows)
+            skip_rows += matching_rows.index.tolist()
+            # skip_rows.append(''.join(str(m) for m in matching_rows.index.tolist()))
+            print(sorted(skip_rows))
 
             if len(matching_rows) >= 2:
                 # print('ROWS MATCH\n')
@@ -558,11 +564,12 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
                 data.append(identity)
                 #pp.pprint(data)
 
+        else:
+            break
         searched_dict = search_dict(trans_type, data, identity)
         new_dict = searched_dict[0]
         if searched_dict[1] != 'identified':
             budget_dict = add_data(new_dict, data)
-        break
     #pp.pprint(budget_dict)
         # PROBLEM HERE, BOTH new_dict and budget_dict do the same thing,..... 
         #pp.pprint(new_dict)
@@ -597,6 +604,7 @@ def test_date(df):
 
 
 def dict_to_Frame(data_dict):
+    pp.pprint(data_dict)
     skip_list = []
     rows = []
     for key, value in data_dict.items():
@@ -609,7 +617,7 @@ def dict_to_Frame(data_dict):
             skip_list.append(key)
         else:
             # print(f'{value}')
-            db = pd.DataFrame()
+            #db = pd.DataFrame()
             for i in range(len(value)):
                 if len(value[i]) == len(data_dict['0_format']):
                     rows.append(value[i])

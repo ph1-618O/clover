@@ -424,7 +424,7 @@ def add_data(budget_dict, data):
     # Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
         if location[:3] == key[:3]:
-            value.append(data)
+            value.append(data.append(location))
             print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
             print(f'YOU ENTERED "{location}" WE ARE MATCHING TO "{key.upper()}"')
             print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
@@ -439,7 +439,9 @@ def add_data(budget_dict, data):
 # <<<<<<<<WORKING>>>>>>>>>>>
 # Need to clean up add_Data and search_dict
 def search_dict(budget_dict, data):  # location is column name
+    print('SEARCHING DICT')
     data_point = data[-1]
+    print(data_point)
     for key, value in budget_dict.items():
         for i in value:
             if data_point.lower() in i:
@@ -515,9 +517,9 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     skip_rows = []
     for i in range(len(df)):
         ##############################################add_trans_type ###############################################
-        print(skip_rows)
+        #print(skip_rows)
         if i not in skip_rows:
-            print('TRUE I NOT IN SKIP ROWS')
+            #print('TRUE I NOT IN SKIP ROWS')
             get_col = add_trans_type(df, i, sort_by)
             identity = get_col[1]
             
@@ -539,16 +541,24 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             #########data grouping search##############
             mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
             matching_rows = df.loc[mask.any(axis=1)]
-            print('ROWS MATCHED:::')
-            pp.pprint(matching_rows)
+            print(f'{len(matching_rows)} ROWS MATCHED:::\n')
+            #pp.pprint(matching_rows)
             skip_rows.append(matching_rows.index.tolist())
 
-            data = []
-            for col in cols:
+            if len(matching_rows) >= 2:
+                print('ROWS MATCH\n')
+                data = []
                 for rows in matching_rows.index.tolist():
-                    data.append(df.iloc[rows][col])
-            data.append(identity)
-            pp.pprint(data)
+                    data.append(list(df.iloc[rows]))
+                    data.append(identity)
+                pp.pprint(data)
+            else:
+                data = []
+                print('NO MATCH:::\n')
+                for col in cols:
+                        data.append(df.iloc[i][col])
+                data.append(identity)
+                pp.pprint(data)
 
             # GOOD OLD CODE
             # data = []
@@ -556,20 +566,23 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             #     data.append(df.iloc[i][col])
             # data.append(identity)
 
-            searched_dict = search_dict(trans_type, data)
-            new_dict = searched_dict[0]
-            if searched_dict[1] != 'identified':
-                budget_dict = add_data(new_dict, data)
-            # PROBLEM HERE, BOTH new_dict and budget_dict do the same thing,..... 
-            pp.pprint(new_dict)
-            # print('budget_dict')
-            # print(budget_dict)
-            # print('new_dict')
-            # print(new_dict)
-            #####
-        print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-        print('PROGRAM COMPLETE')
-        print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+        searched_dict = search_dict(trans_type, data)
+        new_dict = searched_dict[0]
+        print(new_dict)
+        if searched_dict[1] != 'identified':
+            budget_dict = add_data(new_dict, data)
+        break
+    pp.pprint(budget_dict)
+        # PROBLEM HERE, BOTH new_dict and budget_dict do the same thing,..... 
+        #pp.pprint(new_dict)
+    # print('budget_dict')
+    # print(budget_dict)
+    # print('new_dict')
+    # print(new_dict)
+    #####
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    print('PROGRAM COMPLETE')
+    print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     return new_dict
 
 

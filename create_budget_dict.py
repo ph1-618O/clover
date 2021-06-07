@@ -453,22 +453,18 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                             print(f'DATA POINT IDENTIFIED')
                             print(f'ADDING TO CATEGORY "{key}"')
                             for x in data:
-                                value.append(x)
+                                value.append(x + [key])
                             time.sleep(1)
-                            pp.pprint(budget_dict)
+                            #pp.pprint(budget_dict)
                             return budget_dict, 'identified'
                     else:
                         pass
     ######################################### add_data ##########################################################
-    exit()
     time.sleep(1)
     return budget_dict, 'not-identified'
 
 # <<<<<<<<WORKING>>>>>>>>>>>
 # NEED TO ADD TRY/ACCEPT STATEMENTS for ALL_INPUTS
-# pull out each location of purchase and split into keys based on user input
-# Home, Food, Fast_Food, Clothing, Car, Utilities, Entertainment
-
 
 def confirm_cols(df, formatted_df=0):
     if formatted_df:
@@ -540,7 +536,6 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             # print("DF is :: ")
             #pp.pprint(df)
             ############################################## search_dict ##############################################
-            #cols = df.columns
             
             #########data grouping search##############
             mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
@@ -550,28 +545,21 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             skip_rows.append(matching_rows.index.tolist())
 
             if len(matching_rows) >= 2:
-                print('ROWS MATCH\n')
+                # print('ROWS MATCH\n')
                 data = []
                 for rows in matching_rows.index.tolist():
                     data.append(list(df.iloc[rows])+[identity])
-                pp.pprint(data)
+                #pp.pprint(data)
             else:
                 data = []
                 print('NO MATCH:::\n')
                 for col in cols:
                         data.append(df.iloc[i][col])
                 data.append(identity)
-                pp.pprint(data)
-
-            # GOOD OLD CODE
-            # data = []
-            # for col in cols:
-            #     data.append(df.iloc[i][col])
-            # data.append(identity)
+                #pp.pprint(data)
 
         searched_dict = search_dict(trans_type, data, identity)
         new_dict = searched_dict[0]
-        #print(new_dict)
         if searched_dict[1] != 'identified':
             budget_dict = add_data(new_dict, data)
         break
@@ -589,9 +577,28 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     return new_dict
 
 
+def test_date(df):
+    df['date']= pd.to_datetime(df.date)
+    #pp.pprint(df)
+    unique_cats = df.category.unique()
+    #print(unique_cats)
+    test_dict = {}
+    key = []
+    for i in unique_cats:
+        separate_df = df.loc[df['category'] == i]
+        key = []
+        for j in range(len(separate_df)):
+            key.append(separate_df.iloc[j].tolist())
+        test_dict[i] = key    
+        #key.append(separate_df)
+        #test_dict['i'] = separate_df.set_index('category').T.to_dict('list')
+    #pp.pprint(test_dict)
+    return test_dict
+
+
 def dict_to_Frame(data_dict):
     skip_list = []
-    li = []
+    rows = []
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
         if key == '0_format':
@@ -605,21 +612,37 @@ def dict_to_Frame(data_dict):
             db = pd.DataFrame()
             for i in range(len(value)):
                 if len(value[i]) == len(data_dict['0_format']):
-                    li.append(value[i])
+                    rows.append(value[i])
                 else:
-                    li.append(value[i]+[key])
+                    rows.append(value[i]+[key])
             if 'category' not in data_dict['0_format']:
                 cols = data_dict['0_format'] + ['category']
             else:
                 cols = data_dict['0_format']      
     # print('********TEST******')
-    # print(cols)
-    # print(len(li))
-    # pp.pprint(li)
-    # print(data_dict['0_format'])
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     ## PLACE TO ADD EXTRA COLUMNS 
-    df = pd.DataFrame(np.array(li), columns=['date', 'location data', 'float amount', 'identifier', 'category'])
+    df = pd.DataFrame(np.array(rows), columns=['date', 'location data', 'float amount', 'identifier', 'category'])
+    # df['date']= pd.to_datetime(df.date)
+    # #pp.pprint(df)
+    # unique_cats = df.category.unique()
+    # #print(unique_cats)
+    # test_dict = {}
+    # key = []
+    # for i in unique_cats:
+    #     separate_df = df.loc[df['category'] == i]
+    #     key = []
+    #     for j in range(len(separate_df)):
+    #         key.append(separate_df.iloc[j].tolist())
+    #     test_dict[i] = key    
+    #     #key.append(separate_df)
+    #     #test_dict['i'] = separate_df.set_index('category').T.to_dict('list')
+    # pp.pprint(test_dict)
+    # #test_dict = df.set_index('category').T.to_dict('list')
+    # pp.pprint(df)
+
+    # #pp.pprint(test_dict)
+
     print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME::: {", ".join(skip_list)}'))
     return df
 
@@ -648,6 +671,17 @@ def conn_mongo(data):
     # Hopefully printing the first 5 entries in the db
     # pprint(db.budgetDB.find_one())
     # db.budgetDB.find().pretty()
+
+# regex for "Oct 21, 2014" or "October 21, 2014"
+# need more sophisticated validations such as validating the number of days for a specific month
+#(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2})\s+(\d{4})
+# February 2009
+#\b(?:Jan(?:uary)?|Feb(?:ruary)?|...|Dec(?:ember)?) (?:19[7-9]\d|2\d{3})(?=\D|$)
+# or
+#(\b\d{1,2}\D{0,3})?\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|(Nov|Dec)(?:ember)?)\D?(\d{1,2}\D?)?\D?((19[7-9]\d|20\d{2})|\d{2})
+#yyyy-mm-dd
+
+#(\d+(?:/|\\|-)\d+(?:/|\\|-)\d{4}$)
 
 
 def main():
@@ -708,14 +742,15 @@ def main():
     print('------------------------------------------------------------------------------------------------------')
     #pp.pprint(trans_dict)
     # <<<<<<<<WORKING>>>>>>>>>>>
-    # Need to add dictionary to DB functionality, right now won't work because there are empty categories, and unequal values in columns
+    # trans_dict = test_date_amount(trans_dict)
     converted_DF = dict_to_Frame(trans_dict)
+    trans_dict = test_date(converted_DF)
     print('------------------------------------------------------------------------------------------------------')
-    show_dict = input('PRINT OUT DICT Y/N\n')
-    if 'y' in show_dict.lower():
-        print('DICTIONARY VALUES:::::')
-        pp.pprint(trans_dict)
-        print('------------------------------------------------------------------------------------------------------')
+    # show_dict = input('PRINT OUT DICT Y/N\n')
+    # if 'y' in show_dict.lower():
+    #     print('DICTIONARY VALUES:::::')
+    #     pp.pprint(trans_dict)
+    #     print('------------------------------------------------------------------------------------------------------')
 
     # <<<<<<<<WORKING>>>>>>>>>>>
     #Change this to an input statement attached to the loop
@@ -752,21 +787,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Create test case.py that uses this dictionary and the sample dataframe
-#  sample dictionary for testing
-# budget_type: [date, data, amount, identifier]
-dictionary = {
-    #'01_format': ['date', 'location data', 'float amount', 'identifier'],
-    'home': [
-        ['01/24/21', 'HOME_DEPOT',  -57, 'HOME'],
-        ['01/12/21', 'LOWES', -100, 'LOWES'],
-        ['02/14/21', 'TRUE_VALUE', -60, 'TRUE']],
-
-    'fast_food': [
-        ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A']],
-
-    'food': [
-        ['01/22/21', 'FOOD LION',  -200, 'FOOD LION'],
-        ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS'],
-        ['03/15/21', 'FARM_FRESH', -150, 'FRESH']]
-}

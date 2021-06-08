@@ -509,33 +509,60 @@ def confirm_cols(df, formatted_df=0):
     return cols
 
 
-def search_all(df, row_num, sort_by):
+def search_all(df, row_num, sort_by, trans_split):
     print('------------------------------------------------------------------------------------------------------')
     print(f'SEARCHING ALL "{sort_by.upper()}" STRING FOR IDENTIFIERS')
-    purchase_type = df[sort_by][row_num].replace('*', ' ').split()
-    print(purchase_type)
-    for search_trans in purchase_type:
-        return sort_by, purchase_type[search_trans].lower()
+    print(trans_split)
+    counter = 0
+    while counter < len(purchase_types):
+        counter += 1
+        return purchase_types[counter].lower(), 'searching'
+    return 'match'
 
-def search_one(cols, df, row, sort_by, skip_rows):
-        search_all(df, row, sort_by)
-        get_col = add_trans_type(df, row, sort_by)
-        identity = get_col[1]
-        mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
-        matching_rows = df.loc[mask.any(axis=1)]
-        skip_rows += matching_rows.index.tolist()
+def search_row(cols, df, row, sort_by, skip_rows, match_status):
+        if match_status == 'searching':
+            row_split = df[sort_by][row].replace('*', ' ').split()
+            counter = 0
+            while counter < len(row_split):
+                identity = row_split[counter]
+                mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
+                matching_rows = df.loc[mask.any(axis=1)]
+                skip_rows += matching_rows.index.tolist()
 
-        if len(matching_rows) >= 2:
-            print(f'{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::')
-            data = []
-            for rows in matching_rows.index.tolist():
-                data.append(list(df.iloc[rows])+[identity])
+                if len(matching_rows) >= 2:
+                    print(f'{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::')
+                    data = []
+                    for rows in matching_rows.index.tolist():
+                        data.append(list(df.iloc[rows])+[identity])
+                else:
+                    data = []
+                    print('NO MATCH IN IMPORTED DATA:::')
+                    for col in cols:
+                            data.append(df.iloc[row][col])
+                    data.append(identity)
+                counter += 1
+            match_status = 'not_found'
+
+        #identity = search_all(df, row, sort_by, row_split)
+        ## get_col used if search_all fails
         else:
-            data = []
-            print('NO MATCH IN IMPORTED DATA:::')
-            for col in cols:
-                    data.append(df.iloc[row][col])
-            data.append(identity)
+            get_id = add_trans_type(df, row, sort_by)
+            identity = get_id[1]
+            mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
+            matching_rows = df.loc[mask.any(axis=1)]
+            skip_rows += matching_rows.index.tolist()
+
+            if len(matching_rows) >= 2:
+                print(f'{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::')
+                data = []
+                for rows in matching_rows.index.tolist():
+                    data.append(list(df.iloc[rows])+[identity])
+            else:
+                data = []
+                print('NO MATCH IN IMPORTED DATA:::')
+                for col in cols:
+                        data.append(df.iloc[row][col])
+                data.append(identity)
         return data, identity, skip_rows  
 
 def split_purchases(df, formatted_df=0, budget_dict=0):
@@ -567,7 +594,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     for i in range(len(df)):
         ##############################################add_trans_type ###############################################
         if i not in skip_rows:
-            all = search_one(cols, df, i, sort_by, skip_rows)
+            all = search_row(cols, df, i, sort_by, skip_rows, 'searching')
             data = all[0]
             identity = all[1]
             skip_rows = all[2]

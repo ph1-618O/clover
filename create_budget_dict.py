@@ -510,12 +510,33 @@ def confirm_cols(df, formatted_df=0):
 
 
 def search_all(df, row_num, sort_by):
-    print(sort_by)
-    print(row_num)
-    pp.pprint(df)
-    #for index in range(len(list_options)):
-        
+    print('------------------------------------------------------------------------------------------------------')
+    print(f'SEARCHING ALL "{sort_by.upper()}" STRING FOR IDENTIFIERS')
+    purchase_type = df[sort_by][row_num].replace('*', ' ').split()
+    print(purchase_type)
+    for search_trans in purchase_type:
+        return sort_by, purchase_type[search_trans].lower()
 
+def search_one(cols, df, row, sort_by, skip_rows):
+        search_all(df, row, sort_by)
+        get_col = add_trans_type(df, row, sort_by)
+        identity = get_col[1]
+        mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
+        matching_rows = df.loc[mask.any(axis=1)]
+        skip_rows += matching_rows.index.tolist()
+
+        if len(matching_rows) >= 2:
+            print(f'{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::')
+            data = []
+            for rows in matching_rows.index.tolist():
+                data.append(list(df.iloc[rows])+[identity])
+        else:
+            data = []
+            print('NO MATCH IN IMPORTED DATA:::')
+            for col in cols:
+                    data.append(df.iloc[row][col])
+            data.append(identity)
+        return data, identity, skip_rows  
 
 def split_purchases(df, formatted_df=0, budget_dict=0):
     cols = confirm_cols(df, formatted_df)
@@ -546,44 +567,10 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     for i in range(len(df)):
         ##############################################add_trans_type ###############################################
         if i not in skip_rows:
-            search_all(df, i, sort_by)
-            get_col = add_trans_type(df, i, sort_by)
-            identity = get_col[1]
-            
-
-        # PRINT TESTING STATEMENTS
-            # print(f'SORTING BY:: "{sort_by.upper()}" COLUMN')
-            # print(f'IDENTIFIER IS:: {identity}')
-            # organize_by = get_col[0]
-            # print(f'COL NAME IS:: {organize_by}')
-            # data_to_sort = df.iloc[i][organize_by]
-            # print(f'CATEGORIZE DATA:: {data_to_sort}\n')
-            # # trans_type is the entire dictionary
-            # print(f'TRANSACTION TYPE IS:: {trans_type}\n')
-            # print("DF is :: ")
-            #pp.pprint(df)
-            ############################################## search_dict ##############################################
-            
-            #########data grouping search##############
-            mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
-            matching_rows = df.loc[mask.any(axis=1)]
-            skip_rows += matching_rows.index.tolist()
-
-            if len(matching_rows) >= 2:
-                print(f'{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::')
-                # print('ROWS MATCH\n')
-                data = []
-                for rows in matching_rows.index.tolist():
-                    data.append(list(df.iloc[rows])+[identity])
-                #pp.pprint(data)
-            else:
-                data = []
-                print('NO MATCH IN IMPORTED DATA:::')
-                for col in cols:
-                        data.append(df.iloc[i][col])
-                data.append(identity)
-                #pp.pprint(data)
-
+            all = search_one(cols, df, i, sort_by, skip_rows)
+            data = all[0]
+            identity = all[1]
+            skip_rows = all[2]
         else:
             continue
         searched_dict = search_dict(trans_type, data, identity)
@@ -602,6 +589,92 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     print('PROGRAM COMPLETE')
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     return new_dict
+
+# def split_purchases(df, formatted_df=0, budget_dict=0):
+#     cols = confirm_cols(df, formatted_df)
+#     #pp.pprint(df)
+#     print('BEGIN PURCHASE CATEGORIZATION')
+#     print('------------------------------------------------------------------------------------------------------')
+# # if statement separates data if a correctly formatted dictionary is passed to it
+# # else it creates a dictionary
+#     if type(budget_dict) == type({}):
+#         ######################################### get_categories ##############################################
+#         categories = get_categories(list(budget_dict.keys()))
+#         ######################################### make_dict ##############################################
+#         trans_type = make_dict(categories, budget_dict)
+#         ######################################### get_sort_by ##############################################
+#         sort_by = get_sort_by(df, 'CATEGORY DATA')
+#         print(f'SORT BY "{sort_by.upper()}" WITH DICT')
+
+#     else:
+#         ######################################### get_categories ##############################################
+#         categories = get_categories()
+#         ############################################## make_dict ##############################################
+#         trans_type = make_dict(categories)
+#         ############################################## get_sort_by ##############################################
+#         sort_by = get_sort_by(df, 'CATEGORY DATA')
+#         print(f'SORT BY "{sort_by.upper()}" WITHOUT DICT')
+
+#     skip_rows = []
+#     for i in range(len(df)):
+#         ##############################################add_trans_type ###############################################
+#         if i not in skip_rows:
+#             search_all(df, i, sort_by)
+#             get_col = add_trans_type(df, i, sort_by)
+#             identity = get_col[1]
+            
+
+#         # PRINT TESTING STATEMENTS
+#             # print(f'SORTING BY:: "{sort_by.upper()}" COLUMN')
+#             # print(f'IDENTIFIER IS:: {identity}')
+#             # organize_by = get_col[0]
+#             # print(f'COL NAME IS:: {organize_by}')
+#             # data_to_sort = df.iloc[i][organize_by]
+#             # print(f'CATEGORIZE DATA:: {data_to_sort}\n')
+#             # # trans_type is the entire dictionary
+#             # print(f'TRANSACTION TYPE IS:: {trans_type}\n')
+#             # print("DF is :: ")
+#             #pp.pprint(df)
+#             ############################################## search_dict ##############################################
+            
+#             #########data grouping search##############
+#             mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
+#             matching_rows = df.loc[mask.any(axis=1)]
+#             skip_rows += matching_rows.index.tolist()
+
+#             if len(matching_rows) >= 2:
+#                 print(f'{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::')
+#                 # print('ROWS MATCH\n')
+#                 data = []
+#                 for rows in matching_rows.index.tolist():
+#                     data.append(list(df.iloc[rows])+[identity])
+#                 #pp.pprint(data)
+#             else:
+#                 data = []
+#                 print('NO MATCH IN IMPORTED DATA:::')
+#                 for col in cols:
+#                         data.append(df.iloc[i][col])
+#                 data.append(identity)
+#                 #pp.pprint(data)
+
+#         else:
+#             continue
+#         searched_dict = search_dict(trans_type, data, identity)
+#         new_dict = searched_dict[0]
+#         if 'identified' not in searched_dict[1].lower():
+#             budget_dict = add_data(new_dict, data)
+#     #pp.pprint(budget_dict)
+#         # PROBLEM HERE, BOTH new_dict and budget_dict do the same thing,..... 
+#         #pp.pprint(new_dict)
+#     # print('budget_dict')
+#     # print(budget_dict)
+#     # print('new_dict')
+#     # print(new_dict)
+#     #####
+#     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+#     print('PROGRAM COMPLETE')
+#     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+#     return new_dict
 
 
 def test_date(df):

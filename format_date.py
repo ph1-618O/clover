@@ -30,3 +30,15 @@ date_dict = {
 def input_date_format(date):
     print('PLEASE CHOOSE THE NUMBER THAT CORRESPONDS TO THE DATE FORMAT\n')
     print()
+
+
+# regex for "Oct 21, 2014" or "October 21, 2014"
+# need more sophisticated validations such as validating the number of days for a specific month
+#(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2})\s+(\d{4})
+# February 2009
+#\b(?:Jan(?:uary)?|Feb(?:ruary)?|...|Dec(?:ember)?) (?:19[7-9]\d|2\d{3})(?=\D|$)
+# or
+#(\b\d{1,2}\D{0,3})?\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|(Nov|Dec)(?:ember)?)\D?(\d{1,2}\D?)?\D?((19[7-9]\d|20\d{2})|\d{2})
+#yyyy-mm-dd
+
+#(\d+(?:/|\\|-)\d+(?:/|\\|-)\d{4}$)

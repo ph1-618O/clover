@@ -758,7 +758,7 @@ def main():
     print('------------------------------------------------------------------------------------------------------')
     ### place to limit data use data.head(num)
     if dictionary:
-        trans_dict = split_purchases(data.head(12), formatted_df, dictionary)
+        trans_dict = split_purchases(data, formatted_df, dictionary)
     else:
         trans_dict = split_purchases(data, formatted_df)
 

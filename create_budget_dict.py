@@ -307,12 +307,11 @@ def get_categories(categories = 0):
     else:
         print('------------------------------------------------------------------------------------------------------')
         cat_list3 = " - ".join([str(x) for x in [*categories]])
-        c_len3 = len(cat_list2)
+        c_len3 = len(cat_list3)
         print(f'CATEGORIES ARE:::\n"{cat_list3[:int(c_len3/2)]}\n{cat_list3[int(c_len3/2):]}"')
         #print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories]])}"')
         print('------------------------------------------------------------------------------------------------------\n')
         print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
-    time.sleep(1)
     return categories
 
 # <<<<<<<<WORKING>>>>>>>>>>>
@@ -480,10 +479,8 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                                         value.append(data + [key])
                                         return budget_dict, 'identified'
                                 return budget_dict, 'identified'
-                                time.sleep(1) 
                         else:
                             pass              
-    time.sleep(1)
     return budget_dict, 'unknown'
 
 

@@ -72,7 +72,7 @@ def version_assistant():
 # i had to get from the clipboard on websites
 
 
-def read_clip():
+def import_clip():
     clipDF = pd.read_clipboard()
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     csvName = input('WHAT TYPE OF ACCOUNT FOR FILENAME?\n')
@@ -173,8 +173,8 @@ def get_sort_by(df, sort_query):
         df[sort_query]
         sort = sort_query
     except:
-        import create_budget_dict
-        sort_col = create_budget_dict.constrain_input_loop(sort_query, list(df.columns))
+        import budget
+        sort_col = budget.constrain_input_loop(sort_query, list(df.columns))
         sort = ' '.join(str(elem)
                         for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
@@ -194,7 +194,7 @@ def format_data(df, columns_list=0, remove_first=0):
     return df
 
 # Bringing in Data
-def read_csv():
+def import_csv():
     csvName = input('ENTER CSV NAME\n')
     print('-----------------------------------------')
     if csvName.endswith('.csv'):
@@ -275,8 +275,8 @@ def get_col_names(df):
 def initiate_format(df = 0):
     print('FORMATTING CLIPBOARD, EXCEL OR CSV INPUT')
     print('------------------------------------------------------------------------------------------------------')
-    # df = read_clip()
-    # df = read_csv()
+    # df = import_clip()
+    # df = import_csv()
 # Asking user if they want to rename the columns
     test_cols = get_col_names(df)
     cols = test_cols[0]

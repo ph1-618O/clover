@@ -340,7 +340,7 @@ def constrain_input_loop(sort_query, list_options):
                 # why is error thrown when exit == 'y' ??
 
 
-def add_trans_type(df, i, sort_by=0):
+def add_transaction_type(df, i, sort_by=0):
     ####################################################get_sort_by####################################################
     if sort_by:
         purchase_type = df[sort_by][i].replace('*', ' ').split()
@@ -551,7 +551,7 @@ def confirm_cols(df, formatted_df=0):
 #         #identity = search_all(df, row, sort_by, row_split)
 #         ## get_col used if search_all fails
 #         else:
-#             get_id = add_trans_type(df, row, sort_by)
+#             get_id = add_transaction_type(df, row, sort_by)
 #             identity = get_id[1]
 #             mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
 #             matching_rows = df.loc[mask.any(axis=1)]
@@ -597,7 +597,7 @@ def confirm_cols(df, formatted_df=0):
 
 #     skip_rows = []
 #     for i in range(len(df)):
-#         ##############################################add_trans_type ###############################################
+#         ##############################################add_transaction_type ###############################################
 #         if i not in skip_rows:
 #             all = search_row(cols, df, i, sort_by, skip_rows, 'searching')
 #             data = all[0]
@@ -692,7 +692,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     for i in range(len(df)):
         ##############################################add_trans_type ###############################################
         if i not in skip_rows:
-            get_col = add_trans_type(df, i, sort_by)
+            get_col = add_transaction_type(df, i, sort_by)
             identity = get_col[1]
             
 

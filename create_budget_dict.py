@@ -443,7 +443,12 @@ def add_data(budget_dict, data):
     for key, value in budget_dict.items():
         if location[:3] == key[:3]:
             print(f'YOU ENTERED "{location.upper()}" WE ARE MATCHING TO "{key.upper()}"')
-            value.append(data+[key])
+            if type(data[0]) != type([]):
+                value.append(data+key)
+            else:
+                for z in data:
+                    z.append(key)
+                    value.append(z)
             print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
             print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
             time.sleep(2)
@@ -476,7 +481,7 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                                             else:
                                                 value.append(data + [key])
                                                 #print(value)
-                                                break
+                                                return budget_dict, 'identified'
                                         time.sleep(1)
                                         #pp.pprint(budget_dict)
                                         return budget_dict, 'identified'
@@ -585,7 +590,8 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
                 #pp.pprint(data)
 
         else:
-            break
+            pass
+            #break
         searched_dict = search_dict(trans_type, data, identity)
         new_dict = searched_dict[0]
         if searched_dict[1] != 'identified':
@@ -605,7 +611,8 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
 
 
 def test_date(df):
-    df['date']= pd.to_datetime(df.date)
+
+    df['date']= pd.to_datetime(df['date'])
     #pp.pprint(df)
     unique_cats = df.category.unique()
     #print(unique_cats)
@@ -636,40 +643,20 @@ def dict_to_Frame(data_dict):
         elif len(value) == 0:
             skip_list.append(key)
         else:
-            # print(f'{value}')
-            #db = pd.DataFrame()
             for i in range(len(value)):
                 if len(value[i]) == len(data_dict['0_format']):
                     rows.append(value[i])
                 else:
                     rows.append(value[i]+[key])
-            if 'category' not in data_dict['0_format']:
-                cols = data_dict['0_format'] + ['category']
-            else:
-                cols = data_dict['0_format']      
+        if 'category' not in data_dict['0_format']:
+            cols = data_dict['0_format'] + ['category']
+        else:
+            cols = data_dict['0_format']      
     # print('********TEST******')
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     ## PLACE TO ADD EXTRA COLUMNS 
-    df = pd.DataFrame(np.array(rows), columns=['date', 'location data', 'float amount', 'identifier', 'category'])
-    # df['date']= pd.to_datetime(df.date)
-    # #pp.pprint(df)
-    # unique_cats = df.category.unique()
-    # #print(unique_cats)
-    # test_dict = {}
-    # key = []
-    # for i in unique_cats:
-    #     separate_df = df.loc[df['category'] == i]
-    #     key = []
-    #     for j in range(len(separate_df)):
-    #         key.append(separate_df.iloc[j].tolist())
-    #     test_dict[i] = key    
-    #     #key.append(separate_df)
-    #     #test_dict['i'] = separate_df.set_index('category').T.to_dict('list')
-    # pp.pprint(test_dict)
-    # #test_dict = df.set_index('category').T.to_dict('list')
-    # pp.pprint(df)
-
-    # #pp.pprint(test_dict)
+    #pp.pprint(rows)
+    df = pd.DataFrame(np.array(rows), columns=cols)
     skip_list_p = ", ".join(skip_list)
     len_skip = int(len(skip_list_p)/2)
     print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME::: {skip_list_p[:len_skip]}\n{skip_list_p[len_skip:]}'))
@@ -721,7 +708,7 @@ def main():
     dictionary = {
     '0_format': ['date', 'location data', 'float amount', 'identifier', 'category'],
     'home': [
-        ['01/24/21', 'HOME_DEPOT',  -57, 'HOME','home'],
+        ['01/24/21', 'HOME_DEPOT',  -57, 'DEPOT','home'],
         ['01/12/21', 'LOWES', -100, 'LOWES', 'home'],
         ['02/14/21', 'TRUE_VALUE', -60, 'TRUE', 'home']],
 
@@ -738,7 +725,7 @@ def main():
         ['03/22/21', 'SHELL OIL 2423423423423 LUCY, PA', -28, 'SHELL', 'gas']
     ],
     'utilities':[
-        ['03/18/21', 'DENVER SANITATION 489-4698-06456 CO', -80, 'SANITATION', 'gas']
+        ['03/18/21', 'DENVER SANITATION 489-4698-06456 CO', -80, 'SANITATION', 'utilities']
         ]
 }
 
@@ -771,8 +758,18 @@ def main():
     print('------------------------------------------------------------------------------------------------------')
     #pp.pprint(trans_dict)
     # <<<<<<<<WORKING>>>>>>>>>>>
-    # trans_dict = test_date_amount(trans_dict)
+    show_dict = input('PRINT OUT DICT Y/N\n')
+    if 'y' in show_dict.lower():
+        print('DICTIONARY VALUES :::::')
+        pp.pprint(trans_dict)
+        print('------------------------------------------------------------------------------------------------------')
     converted_DF = dict_to_Frame(trans_dict)
+    show_df = input('PRINT OUT DATAFRAME Y/N\n')
+    if 'y' in show_df.lower():
+        print('DATAFRAME :::::')
+        pp.pprint(converted_DF)
+        print('------------------------------------------------------------------------------------------------------')
+
     trans_dict = test_date(converted_DF)
     print('------------------------------------------------------------------------------------------------------')
     # show_dict = input('PRINT OUT DICT Y/N\n')

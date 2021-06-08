@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-# Create budget dict. py takes a given csv, clipboard copy from a table, or excel file and sorts the data
+# Budget.py takes a given csv, clipboard copy from a table, or excel file and sorts the data
 # into a dictionary with a budget category as the key
 # it also asks the user what are the necessary columns for their budget
 # once the program begins it passes a unique identifier to each row entry
@@ -116,7 +116,7 @@ def get_data_type():
             print('RUNNING FORMAT_DATA PROGRAM')
             import format_data
             if 'clip' in import_data.lower():
-                data = read_clip()
+                data = import_clip()
                 data = format_data.initiate_format(data)
                 for i in data.columns:
                     data = data.rename(columns={i: i.lower()})
@@ -161,7 +161,7 @@ def get_data_type():
     return data, formatted
 
 
-def read_clip():
+def import_clip():
     clipDF = pd.read_clipboard()
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     csvName = input('WHAT TYPE OF ACCOUNT FOR FILENAME?\n')
@@ -170,15 +170,9 @@ def read_clip():
     return pd.read_csv(csvName)
 
 
-def reading_clipboard():
-    clipDF = pd.read_clipboard()
-    csvName = input('What type of account is it?')
-    csvName = csvName + '.csv'
-    clipDF.to_csv(csvName, index=False)
-
 ## <<<<<<<<WORKING>>>>>>>>>>>
 ##  Redundant, kept if needed to add more than one csv file in the future?
-# def read_csv():
+# def import_csv():
 #     csvName = input('ENTER CSV LOCATION\\NAME\n')
 #     print('------------------------------------------------------------------------------------------------------')
 #     if csvName.endswith('.csv'):
@@ -211,7 +205,7 @@ def save_csv(df):
         print('EXITING')
         #exit()
 
-def read_excel(path):
+def import_excel(path):
     sheet_or_file = input('IS YOUR EXCEL FILE ON A SHEET? Y/N\n')
     if 'n' in sheet_or_file.lower():
         df = pd.read_excel(fr'{path}')

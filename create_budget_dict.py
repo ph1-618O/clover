@@ -253,10 +253,6 @@ def get_categories(categories = 0):
     defaults = sorted(['food', 'fast_food', 'home', 'pets', 'restaurants', 'utilities',
                 'transportation', 'gas', 'medical', 'fun', 'deposits', 'interest', 'savings', 'debt', 'income'])
     if  categories:
-        #print(f'{sorted(defaults + ["0_format"])}')
-        #print(len(defaults + ["0_format"]))
-        #print(sorted(categories))
-        #print(len(categories))
         if type(categories) == type([]):
             if len(categories) < len(defaults + ['0_format']):
                 #Trying to skip printing out 0_format, needs better code
@@ -273,7 +269,7 @@ def get_categories(categories = 0):
                 #{" - ".join(categories)}
                 d_list = " - ".join([i.lower() for i in add_defaults])
                 d_len = len(d_list)
-                print(f'DEFAULTS:::\n "{d_list[:int(d_len/2)]}\n{d_list[int(d_len/2):]}"\nNOT IN CURRENT CATEGORIES\n------------------------------------------------------------------------------------------------------')
+                print(f'DEFAULTS NOT IN CURRENT CATEGORIES:::\n "{d_list[:int(d_len/2)]}\n{d_list[int(d_len/2):]}"\n------------------------------------------------------------------------------------------------------')
                 confirm_addition = input('ADD EXTRA DEFAULTS TO CATEGORIES Y/N\n')
                 if 'y' in confirm_addition.lower():
                     for i in add_defaults:
@@ -369,7 +365,7 @@ def add_trans_type(df, i, sort_by=0):
                     print(
                         '//////////////////////////////////////////////////////////////////////////////////////////////////////')
                     print(
-                        f'YOU WILL SORT THIS TRANS BY COLUMN:: "{str(sort_by).upper()}" IDENTIFIER::{purchase_type[index].upper()}\n')
+                        f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::{purchase_type[index].upper()}')
                     return sort_by, purchase_type[index].lower()
                 else:
                     print(
@@ -437,7 +433,7 @@ def add_data(budget_dict, data):
             f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n')
         if 'y' in add_key:
             budget_dict[location] = []
-            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL\n')
+            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL')
 
     # Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
@@ -445,7 +441,7 @@ def add_data(budget_dict, data):
             print(f'YOU ENTERED "{location.upper()}" WE ARE MATCHING TO "{key.upper()}"')
             if type(data[0]) != type([]):
                 value.append(data+[key])
-                print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
+                print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
                 print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
                 return budget_dict
             elif type(data[0]) == type([]) and len(data) > 1:
@@ -571,7 +567,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             skip_rows += matching_rows.index.tolist()
 
             if len(matching_rows) >= 2:
-                print(f'{len(matching_rows)} ROWS MATCHED:::\n')
+                print(f'{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::')
                 # print('ROWS MATCH\n')
                 data = []
                 for rows in matching_rows.index.tolist():
@@ -579,7 +575,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
                 #pp.pprint(data)
             else:
                 data = []
-                print('NO MATCH IN IMPORTED DATA:::\n')
+                print('NO MATCH IN IMPORTED DATA:::')
                 for col in cols:
                         data.append(df.iloc[i][col])
                 data.append(identity)
@@ -654,7 +650,7 @@ def dict_to_Frame(data_dict):
     df = pd.DataFrame(np.array(rows), columns=cols)
     skip_list_p = ", ".join(skip_list)
     len_skip = int(len(skip_list_p)/2)
-    print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME::: {skip_list_p[:len_skip]}\n{skip_list_p[len_skip:]}'))
+    print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME:::\n{skip_list_p[:len_skip]}\n{skip_list_p[len_skip:]}'))
     return df
 
 # <<<<<<<<WORKING>>>>>>>>>>>

@@ -534,11 +534,13 @@ def search_row(cols, df, row, sort_by, skip_rows, match_status):
                     data = []
                     for rows in matching_rows.index.tolist():
                         data.append(list(df.iloc[rows])+[identity])
+                    counter += 1
                 else:
                     data = []
-                    print('NO MATCH IN IMPORTED DATA:::')
+                    #print('NO MATCH IN IMPORTED DATA:::')
+                    counter += 1
                     continue
-                counter += 1
+                #counter += 1
             match_status = 'not_found'
 
         #identity = search_all(df, row, sort_by, row_split)
@@ -598,6 +600,9 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             skip_rows = all[2]
         else:
             continue
+        pp.pprint(data)
+        print(identity)
+        print(i)
         searched_dict = search_dict(trans_type, data, identity)
         new_dict = searched_dict[0]
         if 'identified' not in searched_dict[1].lower():
@@ -615,6 +620,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     return new_dict
 
+# Remember to delete search row, search all and new split purchases if starting over
 # def split_purchases(df, formatted_df=0, budget_dict=0):
 #     cols = confirm_cols(df, formatted_df)
 #     #pp.pprint(df)

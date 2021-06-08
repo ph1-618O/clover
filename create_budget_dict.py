@@ -444,18 +444,14 @@ def add_data(budget_dict, data):
         if location[:3] == key[:3]:
             print(f'YOU ENTERED "{location.upper()}" WE ARE MATCHING TO "{key.upper()}"')
             if type(data[0]) != type([]):
-                print('LOOP XI')
                 value.append(data+[key])
                 print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
                 print(f'ADDITION TO "{key.upper()}" SUCCESSFUL 2\n')
                 return budget_dict
             elif type(data[0]) == type([]) and len(data) > 1:
-                print('LOOP HUNT VII')
                 for z in data:
-                    print('LOOP HUNT IX')
                     z.append(key)
                     value.append(z)
-                print('LOOP OK HERE')
                 print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
                 print(f'ADDITION TO "{key.upper()}" SUCCESSFUL 3\n')
                 return budget_dict
@@ -471,10 +467,6 @@ def add_data(budget_dict, data):
 # Need to clean up add_Data and search_dict
 def search_dict(budget_dict, data, data_point):  # location is column name
     print(f'SEARCHING DICT FOR {data_point.upper()}')
-    #pp.pprint(budget_dict)
-    #r = re.compile('.*'+ data_point, re.IGNORECASE)
-    #print(data)
-    loop_counter = 0
     for key, value in budget_dict.items():
         # skip keys that are empty
         if value and len(value) > 0:
@@ -489,80 +481,20 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                                 print(f'ADDING TO CATEGORY "{key.upper()}"')
                                 for x in data:
                                     if type(x) == type([]) and len(data) == 1:
-                                        print('LOOP HUNT I TESTING BREAK')
                                         return budget_dict, 'identified'
-                                        break
-                                        value.append(x + [key])
-                                        print('LOOP HUNT I')
-                                        pp.pprint(budget_dict)
                                     elif type(x) == type([]) and len(data) > 1:
                                         value.append(x + [key])
-                                        print('LOOP HUNT X')
                                     else:
                                         value.append(data + [key])
-                                        print('LOOP HUNT II')
                                         return budget_dict, 'identified'
                                 return budget_dict, 'identified'
-                                time.sleep(1)
-                                #pp.pprint(budget_dict)
-                        #elif 
+                                time.sleep(1) 
                         else:
-                            loop_counter += 1
-                            #print('LOOP HUNT III')
-                            pass
-                
-    ######################################### add_data ##########################################################
+                            pass              
     time.sleep(1)
-    print(loop_counter)
-    print('LOOP HUNT IV')
     return budget_dict, 'unknown'
 
 
-
-
-# # <<<<<<<<WORKING>>>>>>>>>>>
-# # Need to clean up add_Data and search_dict
-# def search_dict(budget_dict, data, data_point):  # location is column name
-#     print(f'SEARCHING DICT FOR {data_point.upper()}')
-#     #pp.pprint(budget_dict)
-#     #r = re.compile('.*'+ data_point, re.IGNORECASE)
-#     #print(data)
-#     loop_counter = 0
-#     for key, value in budget_dict.items():
-#         # skip keys that are empty
-#         if value and len(value) > 0:
-#             for i in value:
-#                 if i and len(i) > 0:
-#                     for j in i:
-#                         if re.search(rf'{data_point}', str(j), re.IGNORECASE) != None:
-#                                 print('LOOP HUNT V')
-#                                 print(
-#                                     '//////////////////////////////////////////////////////////////////////////////////////////////////////')
-#                                 print(f'DATA POINT IDENTIFIED')
-#                                 print(f'ADDING TO CATEGORY "{key.upper()}"')
-#                                 for x in data:
-#                                     if type(x) == type([]):
-#                                         print('LOOP HUNT I TESTING BREAK')
-#                                         return budget_dict, 'identified'
-#                                         break
-#                                         value.append(x + [key])
-#                                         print('LOOP HUNT I')
-#                                         pp.pprint(budget_dict)
-#                                     else:
-#                                         value.append(data + [key])
-#                                         print('LOOP HUNT II')
-#                                         return budget_dict, 'identified'
-#                                 time.sleep(1)
-#                                 #pp.pprint(budget_dict)
-#                         else:
-#                             loop_counter += 1
-#                             #print('LOOP HUNT III')
-#                             pass
-#     ######################################### add_data ##########################################################
-#     time.sleep(1)
-#     print(loop_counter)
-#     print('LOOP HUNT IV')
-#     return budget_dict, 'unknown'
 
 # <<<<<<<<WORKING>>>>>>>>>>>
 # NEED TO ADD TRY/ACCEPT STATEMENTS for ALL_INPUTS
@@ -666,7 +598,6 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
         else:
             continue
         searched_dict = search_dict(trans_type, data, identity)
-        print('LOOP HUNT VI')
         print(searched_dict[1])
         new_dict = searched_dict[0]
         if 'identified' not in searched_dict[1].lower():

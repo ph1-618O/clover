@@ -104,7 +104,7 @@ def get_data_type():
         print('DATASET SAMPLE')
         print('------------------------------------------------------------------------------------------------------')
         pp.pprint(data.head())
-        pp.pprint(data.describe())
+        #pp.pprint(data.describe())
         print('------------------------------------------------------------------------------------------------------\n\n')
         formatted = 'formatted'
 
@@ -235,8 +235,9 @@ def get_sort_by(df, sort_query):
     print('------------------------------------------------------------------------------------------------------')
     print(f'SORTING BY "{sort_query.upper()}"')
     print('------------------------------------------------------------------------------------------------------')
-    print(f'OPTIONS::: {" - ".join(list(df.columns))}')
-    print('------------------------------------------------------------------------------------------------------')
+    if sort_query != 'CATEGORY DATA':
+        print(f'OPTIONS::: {" - ".join(list(df.columns))}')
+        print('------------------------------------------------------------------------------------------------------')
     #none_in = [print(list(df.columns)[i].upper(), end =" ") for i in range(len(list(df.columns)))]
     sort_col = constrain_input_loop(sort_query, list(df.columns))
     # sort_col = input(
@@ -259,16 +260,20 @@ def get_categories(categories = 0):
         if type(categories) == type([]):
             if len(categories) < len(defaults + ['0_format']):
                 #Trying to skip printing out 0_format, needs better code
+                categories_list = " - ".join(sorted(categories)[1:])
+                c_len = len(categories_list)
                 if '0_format' in categories:
-                    print(f'CURRENT CATEGORIES::: {" - ".join(sorted(categories)[1:])}\n------------------------------------------------------------------------------------------------------')
+                    print(f'CURRENT CATEGORIES::: {categories_list[:int(c_len/2)]}\n{categories_list[int(c_len/2):]}\n------------------------------------------------------------------------------------------------------')
                 else:
-                    print(f'CURRENT CATEGORIES::: {" - ".join(sorted(categories))}\n------------------------------------------------------------------------------------------------------')
+                    print(f'CURRENT CATEGORIES::: {categories_list[:int(c_len/2)]}\n{categories_list[int(c_len/2):]}\n------------------------------------------------------------------------------------------------------')
                 add_defaults = []
                 for i in defaults:
                     if i not in categories:
                         add_defaults.append(i)
                 #{" - ".join(categories)}
-                print(f'DEFAULTS::: "{" - ".join([i.lower() for i in add_defaults])}" NOT IN CURRENT CATEGORIES\n------------------------------------------------------------------------------------------------------')
+                d_list = " - ".join([i.lower() for i in add_defaults])
+                d_len = len(d_list)
+                print(f'DEFAULTS:::\n "{d_list[:int(d_len/2)]}\n{d_list[int(d_len/2):]}"\nNOT IN CURRENT CATEGORIES\n------------------------------------------------------------------------------------------------------')
                 confirm_addition = input('ADD EXTRA DEFAULTS TO CATEGORIES Y/N\n')
                 if 'y' in confirm_addition.lower():
                     for i in add_defaults:
@@ -276,7 +281,9 @@ def get_categories(categories = 0):
                     categories = sorted(categories)
     else:
         print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-        print(f'DEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n{" - ".join(defaults)}\n------------------------------------------------------------------------------------------------------')
+        d_list2 = " - ".join(defaults)
+        d_len2 = len(d_list2)
+        print(f'DEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n{d_list2[:int(d_len2/2)]}\n{d_list2[int(d_len2/2):]}\n------------------------------------------------------------------------------------------------------')
         use_defaults = input('USE DEFAULTS::: Y/N\n')
         if 'y' in use_defaults:
             categories = defaults
@@ -296,12 +303,17 @@ def get_categories(categories = 0):
 # add a loop to make sure you fix all the type errors
     if categories[0].lower() == '0_format':
         print('------------------------------------------------------------------------------------------------------')
-        print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories[1:]]])}"')
+        cat_list2 = " - ".join([str(x) for x in [*categories[1:]]])
+        c_len2 = len(cat_list2)
+        print(f'CATEGORIES ARE::: "{cat_list2[:int(c_len2/2)]}\n{cat_list2[int(c_len2/2):]}"')
         print('------------------------------------------------------------------------------------------------------\n')
         print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
     else:
         print('------------------------------------------------------------------------------------------------------')
-        print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories]])}"')
+        cat_list3 = " - ".join([str(x) for x in [*categories]])
+        c_len3 = len(cat_list2)
+        print(f'CATEGORIES ARE:::\n"{cat_list3[:int(c_len3/2)]}\n{cat_list3[int(c_len3/2):]}"')
+        #print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories]])}"')
         print('------------------------------------------------------------------------------------------------------\n')
         print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
     time.sleep(1)
@@ -415,9 +427,10 @@ def add_data(budget_dict, data):
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('RUNNING ADD DATA')
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+    cat_options2 = " - ".join(sorted(list(budget_dict.keys()))[1:])
+    len_cat = int(len(cat_options2)/2)
     location = str(input(
-        f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {" - ".join(sorted(list(budget_dict.keys()))[1:])}\n------------------------------------------------------------------------------------------------------\n'))
-
+        f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n'))
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
     if location[:3] not in [i[:3] for i in budget_dict.keys()]:
         add_key = input(
@@ -429,9 +442,9 @@ def add_data(budget_dict, data):
     # Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
         if location[:3] == key[:3]:
-            value.append(data.append(location))
+            print(f'YOU ENTERED "{location.upper()}" WE ARE MATCHING TO "{key.upper()}"')
+            value.append(data+[key])
             print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
-            print(f'YOU ENTERED "{location}" WE ARE MATCHING TO "{key.upper()}"')
             print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
             time.sleep(2)
     return budget_dict
@@ -440,10 +453,10 @@ def add_data(budget_dict, data):
 # <<<<<<<<WORKING>>>>>>>>>>>
 # Need to clean up add_Data and search_dict
 def search_dict(budget_dict, data, data_point):  # location is column name
-    print('SEARCHING DICT')
-    print(data_point)
+    print(f'SEARCHING DICT FOR {data_point.upper()}')
     #pp.pprint(budget_dict)
     #r = re.compile('.*'+ data_point, re.IGNORECASE)
+    #print(data)
     for key, value in budget_dict.items():
         if value:
             if len(value) > 0:
@@ -455,9 +468,15 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                                         print(
                                             '//////////////////////////////////////////////////////////////////////////////////////////////////////')
                                         print(f'DATA POINT IDENTIFIED')
-                                        print(f'ADDING TO CATEGORY "{key}"')
+                                        print(f'ADDING TO CATEGORY "{key.upper()}"')
                                         for x in data:
-                                            value.append(x + [key])
+                                            if type(x) == type([]):
+                                                value.append(x + [key])
+                                                #print(value)
+                                            else:
+                                                value.append(data + [key])
+                                                #print(value)
+                                                break
                                         time.sleep(1)
                                         #pp.pprint(budget_dict)
                                         return budget_dict, 'identified'
@@ -544,13 +563,14 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             #########data grouping search##############
             mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
             matching_rows = df.loc[mask.any(axis=1)]
-            print(f'{len(matching_rows)} ROWS MATCHED:::\n')
-            pp.pprint(matching_rows)
+            
+            #pp.pprint(matching_rows)
             skip_rows += matching_rows.index.tolist()
             # skip_rows.append(''.join(str(m) for m in matching_rows.index.tolist()))
-            print(sorted(skip_rows))
+            #print(sorted(skip_rows))
 
             if len(matching_rows) >= 2:
+                print(f'{len(matching_rows)} ROWS MATCHED:::\n')
                 # print('ROWS MATCH\n')
                 data = []
                 for rows in matching_rows.index.tolist():
@@ -558,7 +578,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
                 #pp.pprint(data)
             else:
                 data = []
-                print('NO MATCH:::\n')
+                print('NO MATCH IN IMPORTED DATA:::\n')
                 for col in cols:
                         data.append(df.iloc[i][col])
                 data.append(identity)
@@ -604,7 +624,7 @@ def test_date(df):
 
 
 def dict_to_Frame(data_dict):
-    pp.pprint(data_dict)
+    #pp.pprint(data_dict)
     skip_list = []
     rows = []
     for key, value in data_dict.items():
@@ -650,8 +670,9 @@ def dict_to_Frame(data_dict):
     # pp.pprint(df)
 
     # #pp.pprint(test_dict)
-
-    print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME::: {", ".join(skip_list)}'))
+    skip_list_p = ", ".join(skip_list)
+    len_skip = int(len(skip_list_p)/2)
+    print((f'NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME::: {skip_list_p[:len_skip]}\n{skip_list_p[len_skip:]}'))
     return df
 
 # <<<<<<<<WORKING>>>>>>>>>>>

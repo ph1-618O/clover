@@ -437,7 +437,7 @@ def add_data(budget_dict, data):
             f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n')
         if 'y' in add_key:
             budget_dict[location] = []
-            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL 1\n')
+            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL\n')
 
     # Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
@@ -446,20 +446,17 @@ def add_data(budget_dict, data):
             if type(data[0]) != type([]):
                 value.append(data+[key])
                 print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
-                print(f'ADDITION TO "{key.upper()}" SUCCESSFUL 2\n')
+                print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
                 return budget_dict
             elif type(data[0]) == type([]) and len(data) > 1:
                 for z in data:
                     z.append(key)
                     value.append(z)
                 print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
-                print(f'ADDITION TO "{key.upper()}" SUCCESSFUL 3\n')
+                print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
                 return budget_dict
             else:
                 print('ERROR SKIPPING')
-            # print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
-            # print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
-            #time.sleep(2)
     return budget_dict
 
 
@@ -474,7 +471,6 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                 if i and len(i) > 0:
                     for j in i:
                         if re.search(rf'{data_point}', str(j), re.IGNORECASE) != None:
-                                print('LOOP HUNT V')
                                 print(
                                     '//////////////////////////////////////////////////////////////////////////////////////////////////////')
                                 print(f'DATA POINT IDENTIFIED')
@@ -550,9 +546,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     skip_rows = []
     for i in range(len(df)):
         ##############################################add_trans_type ###############################################
-        print(sorted(skip_rows))
         if i not in skip_rows:
-            print(i)
             #print('TRUE I NOT IN SKIP ROWS')
             get_col = add_trans_type(df, i, sort_by)
             identity = get_col[1]
@@ -574,11 +568,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             #########data grouping search##############
             mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
             matching_rows = df.loc[mask.any(axis=1)]
-            
-            #pp.pprint(matching_rows)
             skip_rows += matching_rows.index.tolist()
-            # skip_rows.append(''.join(str(m) for m in matching_rows.index.tolist()))
-            print(sorted(skip_rows))
 
             if len(matching_rows) >= 2:
                 print(f'{len(matching_rows)} ROWS MATCHED:::\n')
@@ -598,7 +588,6 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
         else:
             continue
         searched_dict = search_dict(trans_type, data, identity)
-        print(searched_dict[1])
         new_dict = searched_dict[0]
         if 'identified' not in searched_dict[1].lower():
             budget_dict = add_data(new_dict, data)
@@ -637,7 +626,7 @@ def test_date(df):
 
 
 def dict_to_Frame(data_dict):
-    #pp.pprint(data_dict)
+    print('PROCCESSING DATAFRAME')
     skip_list = []
     rows = []
     for key, value in data_dict.items():

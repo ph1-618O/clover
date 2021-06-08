@@ -509,15 +509,15 @@ def confirm_cols(df, formatted_df=0):
     return cols
 
 
-def search_all(df, row_num, sort_by, trans_split):
-    print('------------------------------------------------------------------------------------------------------')
-    print(f'SEARCHING ALL "{sort_by.upper()}" STRING FOR IDENTIFIERS')
-    print(trans_split)
-    counter = 0
-    while counter < len(purchase_types):
-        counter += 1
-        return purchase_types[counter].lower(), 'searching'
-    return 'match'
+# def search_all(df, row_num, sort_by, trans_split):
+#     print('------------------------------------------------------------------------------------------------------')
+#     print(f'SEARCHING ALL "{sort_by.upper()}" STRING FOR IDENTIFIERS')
+#     print(trans_split)
+#     counter = 0
+#     while counter < len(purchase_types):
+#         counter += 1
+#         return purchase_types[counter].lower(), 'searching'
+#     return 'match'
 
 def search_row(cols, df, row, sort_by, skip_rows, match_status):
         if match_status == 'searching':
@@ -537,9 +537,7 @@ def search_row(cols, df, row, sort_by, skip_rows, match_status):
                 else:
                     data = []
                     print('NO MATCH IN IMPORTED DATA:::')
-                    for col in cols:
-                            data.append(df.iloc[row][col])
-                    data.append(identity)
+                    continue
                 counter += 1
             match_status = 'not_found'
 

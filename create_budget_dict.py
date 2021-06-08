@@ -444,11 +444,14 @@ def add_data(budget_dict, data):
         if location[:3] == key[:3]:
             print(f'YOU ENTERED "{location.upper()}" WE ARE MATCHING TO "{key.upper()}"')
             if type(data[0]) != type([]):
-                value.append(data+key)
+                value.append(data+[key])
             else:
+                print('LOOP HUNT VII')
                 for z in data:
+                    print('LOOP HUNT IX')
                     z.append(key)
                     value.append(z)
+                print('LOOP OK HERE')
             print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
             print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
             time.sleep(2)
@@ -462,6 +465,7 @@ def search_dict(budget_dict, data, data_point):  # location is column name
     #pp.pprint(budget_dict)
     #r = re.compile('.*'+ data_point, re.IGNORECASE)
     #print(data)
+    loop_counter = 0
     for key, value in budget_dict.items():
         if value:
             if len(value) > 0:
@@ -470,25 +474,33 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                         if len(i) > 0:
                             for j in i:
                                 if re.search(rf'{data_point}', str(j), re.IGNORECASE) != None:
+                                        print('LOOP HUNT V')
                                         print(
                                             '//////////////////////////////////////////////////////////////////////////////////////////////////////')
                                         print(f'DATA POINT IDENTIFIED')
                                         print(f'ADDING TO CATEGORY "{key.upper()}"')
                                         for x in data:
                                             if type(x) == type([]):
+                                                print('LOOP HUNT I TESTING BREAK')
+                                                break
                                                 value.append(x + [key])
-                                                #print(value)
+                                                print('LOOP HUNT I')
+                                                pp.pprint(budget_dict)
                                             else:
                                                 value.append(data + [key])
-                                                #print(value)
+                                                print('LOOP HUNT II')
                                                 return budget_dict, 'identified'
                                         time.sleep(1)
                                         #pp.pprint(budget_dict)
                                         return budget_dict, 'identified'
                                 else:
+                                    loop_counter += 1
+                                    #print('LOOP HUNT III')
                                     pass
     ######################################### add_data ##########################################################
     time.sleep(1)
+    print(loop_counter)
+    print('LOOP HUNT IV')
     return budget_dict, 'not-identified'
 
 # <<<<<<<<WORKING>>>>>>>>>>>
@@ -593,6 +605,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             pass
             #break
         searched_dict = search_dict(trans_type, data, identity)
+        print('LOOP HUNT VI')
         new_dict = searched_dict[0]
         if searched_dict[1] != 'identified':
             budget_dict = add_data(new_dict, data)
@@ -745,7 +758,7 @@ def main():
     print('------------------------------------------------------------------------------------------------------')
     ### place to limit data use data.head(num)
     if dictionary:
-        trans_dict = split_purchases(data, formatted_df, dictionary)
+        trans_dict = split_purchases(data.head(12), formatted_df, dictionary)
     else:
         trans_dict = split_purchases(data, formatted_df)
 
@@ -764,11 +777,12 @@ def main():
         pp.pprint(trans_dict)
         print('------------------------------------------------------------------------------------------------------')
     converted_DF = dict_to_Frame(trans_dict)
-    show_df = input('PRINT OUT DATAFRAME Y/N\n')
-    if 'y' in show_df.lower():
-        print('DATAFRAME :::::')
-        pp.pprint(converted_DF)
-        print('------------------------------------------------------------------------------------------------------')
+    ## Printing before normalizing date
+    # show_df = input('PRINT OUT DATAFRAME Y/N\n')
+    # if 'y' in show_df.lower():
+    #     print('DATAFRAME :::::')
+    #     pp.pprint(converted_DF)
+    #     print('------------------------------------------------------------------------------------------------------')
 
     trans_dict = test_date(converted_DF)
     print('------------------------------------------------------------------------------------------------------')

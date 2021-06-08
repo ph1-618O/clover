@@ -250,11 +250,12 @@ def get_col_names(df):
     print('------------------------------------------------------------------------------------------------------')
     remove_cols_query = remove_cols(df, df.columns)
     df = remove_cols_query
+    print('------------------------------------------------------------------------------------------------------')
     rename_cols_query = input('RENAME COLUMNS? Y/N\n')
-    suggested_cols = ['Name', 'Date', 'Transaction', 'Account', 'Amount', 'Balance']
+    suggested_cols = ['Date', 'Transaction', 'Account', 'Amount', 'Balance']
     if 'y' in rename_cols_query:
         print('------------------------------------------------------------------------------------------------------')
-        print(f'PLEASE ENTER {df.columns} COLUMN NAMES')
+        print(f'PLEASE ENTER {len(df.columns)} COLUMN NAMES')
         print('WARNING COLUMN NAMES MUST BE UNIQUE')
         print('------------------------------------------------------------------------------------------------------')
         print(f'SUGGESTED::: {" - ".join(suggested_cols)}')
@@ -306,11 +307,13 @@ def initiate_format(df = 0):
     print('FORMATTING CLIPBOARD OR CSV COMPLETE')
     print('------------------------------------------------------------------------------------------------------')
     print('------------------------------------------------------------------------------------------------------\n\n')
-    time.sleep(2)
     return formatted
 
 def main():
+    t_start = datetime.now()
     initiate_format()
+    t_end = datetime.now()
+    print(f'PROGRAM EXECUTION TIME {t_start-t_end}')
 
 if __name__ == "__main__":
     main()

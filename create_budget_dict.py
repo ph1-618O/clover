@@ -210,7 +210,7 @@ def save_csv(df):
         print('DATA SUCCESSFULLY STORED TO CSV\n')
     else:
         print('EXITING')
-        exit()
+        #exit()
 
 def read_excel(path):
     sheet_or_file = input('IS YOUR EXCEL FILE ON A SHEET? Y/N\n')
@@ -441,14 +441,14 @@ def add_data(budget_dict, data):
             if type(data[0]) != type([]):
                 value.append(data+[key])
                 print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-                print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
+                print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
                 return budget_dict
             elif type(data[0]) == type([]) and len(data) > 1:
                 for z in data:
                     z.append(key)
                     value.append(z)
                 print('//////////////////////////////////////////////////////////////////////////////////////////////////////\n')
-                print(f'ADDITION TO "{key.upper()}" SUCCESSFUL\n')
+                print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
                 return budget_dict
             else:
                 print('ERROR SKIPPING')
@@ -689,6 +689,7 @@ def conn_mongo(data):
 
 
 def main():
+    t_start = datetime.now()
     # <<<<<<<<WORKING>>>>>>>>>>>
     # Add import DB from mongo
     # Right now using written in dictionary
@@ -723,11 +724,9 @@ def main():
     formatted_df = None
     data_formatted = get_data_type()
     data = data_formatted[0]
-    #print(data_formatted)
     if data_formatted[1]:
         print(f'CONFIRMED DATA IS {data_formatted[1].upper()}')
         formatted_df = data_formatted[1]
-    #cols = confirm_cols(data, formatted_df)
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('RUNNING SPLIT PURCHASES PROGRAM')
     print('------------------------------------------------------------------------------------------------------')
@@ -737,14 +736,12 @@ def main():
     else:
         trans_dict = split_purchases(data, formatted_df)
 
-    # print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('SPLIT PURCHASES PROGRAM COMPLETE')
     print('------------------------------------------------------------------------------------------------------')
 
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     print('ADDING TO DICTIONARY')
     print('------------------------------------------------------------------------------------------------------')
-    #pp.pprint(trans_dict)
     # <<<<<<<<WORKING>>>>>>>>>>>
     show_dict = input('PRINT OUT DICT Y/N\n')
     if 'y' in show_dict.lower():
@@ -752,20 +749,8 @@ def main():
         pp.pprint(trans_dict)
         print('------------------------------------------------------------------------------------------------------')
     converted_DF = dict_to_Frame(trans_dict)
-    ## Printing before normalizing date
-    # show_df = input('PRINT OUT DATAFRAME Y/N\n')
-    # if 'y' in show_df.lower():
-    #     print('DATAFRAME :::::')
-    #     pp.pprint(converted_DF)
-    #     print('------------------------------------------------------------------------------------------------------')
-
     trans_dict = test_date(converted_DF)
     print('------------------------------------------------------------------------------------------------------')
-    # show_dict = input('PRINT OUT DICT Y/N\n')
-    # if 'y' in show_dict.lower():
-    #     print('DICTIONARY VALUES:::::')
-    #     pp.pprint(trans_dict)
-    #     print('------------------------------------------------------------------------------------------------------')
 
     # <<<<<<<<WORKING>>>>>>>>>>>
     #Change this to an input statement attached to the loop
@@ -794,9 +779,10 @@ def main():
         conn_mongo(trans_dict)
         print('MongoDB Successful')
     save_csv(converted_DF)
+    t_end = datetime.now()
+    t_execute = t_end - t_start
+    print(f'PROGRAM EXECUTION TIME {t_execute.total_seconds()}')
     return data, converted_DF
-
-    #pp.pprint(pd.DataFrame.from_dict(data, orient='index', columns = data.keys()))
 
 
 if __name__ == "__main__":

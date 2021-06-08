@@ -104,7 +104,6 @@ def get_data_type():
         print('DATASET SAMPLE')
         print('------------------------------------------------------------------------------------------------------')
         pp.pprint(data.head())
-        #pp.pprint(data.describe())
         print('------------------------------------------------------------------------------------------------------\n\n')
         formatted = 'formatted'
 
@@ -238,10 +237,8 @@ def get_sort_by(df, sort_query):
     if sort_query != 'CATEGORY DATA':
         print(f'OPTIONS::: {" - ".join(list(df.columns))}')
         print('------------------------------------------------------------------------------------------------------')
-    #none_in = [print(list(df.columns)[i].upper(), end =" ") for i in range(len(list(df.columns)))]
+
     sort_col = constrain_input_loop(sort_query, list(df.columns))
-    # sort_col = input(
-    #         f'\n\nCHOOSE COLUMN TO SORT {sort_query} BY?:: \n').lower()
     sort = ' '.join(str(elem)
                     for elem in [i for i in df.columns if i == sort_col.lower()])
     return sort
@@ -511,6 +508,15 @@ def confirm_cols(df, formatted_df=0):
             cols = df.columns
     return cols
 
+
+def search_all(df, row_num, sort_by):
+    print(sort_by)
+    print(row_num)
+    pp.pprint(df)
+    #for index in range(len(list_options)):
+        
+
+
 def split_purchases(df, formatted_df=0, budget_dict=0):
     cols = confirm_cols(df, formatted_df)
     #pp.pprint(df)
@@ -540,7 +546,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     for i in range(len(df)):
         ##############################################add_trans_type ###############################################
         if i not in skip_rows:
-            #print('TRUE I NOT IN SKIP ROWS')
+            search_all(df, i, sort_by)
             get_col = add_trans_type(df, i, sort_by)
             identity = get_col[1]
             
@@ -732,7 +738,7 @@ def main():
     print('------------------------------------------------------------------------------------------------------')
     ### place to limit data use data.head(num)
     if dictionary:
-        trans_dict = split_purchases(data, formatted_df, dictionary)
+        trans_dict = split_purchases(data.head(3), formatted_df, dictionary)
     else:
         trans_dict = split_purchases(data, formatted_df)
 

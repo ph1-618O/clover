@@ -242,7 +242,7 @@ def get_categories(categories = 0):
     # look at jupyter notebook with purchases categorized as essential, non essential, fixed, variable, one-time and reoccuring
     # add these into the make dict with new sub categories
     defaults = sorted(['groceries', 'take_away', 'home', 'pet', 'restaurant', 'utility',
-                'transportation', 'gas', 'medical', 'entertainment', 'deposit', 'interest', 'savings', 'debt', 'income'])
+                'transportation', 'gas', 'medical', 'entertainment', 'deposit', 'interest', 'savings', 'debt', 'income', 'work', 'online', 'other'])
     if  categories:
         if type(categories) == type([]):
             if len(categories) < len(defaults + ['0_format']):
@@ -257,33 +257,40 @@ def get_categories(categories = 0):
                 for i in defaults:
                     if i not in categories:
                         add_defaults.append(i)
-                #{" - ".join(categories)}
-                d_list = " - ".join([i.lower() for i in add_defaults])
-                d_len = len(d_list)
-                print(f'DEFAULTS NOT IN CURRENT CATEGORIES:::\n "{d_list[:int(d_len/2)]}\n{d_list[int(d_len/2):]}"\n------------------------------------------------------------------------------------------------------')
-                confirm_addition = input('ADD EXTRA DEFAULTS TO CATEGORIES Y/N\n')
-                if 'y' in confirm_addition.lower():
-                    for i in add_defaults:
+                for i in add_defaults:
                         categories.append(i)
-                    categories = sorted(categories)
+                categories = sorted(categories)
+                # CODE BELOW ASKS USER IF THEY WANT TO KEEP CATS
+                # COMMENTED OUT BECAUSE THEY WILL BE REMOVED ANYWAY IF EMPTY
+                # d_list = " - ".join([i.lower() for i in add_defaults])
+                # d_len = len(d_list)
+                # print(f'DEFAULTS NOT IN CURRENT CATEGORIES:::\n "{d_list[:int(d_len/2)]}\n{d_list[int(d_len/2):]}"\n------------------------------------------------------------------------------------------------------')
+                # confirm_addition = input('ADD EXTRA DEFAULTS TO CATEGORIES Y/N\n')
+                # if 'y' in confirm_addition.lower():
+                #     for i in add_defaults:
+                #         categories.append(i)
+                #     categories = sorted(categories)
     else:
-        print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-        d_list2 = " - ".join(defaults)
-        d_len2 = len(d_list2)
-        print(f'DEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n{d_list2[:int(d_len2/2)]}\n{d_list2[int(d_len2/2):]}\n------------------------------------------------------------------------------------------------------')
-        use_defaults = input('USE DEFAULTS::: Y/N\n')
-        if 'y' in use_defaults:
-            categories = defaults
-        else:
-            categories = input(
-                'ENTER BUDGET CATEGORIES:::\n')
-        cat = ''
-        if type(categories) == type('s'):
-            #need to add regex to sub a space between words with an underscore but before a comma
-            if ',' in categories:
-                categories = [i.strip().replace(' ', '_') for i in categories.split(',')]
-            else:
-                categories = sorted(categories.split())
+        categories = defaults
+        # print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+        # d_list2 = " - ".join(defaults)
+        # d_len2 = len(d_list2)
+        # print(f'DEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n{d_list2[:int(d_len2/2)]}\n{d_list2[int(d_len2/2):]}\n------------------------------------------------------------------------------------------------------')
+        # use_defaults = input('USE DEFAULTS::: Y/N\n')
+        # if 'y' in use_defaults:
+        #     categories = defaults
+        # else:
+        #     categories = input(
+        #         'ENTER BUDGET CATEGORIES:::\n')
+        # cat = ''
+        # if type(categories) == type('s'):
+        #     #need to add regex to sub a space between words with an underscore but before a comma
+        #     if ',' in categories:
+        #         categories = [i.strip().replace(' ', '_') for i in categories.split(',')]
+        #     else:
+        #         categories = sorted(categories.split())
+
+
 # <<<<<<<<WORKING>>>>>>>>>>>
 # Add a section that if you ask the user to continue and there is any other value than y
 # print out the list with index numbers, ask which number is wrong 
@@ -612,6 +619,10 @@ def dict_to_Frame(data_dict):
     print('PROCCESSING DATAFRAME')
     skip_list = []
     rows = []
+    if 'category' not in data_dict['0_format'][0]:
+        data_dict['0_format'] = data_dict['0_format'] + ['category']
+        #cols = data_dict['0_format'] + ['category']
+    cols = data_dict['0_format'] 
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
         if key == '0_format':
@@ -626,10 +637,10 @@ def dict_to_Frame(data_dict):
                     rows.append(value[i])
                 else:
                     rows.append(value[i]+[key])
-        if 'category' not in data_dict['0_format']:
-            cols = data_dict['0_format'] + ['category']
-        else:
-            cols = data_dict['0_format']      
+        # if 'category' not in data_dict['0_format']:
+        #     cols = data_dict['0_format'] + ['category']
+        # else:
+        #     cols = data_dict['0_format']      
     # print('********TEST******')
     print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
     ## PLACE TO ADD EXTRA COLUMNS 
@@ -659,12 +670,15 @@ def conn_mongo(data):
         print('MAKING NEW DATABASE')
     else:
         print('DB NOT PRESENT')
-    db.show
+    pprint.pprint(db.show_collections)
+    # Maybe needs to be 
+    # for i in data:
+    #     db.budgetDB.insert_one(i)
     db.budgetDB.insert_one(data)
 
-    # Hopefully printing the first 5 entries in the db
-    # pprint(db.budgetDB.find_one())
-    # db.budgetDB.find().pretty()
+    #Hopefully printing the first 5 entries in the db
+    pprint.pprint(db.budgetDB.find())
+    #db.budgetDB.find().pretty()
 
 
 def main():

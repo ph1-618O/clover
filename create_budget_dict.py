@@ -99,7 +99,7 @@ def get_data_type():
         print('CHECKING COLUMNS')
         import format_data
         check_cols = format_data.get_col_names(data)
-        data = check_cols[2]
+        data = check_cols[1]
         print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
         print('DATASET SAMPLE')
         print('------------------------------------------------------------------------------------------------------')

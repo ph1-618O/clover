@@ -268,9 +268,9 @@ def get_col_names(df):
             else:
                 cat += i
         cols = cat.split(' ')
-        return cols, rename_cols_query
+        return cols, df, rename_cols_query
     else:
-        return list(df.columns), rename_cols_query, df
+        return list(df.columns), df, rename_cols_query
 
 def initiate_format(df = 0):
     print('FORMATTING CLIPBOARD, EXCEL OR CSV INPUT')
@@ -280,7 +280,7 @@ def initiate_format(df = 0):
 # Asking user if they want to rename the columns
     test_cols = get_col_names(df)
     cols = test_cols[0]
-    rename_cols_query = test_cols[1]
+    rename_cols_query = test_cols[-1]
     if len(cols) == len(df.columns):
         pass
     #possibly running rename cols twice

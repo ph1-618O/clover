@@ -356,7 +356,7 @@ def add_transaction_type(df, i, sort_by=0):
         for index in range(len(purchase_type)):
             print(f'TESTING IDENTIFIER:: "{purchase_type[index]}", Y/N\n')
             print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
-            print(f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::{purchase_type[index].upper()}')
+            print(f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::"{purchase_type[index].upper()}"')
             return sort_by, purchase_type[index].lower()
 
 
@@ -552,6 +552,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             get_col = add_transaction_type(df, i, sort_by)
             identity = get_col[1] 
             #########data grouping search##############
+            # NEED TO ADD A TYPE TEST BEFORE THIS
             mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
             matching_rows = df.loc[mask.any(axis=1)]
             skip_rows += matching_rows.index.tolist()

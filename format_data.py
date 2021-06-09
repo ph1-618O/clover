@@ -83,12 +83,7 @@ def import_clip():
 
 
 
-def insertRow(rowNum, df, rowVal):
-    df1 = df[0:rowNum]
-    df2 = df[rowNum:]
-    df1.loc[rowNum] = rowVal
-    dfResult = pd.concat([df1, df2])
-    return dfResult
+
 
 # convert_amount keeps value at positive or negative
 
@@ -183,16 +178,6 @@ def get_sort_by(df, sort_query):
 
 
 
-def format_data(df, columns_list=0, remove_first=0):
-    if 'y' in remove_first:
-        df = remove_cols(df, columns_list)
-    # Formatting amount column into floats
-    if 'amount' in df.columns:
-        df = make_num(df, 'amount')
-    # Formatting date column into datetime obj
-    if 'date' in df.columns:
-        df = convert_date(df)
-    return df
 
 # Bringing in Data
 def import_csv():
@@ -204,32 +189,37 @@ def import_csv():
         csvName = csvName + '.csv'
         return pd.read_csv(csvName)
 
-def insert_first(df, columns_list):
+def inserting_first(df, columns_list):
     row1 = []
+    # grabbing the data in the columns from the df
     for col in df.columns:
         row1.append(col)
-    for i in range(len(row1)):
-        df.rename(columns={df.columns[i]: columns_list[i]}, inplace=True)
+    df = rename_cols(df, columns_list)
     # inserting the data into row 0
     df = (insertRow(0, df, row1)).reset_index(drop=True)
     return df
 
+def insertRow(rowNum, df, rowVal):
+    df1 = df[0:rowNum]
+    df2 = df[rowNum:]
+    df1.loc[rowNum] = rowVal
+    dfResult = pd.concat([df1, df2])
+    return dfResult
 
-def remove_cols(df, columns_list):
-    # row1 = []
-    # for col in df.columns:
-    #     row1.append(col)
-    # for i in range(len(row1)):
-    #     df.rename(columns={df.columns[i]: columns_list[i]}, inplace=True)
-    # # inserting the data into row 0
-    # df = (insertRow(0, df, row1)).reset_index(drop=True)
-    # Asking user what columns they want to keep
+
+def rename_cols(df, columns_list):
+    for i in range(len(columns_list)):
+        df.rename(columns={df.columns[i]: columns_list[i]}, inplace=True)
+    return df
+
+
+def remove_cols(df):
     print('------------------------------------------------------------------------------------------------------')
     pp.pprint(df.head(1))
     print('------------------------------------------------------------------------------------------------------')
-    remove_query = input('REMOVE COLUMNS? Y/N\n')
+    remove_query = input('REMOVE COLUMNS? Y/N\n').lower()
     if 'y' in remove_query.lower():
-        remove_cols = input('COLUMNS TO REMOVE::\n')
+        remove_cols = input('COLUMNS TO REMOVE::\n').lower()
         remove = ''
         for k in remove_cols:
             if ',' in k:
@@ -246,60 +236,70 @@ def remove_cols(df, columns_list):
     return df
 
 def get_col_names(df):
-    print('------------------------------------------------------------------------------------------------------')
-    print(f'CURRENT COLUMNS::: {" - ".join(list(df.columns))}')
-    print('------------------------------------------------------------------------------------------------------')
-    remove_cols_query = remove_cols(df, df.columns)
-    df = remove_cols_query
-    print('------------------------------------------------------------------------------------------------------')
-    rename_cols_query = input('RENAME COLUMNS? Y/N\n')
-    suggested_cols = ['Date', 'Transaction', 'Account', 'Amount', 'Balance']
-    if 'y' in rename_cols_query:
+    rename_cols_query = 'test'
+    while 'y' not in rename_cols_query:
         print('------------------------------------------------------------------------------------------------------')
-        print(f'PLEASE ENTER {len(df.columns)} COLUMN NAMES')
-        print('WARNING COLUMN NAMES MUST BE UNIQUE')
+        print(f'CURRENT COLUMNS::: {" - ".join(list(df.columns))}')
         print('------------------------------------------------------------------------------------------------------')
-        print(f'SUGGESTED::: {" - ".join(suggested_cols)}')
-        print('------------------------------------------------------------------------------------------------------')
-        cols = input('ENTER COLUMN NAMES IN ORDER\n')
-        cat = ''
-        for i in cols:
-            if ',' in cols:
-                cat += i.strip(',')
+        rename_cols_query = input('RENAME COLUMNS? Y/N\n').lower()
+        suggested_cols = ['Date', 'Transaction', 'Account', 'Amount', 'Balance']
+        cols = list(df.columns)
+        if 'y' in rename_cols_query:
+            print('------------------------------------------------------------------------------------------------------')
+            print(f'PLEASE ENTER {len(df.columns)} COLUMN NAMES')
+            print('WARNING COLUMN NAMES MUST BE UNIQUE')
+            print('------------------------------------------------------------------------------------------------------')
+            print(f'SUGGESTED::: {" - ".join(suggested_cols)}')
+            print('------------------------------------------------------------------------------------------------------')
+            cols = input('ENTER COLUMN NAMES IN ORDER\n').lower()
+            cat = ''
+            for i in cols:
+                if ',' in cols:
+                    cat += i.strip(',')
+                else:
+                    cat += i
+            cols = cat.split(' ')
+            if (len(cols) == len(df.columns)) and (cols != list(df.columns)):
+                rename_cols_query = 'y'
             else:
-                cat += i
-        cols = cat.split(' ')
-        return cols, df, rename_cols_query
+                print(f'COLUMNS {len(df.columns) - len(cols)} ENTERED DO NOT MATCH LENGTH OF {len(df.columns)}')
+                print(f'THESE ARE NAMES ENTERED PLEASE TRY AGAIN:: {cols}\n')
+                rename_cols_query = 'test'
+        elif 'n' in rename_cols_query:
+            break
+        else:
+            print('INVALID INPUT')
+            exit_program = input('WOULD YOU LIKE TO EXIT THE PROGRAM, Y/N or Exit\n').lower()
+            if 'y' in exit_program or 'exit' in exit_program:
+                exit()
+    print('------------------------------------------------------------------------------------------------------')
+    return cols, rename_cols_query
+
+def format_data(df):
+    test_cols = get_col_names(df)
+    new_cols = test_cols[0]
+    #rename_cols_query = test_cols[1]
+    insert_first = input('DOES ORIGINAL COLUMN DATA NEED TO BE INSERTED INTO DF? Y/N\n').lower()
+    if 'y' in insert_first:
+        inserted_first = inserting_first(df, new_cols)
+        df = rename_cols(inserted_first, new_cols)
+        df = remove_cols(inserted_first)
     else:
-        return list(df.columns), df, rename_cols_query
+        df = rename_cols(df, new_cols)
+        df = remove_cols(df) 
+    # Formatting amount column into floats
+    if 'amount' in df.columns:
+        df = make_num(df, 'amount')
+    # Formatting date column into datetime obj
+    if 'date' in df.columns:
+        df = convert_date(df)
+    return df
+
 
 def initiate_format(df = 0):
     print('FORMATTING CLIPBOARD, EXCEL OR CSV INPUT')
     print('------------------------------------------------------------------------------------------------------')
-    # df = import_clip()
-    # df = import_csv()
-# Asking user if they want to rename the columns
-    test_cols = get_col_names(df)
-    cols = test_cols[0]
-    rename_cols_query = test_cols[-1]
-    if len(cols) == len(df.columns):
-        pass
-    #possibly running rename cols twice
-        # for i in range(len(df.columns)):
-        #     df = df.rename(columns = {df.columns[i]:cols[i]})
-            #print(cols)
-            #pp.pprint(df.head())
-            #break   
-    # ADD constrain_input loop here
-    else:
-        print('COLUMNS ENTERED DO NOT MATCH LENGTH')
-        #print(f'PLEASE ENTER {len(df.columns)} COLUMN NAMES\n')
-        verify_cols = input(f'ARE THESE THE CORRECT COLUMN NAMES:: Y OR N {cols}\n')
-        if 'n' in verify_cols:
-            cols = get_col_names(df)
-
-    insert_first = input('DOES ORIGINAL COLUMN DATA NEED TO BE INSERTED INTO DF? Y/N\n')
-    formatted = format_data(df, cols, insert_first)
+    formatted = format_data(df)
     print('------------------------------------------------------------------------------------------------------')
     print('FORMATTED DATAFRAME')
     print('------------------------------------------------------------------------------------------------------')

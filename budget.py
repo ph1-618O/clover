@@ -29,8 +29,9 @@ import platform
 
 # working with dates, month abbrev, and the
 #  it takes to run prg
-from datetime import datetime
-from datetime import date
+import datetime
+#from datetime import datetime
+#from datetime import date
 from calendar import month_abbr
 import time
 
@@ -596,8 +597,16 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
 
 
 def test_date(df):
-
-    df['date']= pd.to_datetime(df['date'])
+    # testing
+    list_cols = [i.lower() for i in df.columns.tolist()]
+    test_cols = ['date']
+    for col_num in range(len(list_cols)):
+        for test in test_cols:
+            if (test in list_cols[col_num]) and (df.iloc[:, col_num].map(type) != type(datetime.datetime.now())).all(): # add second conditional here that tests the col for floats, ints and strings
+                print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                print('CONVERTING DATES TO DATETIME')
+                print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                df['date']= pd.to_datetime(df['date'])
     #pp.pprint(df)
     unique_cats = df.category.unique()
     #print(unique_cats)
@@ -614,14 +623,21 @@ def test_date(df):
     #pp.pprint(test_dict)
     return test_dict
 
+
 def test_amounts(df):
-    for i in range(len(df.columns.tolist())):
-        if 'amount' in df.columns.tolist()[i]:
-            if isinstance(df[[i]].dtype, object):
-                df[df.columns.tolist()[i]] = make_num(df, df.columns.tolist()[i])
-                return df
-
-
+    converted_col = []
+    list_cols = [i.lower() for i in df.columns.tolist()]
+    test_cols = ['amount', 'value', 'balance']
+    for col_num in range(len(list_cols)):
+        for test in test_cols:
+            if (test in list_cols[col_num]) and (df.iloc[:, col_num].map(type) == str).all(): # add second conditional here that tests the col for floats, ints and strings
+                print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                print('NORMALIZING AMOUNTS')
+                print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+                for row_num in range(len(df)):
+                    converted_col.append(convert_amount(df.iloc[:, col_num][row_num]))
+                df.iloc[:, col_num] = converted_col
+    
 def dict_to_Frame(data_dict):
     print('PROCCESSING DATAFRAME')
     skip_list = []
@@ -689,7 +705,7 @@ def conn_mongo(data):
 
 
 def main():
-    t_start = datetime.now()
+    t_start = datetime.datetime.now()
     # <<<<<<<<WORKING>>>>>>>>>>>
     # Add import DB from mongo
     # Right now using written in dictionary
@@ -780,7 +796,7 @@ def main():
         conn_mongo(trans_dict)
         print('MongoDB Successful')
     save_csv(converted_DF)
-    t_end = datetime.now()
+    t_end = datetime.datetime.now()
     t_execute = t_end - t_start
     print(f'PROGRAM EXECUTION TIME {t_execute.total_seconds()}')
     return data, converted_DF

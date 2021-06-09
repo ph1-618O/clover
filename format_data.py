@@ -15,8 +15,9 @@ import platform
 
 # working with dates, month abbrev, and the 
 #  it takes to run prg
-from datetime import datetime
-from datetime import date
+import datetime
+# from datetime import datetime
+# from datetime import date
 from calendar import month_abbr
 import time
 
@@ -310,9 +311,9 @@ def initiate_format(df = 0):
     return formatted
 
 def main():
-    t_start = datetime.now()
+    t_start = datetime.datetime.now()
     initiate_format()
-    t_end = datetime.now()
+    t_end = datetime.datetime.now()
     print(f'PROGRAM EXECUTION TIME {t_start-t_end}')
 
 if __name__ == "__main__":

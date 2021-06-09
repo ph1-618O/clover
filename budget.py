@@ -615,10 +615,11 @@ def test_date(df):
     return test_dict
 
 def test_amounts(df):
-    if 'amount' in df.columns:
-        if isinstance(df['amount'].dtype, object):
-            df['amount'] = make_num(df, 'amount')
-            return df
+    for i in range(len(df.columns.tolist())):
+        if 'amount' in df.columns.tolist()[i]:
+            if isinstance(df[[i]].dtype, object):
+                df[df.columns.tolist()[i]] = make_num(df, df.columns.tolist()[i])
+                return df
 
 
 def dict_to_Frame(data_dict):

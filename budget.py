@@ -491,7 +491,7 @@ def add_data(budget_dict, data):
     cat_options2 = " - ".join(sorted(list(budget_dict.keys()))[1:])
     len_cat = int(len(cat_options2)/2)
     location = str(input(
-        f'\nCHOOSE CATEGORY FOR::: "{data[1]}"\n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n'))
+        f'\n{data[1]} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n'))
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
     if location[:3] not in [i[:3] for i in budget_dict.keys()]:
         add_key = input(
@@ -613,6 +613,12 @@ def test_date(df):
         #test_dict['i'] = separate_df.set_index('category').T.to_dict('list')
     #pp.pprint(test_dict)
     return test_dict
+
+def test_amounts(df):
+    if 'amount' in df.columns:
+        if isinstance(df['amount'].dtype, object):
+            df['amount'] = make_num(df, 'amount')
+            return df
 
 
 def dict_to_Frame(data_dict):
@@ -742,6 +748,7 @@ def main():
         pp.pprint(trans_dict)
         print('------------------------------------------------------------------------------------------------------')
     converted_DF = dict_to_Frame(trans_dict)
+    trans_dict = test_amounts(converted_DF)
     trans_dict = test_date(converted_DF)
     print('------------------------------------------------------------------------------------------------------')
 

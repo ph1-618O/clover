@@ -557,7 +557,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             identity = get_col[1] 
             #########data grouping search##############
             # NEED TO ADD A TYPE TEST BEFORE THIS
-            mask =  df.select_dtypes(include=['object']).apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
+            mask =  df.select_dtypes(include=['object'], exclude=['float64', 'int64', 'datetime']).apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
             #mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
             matching_rows = df.loc[mask.any(axis=1)]
             skip_rows += matching_rows.index.tolist()

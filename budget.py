@@ -471,20 +471,25 @@ def add_transaction_type(df, i, sort_by=0):
     ####################################################get_sort_by  '[^A-Za-z0-9]+'  ####################################################
     if sort_by:
         # Using re.sub to remove everyting but numbers and words
-        purchase_type = remove_stop_words(re.sub("[^A-Za-z0-9]+", " ", df[sort_by][i]))
+        purchase_type = remove_stop_words(
+            re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
+        )
         print(
             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
         )
         for index in range(len(purchase_type)):
-            # if not purchase_type[index].lower() == "the":
-            print(f'TESTING IDENTIFIER:: "{purchase_type[index]}", Y/N\n')
-            print(
-                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-            )
-            print(
-                f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::"{purchase_type[index].upper()}"'
-            )
-            return sort_by, purchase_type[index].lower()
+            if len(purchase_type[index]) < 3:
+                sort_by = None
+                pass
+            else:
+                print(f'TESTING IDENTIFIER:: "{purchase_type[index]}", Y/N\n')
+                print(
+                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+                )
+                print(
+                    f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::"{purchase_type[index].upper()}"'
+                )
+                return sort_by, purchase_type[index].lower()
 
 
 # def add_transaction_type_confirm(df, i, sort_by=0):
@@ -634,13 +639,20 @@ def add_data(budget_dict, data):
     )
     cat_options2 = " - ".join(sorted(list(budget_dict.keys()))[1:])
     len_cat = int(len(cat_options2) / 2)
+    # formatting print statement to only print transaction data
+    if len(data[1]) == 4:
+        print_trans = data[1][1]
+    else:
+        print_trans = data[1]
     location = str(
         input(
-            f"\n{data[1]} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n"
+            f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n"
         )
     )
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
-    if location[:3] not in [i[:3] for i in budget_dict.keys()]:
+    if location[:3] not in [i[:3] for i in budget_dict.keys()] and (
+        location != "0_format"
+    ):
         add_key = input(
             f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n'
         )
@@ -706,9 +718,11 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
         ##############################################add_trans_type ###############################################
         if i not in skip_rows:
             get_col = add_transaction_type(df, i, sort_by)
+            # print(get_col)
             identity = get_col[1]
             #########data grouping search##############
             # NEED TO ADD A TYPE TEST BEFORE THIS
+            # print(identity)
             mask = df.select_dtypes(
                 include=["object"], exclude=["float64", "int64", "datetime"]
             ).apply(lambda x: x.str.contains(rf"{identity}", na=False, case=False))
@@ -716,6 +730,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             matching_rows = df.loc[mask.any(axis=1)]
             skip_rows += matching_rows.index.tolist()
 
+            # print(matching_rows)
             if len(matching_rows) >= 2:
                 print(f"{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::")
                 # print('ROWS MATCH\n')
@@ -733,6 +748,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
 
         else:
             continue
+        # print(identity)
         searched_dict = search_dict(trans_type, data, identity)
         new_dict = searched_dict[0]
         if "identified" not in searched_dict[1].lower():
@@ -815,13 +831,27 @@ def test_amounts(df):
                 df.iloc[:, col_num] = converted_col
 
 
+# Omit old data removes the chance of making copies of data already within db or dict
+def omit_old_data(old_data_dict, new_data_dict):
+    new_data = {
+        k: new_data_dict[k]
+        for k in new_data_dict
+        if k in old_data_dict and new_data_dict[k] == old_data_dict[k]
+    }
+    if len(new_data) == 0:
+        return None
+    else:
+        return new_data
+
+
 def dict_to_Frame(data_dict):
     print("PROCCESSING DATAFRAME")
     skip_list = []
     rows = []
     if "category" not in data_dict["0_format"][0]:
         data_dict["0_format"] = data_dict["0_format"] + ["category"]
-        # cols = data_dict['0_format'] + ['category']
+    else:
+        pass
     cols = data_dict["0_format"]
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
@@ -839,11 +869,6 @@ def dict_to_Frame(data_dict):
                     rows.append(value[i])
                 else:
                     rows.append(value[i] + [key])
-        # if 'category' not in data_dict['0_format']:
-        #     cols = data_dict['0_format'] + ['category']
-        # else:
-        #     cols = data_dict['0_format']
-    # print('********TEST******')
     print(
         "//////////////////////////////////////////////////////////////////////////////////////////////////////"
     )
@@ -893,6 +918,7 @@ def conn_mongo(data):
 
 def main():
     t_start = datetime.datetime.now()
+
     # <<<<<<<<WORKING>>>>>>>>>>>
     # Add import DB from mongo
     # Right now using written in dictionary
@@ -921,7 +947,11 @@ def main():
     #         ]
     # }
 
-    dictionary = None
+    # dictionary = None
+
+    import test_dict
+
+    dictionary = test_dict.dictionary_with_changes
 
     print("RUNNING GET DATA TYPE\n")
     formatted_df = None
@@ -937,12 +967,31 @@ def main():
     print(
         "------------------------------------------------------------------------------------------------------"
     )
+    # Comparing a dataframe of new_data with old data
+    dictionary_DF = dict_to_Frame(dictionary)
+    print(dictionary_DF.head())
+    print(data.head())
+    exit()
+
     ### place to limit data use data.head(num)
     if dictionary:
         trans_dict = split_purchases(data, formatted_df, dictionary)
     else:
         trans_dict = split_purchases(data, formatted_df)
 
+    # Test to see if any data is overlapping, omitting if it is
+    new_data = omit_old_data(dictionary, trans_dict)
+    if new_data:
+        from itertools import chain
+
+        merged_dict = {}
+        for k, v in chain(dictionary.items(), trans_dict.items()):
+            merged_dict.setdefault(k, []).extend(v)
+    else:
+        print("THERE IS NO NEW DATA, EXITING")
+        exit()
+
+    # trans_dict = omit_old_data(trans_dict, dictionary)
     print("SPLIT PURCHASES PROGRAM COMPLETE")
     print(
         "------------------------------------------------------------------------------------------------------"
@@ -959,13 +1008,13 @@ def main():
     show_dict = input("PRINT OUT DICT Y/N\n")
     if "y" in show_dict.lower():
         print("DICTIONARY VALUES :::::")
-        pp.pprint(trans_dict)
+        pp.pprint(merged_dict)
         print(
             "------------------------------------------------------------------------------------------------------"
         )
-    converted_DF = dict_to_Frame(trans_dict)
-    trans_dict = test_amounts(converted_DF)
-    trans_dict = test_date(converted_DF)
+    converted_DF = dict_to_Frame(merged_dict)
+    new_DF = test_amounts(converted_DF)
+    new_DF = test_date(new_DF)
     print(
         "------------------------------------------------------------------------------------------------------"
     )
@@ -981,29 +1030,29 @@ def main():
         )
         print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
         col_with_dates = "DATE"
-        sort_by = get_sort_by(converted_DF, col_with_dates)
-        converted_DF = converted_DF.sort_values(by=sort_by).reset_index(drop=True)
-        pp.pprint(converted_DF)
+        sort_by = get_sort_by(new_DF, col_with_dates)
+        new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
+        pp.pprint(new_DF)
         import format_data
 
-        converted_DF = format_data.convert_date(converted_DF)
+        new_DF = format_data.convert_date(new_DF)
         # <<<<<<<<WORKING>>>>>>>>>>>
         # Change this to an input statement attached to the loop
         print("PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS")
         col_with_amounts = "AMOUNTS"
-        sort_by = get_sort_by(converted_DF, col_with_amounts)
-        converted_DF = make_num(converted_DF, sort_by)
+        sort_by = get_sort_by(new_DF, col_with_amounts)
+        new_DF = make_num(new_DF, sort_by)
 
-    pp.pprint(converted_DF)
+    pp.pprint(new_DF.head())
     create_database = input("ADD TO DATABASE? Y/N \n")
     if "y" in create_database:
-        conn_mongo(trans_dict)
+        conn_mongo(merged_dict)
         print("MongoDB Successful")
-    save_csv(converted_DF)
+    save_csv(new_DF)
     t_end = datetime.datetime.now()
     t_execute = t_end - t_start
-    print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()}")
-    return data, converted_DF
+    print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
+    return data, new_DF
 
 
 if __name__ == "__main__":

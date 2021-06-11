@@ -980,8 +980,8 @@ def match_dataframes(new_DF, old_DF):
         if i in list(new_DF.columns) and i in list(old_DF.columns):
             test_merge_old = old_DF.loc[:, list_match].convert_dtypes()
             test_merge_new = new_DF.loc[:, list_match].convert_dtypes()
-    print(test_merge_new.head())
-    print(test_merge_old.head())
+    #print(test_merge_new.head())
+    #print(test_merge_old.head())
     # this came back with 12ish rows? I don't think I made more than 2 changes, which would be 4 if i changed rows already in there
     match = test_merge_old[~test_merge_old.index.isin(test_merge_new.index)]
     # This came back empty
@@ -1288,9 +1288,8 @@ def main():
         dict_to_Frame(imported_dict).sort_values(
             by="date").drop_duplicates().reset_index(drop=True)
     )
-    pp.pprint(dictionary_DF.head())
-    
-    print(data.head())
+    #pp.pprint(dictionary_DF.head())
+    #print(data.head())
     testing_frames = match_dataframes(data, dictionary_DF)
 
     #place to limit data use data.head(num)

@@ -12,19 +12,23 @@
 # was acquired from the clipboard on websites
 
 
-## <<<<<<<<WORKING>>>>>>>>>>>
+# <<<<<<<<WORKING>>>>>>>>>>>
 # Clean up import statements
 # Think about separating functions into different .py files based on function
 # Watch the order!!
 
+import texthero as hero  # pip install texthero==1.0.5 works with newer python versions
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import nltk
 from fastnumbers import fast_float
+import pprint
 import plotly.graph_objects as go
 import squarify
 from matplotlib.lines import Line2D
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 import matplotlib
-import pprint
 import platform
 
 # working with dates, month abbrev, and the
@@ -44,18 +48,27 @@ import pandas as pd
 import numpy as np
 
 pd.options.mode.chained_assignment = None
+
+# Text Editing
 pp = pprint.PrettyPrinter(indent=4)
+# pip install nltk #NLP
+
+# nltk.download("stopwords")
+# nltk.download("punkt")
+
 
 # graphing
 
-## <<<<<<<<WORKING>>>>>>>>>>>
+# <<<<<<<<WORKING>>>>>>>>>>>
 # Add unit tests and tests dealing with number input inconsistencies, avoids VALUE ERROR, ATTRIBUTE ERROR
 # Use Try, Except and Assert
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
-## <<<<<<<<WORKING>>>>>>>>>>>
+# <<<<<<<<WORKING>>>>>>>>>>>
 # Need to add in portion from other notebook that asked user if they want to install these dependencies if they are not included
+
+
 def version_assistant():
     # print versions
     print(
@@ -71,6 +84,9 @@ def version_assistant():
 
 
 def read_data(file_type):
+    print(
+        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    )
     data_file = input(f'ENTER "{file_type.upper()}" LOCATION\\NAME\n')
     if "csv" in file_type.lower():
         if data_file.endswith(".csv"):
@@ -92,7 +108,8 @@ def read_data(file_type):
 
 
 def get_data_type():
-    import_data = input("DATA IS EXCEL FILE, CSV OR CLIPBOARD INPUT?\n").lower()
+    import_data = input(
+        "DATA IS EXCEL FILE, CSV OR CLIPBOARD INPUT?\n").lower()
     query_format = input("IS DATA PROPERLY FORMATTED WITH COLUMNS? Y/N\n")
     formatted = None
 
@@ -129,7 +146,7 @@ def get_data_type():
     ):
         format_q = (f'FORMAT "{import_data.upper()}" DATA? Y/N').lower()
         if "n" in format_q.lower():
-            ## <<<<<<<<WORKING>>>>>>>>>>>
+            # <<<<<<<<WORKING>>>>>>>>>>>
             # Fix Module import statement
             print(
                 "//////////////////////////////////////////////////////////////////////////////////////////////////////"
@@ -211,8 +228,8 @@ def import_clip():
     return pd.read_csv(csvName)
 
 
-## <<<<<<<<WORKING>>>>>>>>>>>
-##  Redundant, kept if needed to add more than one csv file in the future?
+# <<<<<<<<WORKING>>>>>>>>>>>
+# Redundant, kept if needed to add more than one csv file in the future?
 # def import_csv():
 #     csvName = input('ENTER CSV LOCATION\\NAME\n')
 #     print('------------------------------------------------------------------------------------------------------')
@@ -227,7 +244,8 @@ def save_csv(df):
     save_csv = input("SAVE NEW DATAFRAME TO CSV? Y/N\n")
     if "y" in save_csv.lower():
         csvName = input("ENTER NEW CSV LOCATION\\NAME\n")
-        accept_name = input(f"IS THIS THE CORRECT LOCATION\\FILENAME {csvName} Y\\N\n")
+        accept_name = input(
+            f"IS THIS THE CORRECT LOCATION\\FILENAME {csvName} Y\\N\n")
         while "y" not in accept_name.lower():
             if csvName[:-4] == ".csv":
                 accept_name = input(
@@ -238,7 +256,8 @@ def save_csv(df):
                     f'IS THIS THE CORRECT LOCATION\\FILENAME {csvName + ".csv"} Y\\N\n'
                 )
                 csvName = csvName + ".csv"
-            accept_name = input("WOULD YOU LIKE TO EXIT THE PROGRAM? Y\\N").lower()
+            accept_name = input(
+                "WOULD YOU LIKE TO EXIT THE PROGRAM? Y\\N").lower()
         df.to_csv(csvName, index=False)
         print("DATA SUCCESSFULLY STORED TO CSV\n")
     else:
@@ -415,7 +434,7 @@ def constrain_input_loop(sort_query, list_options):
     elif sort_query.lower() == "date" and "date" in list_options:
         return "date"
     elif sort_query.lower() == "amount" and (
-        "amount" in list_options or "float amount" in list_options
+        "amount" in list_options or "float_amount" in list_options
     ):
         return "amount"
     else:
@@ -448,14 +467,16 @@ def constrain_input_loop(sort_query, list_options):
 
 # Removing stop words dependencies
 # pip install nltk
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+# import nltk
+# from nltk.corpus import stopwords
+# from nltk.tokenize import word_tokenize
 
 nltk.download("stopwords")
 nltk.download("punkt")
 
 # Removes most common words
+
+
 def remove_stop_words(transaction_word_list):
     text_token = word_tokenize(transaction_word_list)
     stop_words = set(stopwords.words("english"))
@@ -548,7 +569,7 @@ def make_dict(categories, old_dict=0):
             old_dict["0_format"] = [
                 "date",
                 "transaction",
-                "float amount",
+                "amount",
                 "identifier",
             ]
         for i in categories:
@@ -557,7 +578,8 @@ def make_dict(categories, old_dict=0):
         trans_type = old_dict
 
     else:
-        trans_type = {"0_format": ["date", "transaction", "float amount", "identifier"]}
+        trans_type = {"0_format": [
+            "date", "transaction", "amount", "identifier"]}
         for i in categories:
             trans_type[i] = []
     return trans_type
@@ -577,7 +599,8 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                     if i and len(i) > 0:
                         for j in i:
                             if (
-                                re.search(rf"{data_point}", str(j), re.IGNORECASE)
+                                re.search(rf"{data_point}",
+                                          str(j), re.IGNORECASE)
                                 != None
                             ):
                                 print(
@@ -776,24 +799,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     ############################################## search_dict ##############################################
 
 
-def test_date(df):
-    # testing
-    list_cols = [i.lower() for i in df.columns.tolist()]
-    test_cols = ["date"]
-    for col_num in range(len(list_cols)):
-        for test in test_cols:
-            if (test in list_cols[col_num]) and (
-                df.iloc[:, col_num].map(type) != type(datetime.datetime.now())
-            ).all():  # add second conditional here that tests the col for floats, ints and strings
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
-                print("CONVERTING DATES TO DATETIME")
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
-                df["date"] = pd.to_datetime(df["date"])
-    # pp.pprint(df)
+def make_test_dict(df):
     unique_cats = df.category.unique()
     # print(unique_cats)
     test_dict = {}
@@ -810,29 +816,105 @@ def test_date(df):
     return test_dict
 
 
+def test_date(df):
+    # testing all columns with the word date
+    # if test in list col num and list_cols comprehension are redundant too tired to fix
+    print(
+        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    )
+    print('TESTING DATES')
+    print(
+        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    )
+    list_cols = [i.lower() for i in df.columns.tolist()]
+    test_cols = ["date", "pending", "posted"]
+    verified_cols = []
+    for col in list_cols:
+        for test in test_cols:
+            if test in col:
+                verified_cols.append(col)
+    #print(verified_cols)
+    for tested in verified_cols:
+        if all(df[tested].map(type) != type(datetime.datetime.now())):
+            # add second conditional here that tests the col for floats, ints and strings
+            print("CONVERTING DATAFRAME DATES TO DATETIME")
+            print(
+                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+            )
+            df[tested] = pd.to_datetime(df[tested])
+    # pp.pprint(df)
+    return df
+
+
 def test_amounts(df):
+    print(
+        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    )
+    print('TESTING AMOUNTS')
+    print(
+        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    )
     converted_col = []
     list_cols = [i.lower() for i in df.columns.tolist()]
     test_cols = ["amount", "value", "balance"]
-    for col_num in range(len(list_cols)):
+    verified_cols = []
+    for col in list_cols:
         for test in test_cols:
-            if (test in list_cols[col_num]) and (
-                df.iloc[:, col_num].map(type) == str
-            ).all():  # add second conditional here that tests the col for floats, ints and strings
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
-                print("NORMALIZING AMOUNTS")
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
-                for row_num in range(len(df)):
-                    converted_col.append(convert_amount(df.iloc[:, col_num][row_num]))
-                df.iloc[:, col_num] = converted_col
+            if test in col:
+                verified_cols.append(col)
+    #print(verified_cols)
+    for tested in verified_cols:
+        search_floats = df[tested].apply(
+            lambda x: 'True' if type(x) == type(0.1) else 'False')
+        #floats_test = [True for i in range(len(df[tested])) if type(df[tested][i]) == type(0.1)]
+        if search_floats.all():
+            print('COLUMNS ARE FLOATS SKIPPING')
+            continue
+        elif (df[tested].map(type) == str).all():
+            # add second conditional here that tests the col for floats, ints and strings
+            print(
+                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+            )
+            print("NORMALIZING AMOUNTS")
+            print(
+                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+            )
+            for row_num in range(len(df)):
+                converted_col.append(convert_amount(
+                    df[tested][row_num]))
+            df[tested] = converted_col
+        else:
+            print('your amount columns are all a mess, see your programmer')
+    return df
+
+
+# trying to find the difference between the two dataframes
+# there must be a strip function buried in there and some spaces or special characters that i cant find
+# so that the rows do not match
+def match_dataframes(new_DF, old_DF):
+    list_match = ["date", "transaction", "amount"]
+    for i in list_match:
+        if i in list(new_DF.columns) and i in list(old_DF.columns):
+            test_merge_old = old_DF.loc[:, list_match].convert_dtypes()
+            test_merge_new = new_DF.loc[:, list_match].convert_dtypes()
+    print(test_merge_new.head())
+    print(test_merge_old.head())
+    # this came back with 12ish rows? I don't think I made more than 2 changes, which would be 4 if i changed rows already in there
+    match = test_merge_old[~test_merge_old.index.isin(test_merge_new.index)]
+    # This came back empty
+    # match = test_merge_new[~test_merge_new.index.isin(test_merge_old.index)]
+    # tests if the dataframes are exact equals
+    print(match)
+    equal = test_merge_old.equals(test_merge_new)
+    print(equal)
+    # print(new_DF.iloc[214:226])
+    # print(old_DF.iloc[214:226])
+
+    exit()
 
 
 # Omit old data removes the chance of making copies of data already within db or dict
-def omit_old_data(old_data_dict, new_data_dict):
+def omit_old_data_dict(old_data_dict, new_data_dict):
     new_data = {
         k: new_data_dict[k]
         for k in new_data_dict
@@ -845,11 +927,20 @@ def omit_old_data(old_data_dict, new_data_dict):
 
 
 def dict_to_Frame(data_dict):
+    import format_data as format
     print("PROCCESSING DATAFRAME")
     skip_list = []
     rows = []
-    if "category" not in data_dict["0_format"][0]:
+    # print(data_dict['0_format'])
+    # print(type(data_dict['0_format']))
+    
+    # print(data_dict['0_format'][0])
+    # print(type(data_dict['0_format'][0]))
+    
+    if "category" not in data_dict["0_format"] and type(data_dict["0_format"]) != type(['list']):
         data_dict["0_format"] = data_dict["0_format"] + ["category"]
+    elif "category" not in data_dict["0_format"][0] and type(data_dict["0_format"][0]) != type('str'):
+        data_dict["0_format"] = data_dict["0_format"][0] + "category"
     else:
         pass
     cols = data_dict["0_format"]
@@ -863,6 +954,7 @@ def dict_to_Frame(data_dict):
             continue
         elif len(value) == 0:
             skip_list.append(key)
+            continue
         else:
             for i in range(len(value)):
                 if len(value[i]) == len(data_dict["0_format"]):
@@ -872,7 +964,7 @@ def dict_to_Frame(data_dict):
     print(
         "//////////////////////////////////////////////////////////////////////////////////////////////////////"
     )
-    ## PLACE TO ADD EXTRA COLUMNS
+    # PLACE TO ADD EXTRA COLUMNS
     # pp.pprint(rows)
     df = pd.DataFrame(np.array(rows), columns=cols)
     skip_list_p = ", ".join(skip_list)
@@ -882,6 +974,8 @@ def dict_to_Frame(data_dict):
             f"NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME:::\n{skip_list_p[:len_skip]}\n{skip_list_p[len_skip:]}"
         )
     )
+    # place to add convert date from format_data to make all rows datetime objs
+    #df = format.convert_date(df)
     return df
 
 
@@ -948,10 +1042,8 @@ def main():
     # }
 
     # dictionary = None
-
     import test_dict
-
-    dictionary = test_dict.dictionary_with_changes
+    dictionary = test_dict.dictionary_exact_copy
 
     print("RUNNING GET DATA TYPE\n")
     formatted_df = None
@@ -967,31 +1059,11 @@ def main():
     print(
         "------------------------------------------------------------------------------------------------------"
     )
-    # Comparing a dataframe of new_data with old data
-    dictionary_DF = dict_to_Frame(dictionary)
-    print(dictionary_DF.head())
-    print(data.head())
-    exit()
-
-    ### place to limit data use data.head(num)
     if dictionary:
         trans_dict = split_purchases(data, formatted_df, dictionary)
     else:
         trans_dict = split_purchases(data, formatted_df)
 
-    # Test to see if any data is overlapping, omitting if it is
-    new_data = omit_old_data(dictionary, trans_dict)
-    if new_data:
-        from itertools import chain
-
-        merged_dict = {}
-        for k, v in chain(dictionary.items(), trans_dict.items()):
-            merged_dict.setdefault(k, []).extend(v)
-    else:
-        print("THERE IS NO NEW DATA, EXITING")
-        exit()
-
-    # trans_dict = omit_old_data(trans_dict, dictionary)
     print("SPLIT PURCHASES PROGRAM COMPLETE")
     print(
         "------------------------------------------------------------------------------------------------------"
@@ -1008,11 +1080,11 @@ def main():
     show_dict = input("PRINT OUT DICT Y/N\n")
     if "y" in show_dict.lower():
         print("DICTIONARY VALUES :::::")
-        pp.pprint(merged_dict)
+        pp.pprint(trans_dict)
         print(
             "------------------------------------------------------------------------------------------------------"
         )
-    converted_DF = dict_to_Frame(merged_dict)
+    converted_DF = dict_to_Frame(trans_dict)
     new_DF = test_amounts(converted_DF)
     new_DF = test_date(new_DF)
     print(
@@ -1034,7 +1106,6 @@ def main():
         new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
         pp.pprint(new_DF)
         import format_data
-
         new_DF = format_data.convert_date(new_DF)
         # <<<<<<<<WORKING>>>>>>>>>>>
         # Change this to an input statement attached to the loop
@@ -1053,6 +1124,98 @@ def main():
     t_execute = t_end - t_start
     print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
     return data, new_DF
+
+    # NEW STUFF
+    # # Comparing a dataframe of new_data with old data
+    # dictionary_DF = (
+    #     dict_to_Frame(dictionary).sort_values(
+    #         by="date").drop_duplicates().reset_index(drop=True)
+    # )
+
+    # print(dictionary_DF.head())
+    # print(data.head())
+    # testing_frames = match_dataframes(data, dictionary_DF)
+
+    # place to limit data use data.head(num)
+    # if dictionary and testing_frames:
+    #     trans_dict = split_purchases(data, formatted_df, dictionary)
+    # else:
+    #     trans_dict = split_purchases(data, formatted_df)
+
+    # # Test to see if any data is overlapping, omitting if it is
+    # new_data = omit_old_data(dictionary, trans_dict)
+    # if new_data:
+    #     from itertools import chain
+
+    #     merged_dict = {}
+    #     for k, v in chain(dictionary.items(), trans_dict.items()):
+    #         merged_dict.setdefault(k, []).extend(v)
+    # else:
+    #     print("THERE IS NO NEW DATA, EXITING")
+    #     exit()
+
+    # trans_dict = omit_old_data(trans_dict, dictionary)
+    # print("SPLIT PURCHASES PROGRAM COMPLETE")
+    # print(
+    #     "------------------------------------------------------------------------------------------------------"
+    # )
+
+    # print(
+    #     "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    # )
+    # print("ADDING TO DICTIONARY")
+    # print(
+    #     "------------------------------------------------------------------------------------------------------"
+    # )
+    # # <<<<<<<<WORKING>>>>>>>>>>>
+    # show_dict = input("PRINT OUT DICT Y/N\n")
+    # if "y" in show_dict.lower():
+    #     print("DICTIONARY VALUES :::::")
+    #     pp.pprint(merged_dict)
+    #     print(
+    #         "------------------------------------------------------------------------------------------------------"
+    #     )
+    # converted_DF = dict_to_Frame(merged_dict)
+    # new_DF = test_amounts(converted_DF)
+    # new_DF = test_date(new_DF)
+    # print(
+    #     "------------------------------------------------------------------------------------------------------"
+    # )
+
+    # # <<<<<<<<WORKING>>>>>>>>>>>
+    # # Change this to an input statement attached to the loop
+    # # Formats amounts and dates if not already formatted
+    # if data_formatted[1]:
+    #     pass
+    # else:
+    #     print(
+    #         "------------------------------------------------------------------------------------------------------"
+    #     )
+    #     print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
+    #     col_with_dates = "DATE"
+    #     sort_by = get_sort_by(new_DF, col_with_dates)
+    #     new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
+    #     pp.pprint(new_DF)
+    #     import format_data
+
+    #     new_DF = format_data.convert_date(new_DF)
+    #     # <<<<<<<<WORKING>>>>>>>>>>>
+    #     # Change this to an input statement attached to the loop
+    #     print("PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS")
+    #     col_with_amounts = "AMOUNTS"
+    #     sort_by = get_sort_by(new_DF, col_with_amounts)
+    #     new_DF = make_num(new_DF, sort_by)
+
+    # pp.pprint(new_DF.head())
+    # create_database = input("ADD TO DATABASE? Y/N \n")
+    # if "y" in create_database:
+    #     conn_mongo(merged_dict)
+    #     print("MongoDB Successful")
+    # save_csv(new_DF)
+    # t_end = datetime.datetime.now()
+    # t_execute = t_end - t_start
+    # print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
+    # return data, new_DF
 
 
 if __name__ == "__main__":

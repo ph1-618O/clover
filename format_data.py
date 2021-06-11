@@ -28,7 +28,17 @@ import pandas as pd
 import numpy as np
 
 pd.options.mode.chained_assignment = None
+
+#Test Editing Libraries
 import pprint
+# import texthero as hero #pip install texthero==1.0.5 works with newer python versions
+#pip install nltk #NLP
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+nltk.download("stopwords")
+nltk.download("punkt")
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -152,17 +162,31 @@ def convert_date_complicated(df):
 def convert_date(df):
     import datetime
 
-    date_time = []
-    for i in df["date"]:
-        if len(i) == 10:
-            date_time.append(datetime.datetime.strptime(i, "%m/%d/%Y"))
-        elif len(i) == 8:
-            date_time.append(datetime.datetime.strptime(i, "%m/%d/%y"))
-        else:
-            print("UNKNOWN DATE FORMAT SKIPPING FORMATTING")
-            return df
-    df["date"] = date_time
-    df = df.reset_index(drop=True)
+    for i in list(df.columns):
+        if "date" in i.lower():
+            all_date_time = [True for i in df['date'] if type(i) == type(datetime.datetime.now())]
+            if all(all_date_time):
+                print(
+                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+                )
+                print('ALL DATES ARE IN DATETIME SKIPPING')
+                print(
+                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+                )
+            elif not all(all_date_time):
+                date_time = []
+                for j in df[i]:
+                    if len(j) == 10:
+                        date_time.append(datetime.datetime.strptime(j, "%m/%d/%Y"))
+                    elif len(j) == 8:
+                        date_time.append(datetime.datetime.strptime(j, "%m/%d/%y"))
+                    else:
+                        print("UNKNOWN DATE FORMAT SKIPPING FORMATTING")
+                        return df
+                df[i] = date_time
+                df = df.reset_index(drop=True)
+            else:
+                    print('your dates are a mess, see your programmer')
     return df
 
 
@@ -286,6 +310,10 @@ def get_col_names(df):
             print(
                 "------------------------------------------------------------------------------------------------------"
             )
+            print("REQUIRED ::: Date, Transaction, Amount")
+            print(
+                "------------------------------------------------------------------------------------------------------"
+            )
             cols = input("ENTER COLUMN NAMES IN ORDER\n").lower()
             cat = ""
             for i in cols:
@@ -316,6 +344,24 @@ def get_col_names(df):
     )
     return cols, rename_cols_query
 
+#import texthero as hero
+from texthero import preprocessing
+def strip_db_space(df):
+    remove_white = [preprocessing.fillna
+                    #, preprocessing.lowercase
+                    #, preprocessing.remove_digits
+                    #, preprocessing.remove_punctuation
+                    #, preprocessing.remove_diacritics
+                    #, preprocessing.remove_stopwords
+                    , preprocessing.remove_whitespace
+                    #, preprocessing.stem
+    ]
+    for i in range(len(df.columns)):
+        df = hero.clean(df.iloc[:, i], pipeline = remove_white)
+    return df
+
+        
+        
 
 def format_data(df):
     test_cols = get_col_names(df)
@@ -335,8 +381,8 @@ def format_data(df):
     if "amount" in df.columns:
         df = make_num(df, "amount")
     # Formatting date column into datetime obj
-    # if "date" in df.columns:
-    #     df = convert_date(df)
+    if "date" in df.columns:
+        df = convert_date(df)
     return df
 
 
@@ -346,6 +392,11 @@ def initiate_format(df=0):
         "------------------------------------------------------------------------------------------------------"
     )
     formatted = format_data(df)
+    # Dropping duplicates
+    formatted = formatted.drop_duplicates()
+    #Sorting cols by date
+    date_col = [col for col in list(formatted.columns) if "date" in col.lower()]
+    formatted = formatted.sort_values(by=date_col).reset_index(drop=True)
     print(
         "------------------------------------------------------------------------------------------------------"
     )

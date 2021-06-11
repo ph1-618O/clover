@@ -488,6 +488,11 @@ def remove_stop_words(transaction_word_list):
     return tokens_without_sw
 
 
+# original regex
+# / ^[A-Za-z0-9]{3, }/
+# new
+# (?i)(?!\bTST\b | WWW | USA)( ^ [A-Za-z0-9]{3, })
+
 def add_transaction_type(df, i, sort_by=0):
     ####################################################get_sort_by  '[^A-Za-z0-9]+'  ####################################################
     if sort_by:
@@ -500,17 +505,20 @@ def add_transaction_type(df, i, sort_by=0):
         )
         for index in range(len(purchase_type)):
             if len(purchase_type[index]) < 3:
-                sort_by = None
+                sort_by = 'transaction' #was None to limit the id to > 3 letters but that didn't work
                 pass
             else:
-                print(f'TESTING IDENTIFIER:: "{purchase_type[index]}", Y/N\n')
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
-                print(
-                    f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::"{purchase_type[index].upper()}"'
-                )
-                return sort_by, purchase_type[index].lower()
+                if purchase_type[index].lower() == 'tst' or purchase_type[index].lower() == 'usa' or purchase_type[index].lower() == 'www' or purchase_type[index].lower() == 'afc':
+                    continue
+                else:
+                    print(f'TESTING IDENTIFIER:: "{purchase_type[index]}"')
+                    print(
+                        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+                    )
+                    print(
+                        f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::"{purchase_type[index].upper()}"'
+                    )
+                    return sort_by, purchase_type[index].lower()
 
 
 # def add_transaction_type_confirm(df, i, sort_by=0):
@@ -571,6 +579,7 @@ def make_dict(categories, old_dict=0):
                 "transaction",
                 "amount",
                 "identifier",
+                "category"
             ]
         for i in categories:
             if i not in old_dict.keys():
@@ -579,7 +588,7 @@ def make_dict(categories, old_dict=0):
 
     else:
         trans_type = {"0_format": [
-            "date", "transaction", "amount", "identifier"]}
+            "date", "transaction", "amount", "identifier", "category"]}
         for i in categories:
             trans_type[i] = []
     return trans_type
@@ -599,9 +608,8 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                     if i and len(i) > 0:
                         for j in i:
                             if (
-                                re.search(rf"{data_point}",
-                                          str(j), re.IGNORECASE)
-                                != None
+                                re.search(rf"{data_point}", str(
+                                    j), re.IGNORECASE) != None
                             ):
                                 print(
                                     "//////////////////////////////////////////////////////////////////////////////////////////////////////"
@@ -672,6 +680,15 @@ def add_data(budget_dict, data):
             f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n"
         )
     )
+    sub_keys = {'food': 'groceries',
+                        'fast food': 'take away',
+                        'fast': 'take away',
+                        'travel': 'holiday',
+                        'trav': 'holiday'},
+    for sub_key, sub_value in sub_keys.items():
+        if location.lower() == sub_key:
+            print(f'SWITCHING {location} WITH {sub_value}, {location} IS A DOUBLE MATCH')
+            location = sub_value
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
     if location[:3] not in [i[:3] for i in budget_dict.keys()] and (
         location != "0_format"
@@ -680,10 +697,76 @@ def add_data(budget_dict, data):
             f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n'
         )
         if "y" in add_key:
+            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL')        
             budget_dict[location] = []
-            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL')
+        else:
+            location = 'other'
+            budget_dict[location] = []
+            print(f'ADDING TO"{location.upper()}" SUCCESSFUL')
     # Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
+        # find a better way to do this with a dictionary {'fast_food:'take_away', 'food':'groceries, 'travel':'holiday'} etc
+        # if location.lower() == 'travel':
+        #     key = 'holiday'
+        #     if type(data[0]) != type([]):
+        #         value.append(data + [key])
+        #         print(
+        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+        #         )
+        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
+        #         return budget_dict
+        #     elif type(data[0]) == type([]) and len(data) > 1:
+        #         for z in data:
+        #             z.append(key)
+        #             value.append(z)
+        #         print(
+        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
+        #         )
+        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
+        #         return budget_dict
+        #     else:
+        #         print("ERROR SKIPPING")
+        # elif location.lower() == 'food':
+        #     key = 'grocery'
+        #     if type(data[0]) != type([]):
+        #         value.append(data + [key])
+        #         print(
+        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+        #         )
+        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
+        #         return budget_dict
+        #     elif type(data[0]) == type([]) and len(data) > 1:
+        #         for z in data:
+        #             z.append(key)
+        #             value.append(z)
+        #         print(
+        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
+        #         )
+        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
+        #         return budget_dict
+        #     else:
+        #         print("ERROR SKIPPING")
+        
+        # elif location.lower() == 'fast food' or location == 'fast_food':
+        #     key = 'take_away'
+        #     if type(data[0]) != type([]):
+        #         value.append(data + [key])
+        #         print(
+        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+        #         )
+        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
+        #         return budget_dict
+        #     elif type(data[0]) == type([]) and len(data) > 1:
+        #         for z in data:
+        #             z.append(key)
+        #             value.append(z)
+        #         print(
+        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
+        #         )
+        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
+        #         return budget_dict
+        #     else:
+        #         print("ERROR SKIPPING")
         if location[:3] == key[:3]:
             print(
                 f'YOU ENTERED "{location.upper()}" WE ARE MATCHING TO "{key.upper()}"'
@@ -833,7 +916,7 @@ def test_date(df):
         for test in test_cols:
             if test in col:
                 verified_cols.append(col)
-    #print(verified_cols)
+    # print(verified_cols)
     for tested in verified_cols:
         if all(df[tested].map(type) != type(datetime.datetime.now())):
             # add second conditional here that tests the col for floats, ints and strings
@@ -862,7 +945,7 @@ def test_amounts(df):
         for test in test_cols:
             if test in col:
                 verified_cols.append(col)
-    #print(verified_cols)
+    # print(verified_cols)
     for tested in verified_cols:
         search_floats = df[tested].apply(
             lambda x: 'True' if type(x) == type(0.1) else 'False')
@@ -910,11 +993,11 @@ def match_dataframes(new_DF, old_DF):
     # print(new_DF.iloc[214:226])
     # print(old_DF.iloc[214:226])
 
-    exit()
+    # exit()
 
 
 # Omit old data removes the chance of making copies of data already within db or dict
-def omit_old_data_dict(old_data_dict, new_data_dict):
+def omit_old_data(old_data_dict, new_data_dict):
     new_data = {
         k: new_data_dict[k]
         for k in new_data_dict
@@ -926,17 +1009,71 @@ def omit_old_data_dict(old_data_dict, new_data_dict):
         return new_data
 
 
+# def dict_to_Frame(data_dict, dictionary = 0):
+#     if dictionary:
+#         df = dict_to_Frame_with_data(data_dict)
+#     else:
+#         df = dict_to_Frame_no_data(data_dict)
+#     return df
+
+
 def dict_to_Frame(data_dict):
+    import format_data as format
+    print("PROCCESSING DATAFRAME")
+    skip_list = []
+    rows = []
+
+    if "category" not in data_dict["0_format"]:
+        data_dict["0_format"] = data_dict["0_format"] + ["category"]
+    else:
+        pass
+    cols = data_dict["0_format"]
+    for key, value in data_dict.items():
+        # Skipping the first entry which is the columns
+        if key == "0_format":
+            print(
+                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+            )
+            print("SKIPPING FORMAT ROW")
+            continue
+        elif len(value) == 0:
+            skip_list.append(key)
+            continue
+        else:
+            for i in range(len(value)):
+                if len(value[i]) == len(data_dict["0_format"]):
+                    rows.append(value[i])
+                else:
+                    rows.append(value[i] + [key])
+    print(
+        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    )
+    # PLACE TO ADD EXTRA COLUMNS
+    # pp.pprint(rows)
+    df = pd.DataFrame(np.array(rows), columns=cols)
+    skip_list_p = ", ".join(skip_list)
+    len_skip = int(len(skip_list_p) / 2)
+    print(
+        (
+            f"NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME:::\n{skip_list_p[:len_skip]}\n{skip_list_p[len_skip:]}"
+        )
+    )
+    # place to add convert date from format_data to make all rows datetime objs
+    #df = format.convert_date(df)
+    return df
+
+
+def dict_to_Frame_with_data(data_dict):
     import format_data as format
     print("PROCCESSING DATAFRAME")
     skip_list = []
     rows = []
     # print(data_dict['0_format'])
     # print(type(data_dict['0_format']))
-    
+
     # print(data_dict['0_format'][0])
     # print(type(data_dict['0_format'][0]))
-    
+
     if "category" not in data_dict["0_format"] and type(data_dict["0_format"]) != type(['list']):
         data_dict["0_format"] = data_dict["0_format"] + ["category"]
     elif "category" not in data_dict["0_format"][0] and type(data_dict["0_format"][0]) != type('str'):
@@ -1041,9 +1178,9 @@ def main():
     #         ]
     # }
 
-    # dictionary = None
-    import test_dict
-    dictionary = test_dict.dictionary_exact_copy
+    #dictionary = None
+    #import test_dict
+    #dictionary = test_dict.dictionary_exact_copy
 
     print("RUNNING GET DATA TYPE\n")
     formatted_df = None
@@ -1059,102 +1196,13 @@ def main():
     print(
         "------------------------------------------------------------------------------------------------------"
     )
-    if dictionary:
-        trans_dict = split_purchases(data, formatted_df, dictionary)
-    else:
-        trans_dict = split_purchases(data, formatted_df)
 
-    print("SPLIT PURCHASES PROGRAM COMPLETE")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
-
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
-    print("ADDING TO DICTIONARY")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
-    # <<<<<<<<WORKING>>>>>>>>>>>
-    show_dict = input("PRINT OUT DICT Y/N\n")
-    if "y" in show_dict.lower():
-        print("DICTIONARY VALUES :::::")
-        pp.pprint(trans_dict)
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
-    converted_DF = dict_to_Frame(trans_dict)
-    new_DF = test_amounts(converted_DF)
-    new_DF = test_date(new_DF)
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
-
-    # <<<<<<<<WORKING>>>>>>>>>>>
-    # Change this to an input statement attached to the loop
-    # Formats amounts and dates if not already formatted
-    if data_formatted[1]:
-        pass
-    else:
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
-        print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
-        col_with_dates = "DATE"
-        sort_by = get_sort_by(new_DF, col_with_dates)
-        new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
-        pp.pprint(new_DF)
-        import format_data
-        new_DF = format_data.convert_date(new_DF)
-        # <<<<<<<<WORKING>>>>>>>>>>>
-        # Change this to an input statement attached to the loop
-        print("PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS")
-        col_with_amounts = "AMOUNTS"
-        sort_by = get_sort_by(new_DF, col_with_amounts)
-        new_DF = make_num(new_DF, sort_by)
-
-    pp.pprint(new_DF.head())
-    create_database = input("ADD TO DATABASE? Y/N \n")
-    if "y" in create_database:
-        conn_mongo(merged_dict)
-        print("MongoDB Successful")
-    save_csv(new_DF)
-    t_end = datetime.datetime.now()
-    t_execute = t_end - t_start
-    print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
-    return data, new_DF
-
-    # NEW STUFF
-    # # Comparing a dataframe of new_data with old data
-    # dictionary_DF = (
-    #     dict_to_Frame(dictionary).sort_values(
-    #         by="date").drop_duplicates().reset_index(drop=True)
-    # )
-
-    # print(dictionary_DF.head())
-    # print(data.head())
-    # testing_frames = match_dataframes(data, dictionary_DF)
-
-    # place to limit data use data.head(num)
-    # if dictionary and testing_frames:
+    # OLD STUFF THAT WORKS
+    # if dictionary:
     #     trans_dict = split_purchases(data, formatted_df, dictionary)
     # else:
     #     trans_dict = split_purchases(data, formatted_df)
 
-    # # Test to see if any data is overlapping, omitting if it is
-    # new_data = omit_old_data(dictionary, trans_dict)
-    # if new_data:
-    #     from itertools import chain
-
-    #     merged_dict = {}
-    #     for k, v in chain(dictionary.items(), trans_dict.items()):
-    #         merged_dict.setdefault(k, []).extend(v)
-    # else:
-    #     print("THERE IS NO NEW DATA, EXITING")
-    #     exit()
-
-    # trans_dict = omit_old_data(trans_dict, dictionary)
     # print("SPLIT PURCHASES PROGRAM COMPLETE")
     # print(
     #     "------------------------------------------------------------------------------------------------------"
@@ -1170,12 +1218,20 @@ def main():
     # # <<<<<<<<WORKING>>>>>>>>>>>
     # show_dict = input("PRINT OUT DICT Y/N\n")
     # if "y" in show_dict.lower():
+    #     # import json
+    #     # with open('dictionary_copy.txt', 'w') as save_dict:
+    #     #     save_dict.write(json.dumps(trans_dict))
     #     print("DICTIONARY VALUES :::::")
-    #     pp.pprint(merged_dict)
+    #     pp.pprint(trans_dict)
+    #     # exit()
     #     print(
     #         "------------------------------------------------------------------------------------------------------"
     #     )
-    # converted_DF = dict_to_Frame(merged_dict)
+    # converted_DF = dict_to_Frame(trans_dict)
+    # # if dictionary:
+    # #     converted_DF = dict_to_Frame(trans_dict, 'dictionary')
+    # # else:
+    # #     converted_DF = dict_to_Frame(trans_dict)
     # new_DF = test_amounts(converted_DF)
     # new_DF = test_date(new_DF)
     # print(
@@ -1197,7 +1253,6 @@ def main():
     #     new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
     #     pp.pprint(new_DF)
     #     import format_data
-
     #     new_DF = format_data.convert_date(new_DF)
     #     # <<<<<<<<WORKING>>>>>>>>>>>
     #     # Change this to an input statement attached to the loop
@@ -1216,6 +1271,108 @@ def main():
     # t_execute = t_end - t_start
     # print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
     # return data, new_DF
+
+    #### NEW STUFF
+    # Comparing a dataframe of new_data with old data
+    # dropping duplicates
+    # dictionary_DF = (
+    #     dict_to_Frame(dictionary).sort_values(
+    #         by="date").drop_duplicates().reset_index(drop=True)
+    # )
+
+    # print(dictionary_DF.head())
+    import json
+    with open('dictionary_copy.json') as import_dict:
+        imported_dict = json.load(import_dict)
+    dictionary_DF = (
+        dict_to_Frame(imported_dict).sort_values(
+            by="date").drop_duplicates().reset_index(drop=True)
+    )
+    pp.pprint(dictionary_DF.head())
+    
+    print(data.head())
+    testing_frames = match_dataframes(data, dictionary_DF)
+
+    #place to limit data use data.head(num)
+    if imported_dict and testing_frames:
+        trans_dict = split_purchases(data, formatted_df, imported_dict)
+    else:
+        trans_dict = split_purchases(data, formatted_df)
+
+    # Test to see if any data is overlapping, omitting if it is
+    new_data = omit_old_data(imported_dict, trans_dict)
+    if new_data:
+        from itertools import chain
+
+        merged_dict = {}
+        for k, v in chain(imported_dict.items(), trans_dict.items()):
+            merged_dict.setdefault(k, []).extend(v)
+    else:
+        print("THERE IS NO NEW DATA, EXITING")
+        exit()
+
+    trans_dict = omit_old_data(trans_dict, imported_dict)
+    print("SPLIT PURCHASES PROGRAM COMPLETE")
+    print(
+        "------------------------------------------------------------------------------------------------------"
+    )
+
+    print(
+        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    )
+    print("ADDING TO DICTIONARY")
+    print(
+        "------------------------------------------------------------------------------------------------------"
+    )
+    # <<<<<<<<WORKING>>>>>>>>>>>
+    show_dict = input("PRINT OUT DICT Y/N\n")
+    if "y" in show_dict.lower():
+        print("DICTIONARY VALUES :::::")
+        pp.pprint(merged_dict)
+        print(
+            "------------------------------------------------------------------------------------------------------"
+        )
+    converted_DF = dict_to_Frame(merged_dict)
+    new_DF = test_amounts(converted_DF)
+    new_DF = test_date(new_DF)
+    print(
+        "------------------------------------------------------------------------------------------------------"
+    )
+
+    # <<<<<<<<WORKING>>>>>>>>>>>
+    # Change this to an input statement attached to the loop
+    # Formats amounts and dates if not already formatted
+    if data_formatted[1]:
+        pass
+    else:
+        print(
+            "------------------------------------------------------------------------------------------------------"
+        )
+        print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
+        col_with_dates = "DATE"
+        sort_by = get_sort_by(new_DF, col_with_dates)
+        new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
+        pp.pprint(new_DF)
+        import format_data
+
+        new_DF = format_data.convert_date(new_DF)
+        # <<<<<<<<WORKING>>>>>>>>>>>
+        # Change this to an input statement attached to the loop
+        print("PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS")
+        col_with_amounts = "AMOUNTS"
+        sort_by = get_sort_by(new_DF, col_with_amounts)
+        new_DF = make_num(new_DF, sort_by)
+
+    pp.pprint(new_DF.head())
+    create_database = input("ADD TO DATABASE? Y/N \n")
+    if "y" in create_database:
+        conn_mongo(merged_dict)
+        print("MongoDB Successful")
+    save_csv(new_DF)
+    t_end = datetime.datetime.now()
+    t_execute = t_end - t_start
+    print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
+    return data, new_DF
 
 
 if __name__ == "__main__":

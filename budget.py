@@ -680,15 +680,19 @@ def add_data(budget_dict, data):
             f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n"
         )
     )
-    sub_keys = {'food': 'groceries',
-                        'fast food': 'take away',
-                        'fast': 'take away',
-                        'travel': 'holiday',
-                        'trav': 'holiday'},
+    sub_keys = {
+        'food': 'groceries',
+        'fast food': 'take away',
+        'fast': 'take away',
+        'travel': 'holiday',
+        'trav': 'holiday'
+        }
+    
     for sub_key, sub_value in sub_keys.items():
         if location.lower() == sub_key:
-            print(f'SWITCHING {location} WITH {sub_value}, {location} IS A DOUBLE MATCH')
+            print(f'SWITCHING {location.upper()} WITH {sub_value.upper()}, {location.upper()} IS A DOUBLE MATCH')
             location = sub_value
+            
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
     if location[:3] not in [i[:3] for i in budget_dict.keys()] and (
         location != "0_format"
@@ -982,18 +986,38 @@ def match_dataframes(new_DF, old_DF):
             test_merge_new = new_DF.loc[:, list_match].convert_dtypes()
     #print(test_merge_new.head())
     #print(test_merge_old.head())
-    # this came back with 12ish rows? I don't think I made more than 2 changes, which would be 4 if i changed rows already in there
-    match = test_merge_old[~test_merge_old.index.isin(test_merge_new.index)]
+    
+    
+    # this came back with 12ish rows?  should be 0 with identical data
+    match_not_in_new = test_merge_old[~test_merge_old.index.isin(test_merge_new.index)]
+    print('OLD NOT IN NEW')
+    print(len(match_not_in_new))
+    print(match_not_in_new)
+    
+    
     # This came back empty
-    # match = test_merge_new[~test_merge_new.index.isin(test_merge_old.index)]
+    match_not_in_old = test_merge_new[~test_merge_new.index.isin(test_merge_old.index)]
+    print('OLD NOT IN NEW')
+    print(len(match_not_in_old))
+    print(match_not_in_old)
+    
+    
     # tests if the dataframes are exact equals
-    print(match)
     equal = test_merge_old.equals(test_merge_new)
+    print('EQUAL?')
     print(equal)
+    
+    test_concat = pd.concat([test_merge_old, test_merge_new]).drop_duplicates().reset_index(drop=True)
+    print('CONCAT W/ DROP')
+    print(len(test_concat))
+    print(test_concat)
+    
+    
+    
     # print(new_DF.iloc[214:226])
     # print(old_DF.iloc[214:226])
 
-    # exit()
+    exit()
 
 
 # Omit old data removes the chance of making copies of data already within db or dict
@@ -1218,9 +1242,10 @@ def main():
     # # <<<<<<<<WORKING>>>>>>>>>>>
     # show_dict = input("PRINT OUT DICT Y/N\n")
     # if "y" in show_dict.lower():
-    #     # import json
-    #     # with open('dictionary_copy.txt', 'w') as save_dict:
-    #     #     save_dict.write(json.dumps(trans_dict))
+    #     # this saves the newly made dict to json to compare later
+    #     import json
+    #     with open('dictionary.json', 'w') as save_dict:
+    #         save_dict.write(json.dumps(trans_dict))
     #     print("DICTIONARY VALUES :::::")
     #     pp.pprint(trans_dict)
     #     # exit()
@@ -1281,97 +1306,99 @@ def main():
     # )
 
     # print(dictionary_DF.head())
-    import json
-    with open('dictionary_copy.json') as import_dict:
-        imported_dict = json.load(import_dict)
-    dictionary_DF = (
-        dict_to_Frame(imported_dict).sort_values(
-            by="date").drop_duplicates().reset_index(drop=True)
-    )
-    #pp.pprint(dictionary_DF.head())
-    #print(data.head())
-    testing_frames = match_dataframes(data, dictionary_DF)
+    
+    #### Start
+    # import json
+    # with open('dictionary_copy.json') as import_dict:
+    #     imported_dict = json.load(import_dict)
+    # dictionary_DF = (
+    #     dict_to_Frame(imported_dict).sort_values(
+    #         by="date").drop_duplicates().reset_index(drop=True)
+    # )
+    # #pp.pprint(dictionary_DF.head())
+    # #print(data.head())
+    # testing_frames = match_dataframes(data, dictionary_DF)
 
-    #place to limit data use data.head(num)
-    if imported_dict and testing_frames:
-        trans_dict = split_purchases(data, formatted_df, imported_dict)
-    else:
-        trans_dict = split_purchases(data, formatted_df)
+    # #place to limit data use data.head(num)
+    # if imported_dict and testing_frames:
+    #     trans_dict = split_purchases(data, formatted_df, imported_dict)
+    # else:
+    #     trans_dict = split_purchases(data, formatted_df)
 
-    # Test to see if any data is overlapping, omitting if it is
-    new_data = omit_old_data(imported_dict, trans_dict)
-    if new_data:
-        from itertools import chain
+    # # Test to see if any data is overlapping, omitting if it is
+    # new_data = omit_old_data(imported_dict, trans_dict)
+    # if new_data:
+    #     from itertools import chain
 
-        merged_dict = {}
-        for k, v in chain(imported_dict.items(), trans_dict.items()):
-            merged_dict.setdefault(k, []).extend(v)
-    else:
-        print("THERE IS NO NEW DATA, EXITING")
-        exit()
+    #     merged_dict = {}
+    #     for k, v in chain(imported_dict.items(), trans_dict.items()):
+    #         merged_dict.setdefault(k, []).extend(v)
+    # else:
+    #     print("THERE IS NO NEW DATA, EXITING")
+    #     exit()
 
-    trans_dict = omit_old_data(trans_dict, imported_dict)
-    print("SPLIT PURCHASES PROGRAM COMPLETE")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    # trans_dict = omit_old_data(trans_dict, imported_dict)
+    # print("SPLIT PURCHASES PROGRAM COMPLETE")
+    # print(
+    #     "------------------------------------------------------------------------------------------------------"
+    # )
 
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
-    print("ADDING TO DICTIONARY")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
-    # <<<<<<<<WORKING>>>>>>>>>>>
-    show_dict = input("PRINT OUT DICT Y/N\n")
-    if "y" in show_dict.lower():
-        print("DICTIONARY VALUES :::::")
-        pp.pprint(merged_dict)
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
-    converted_DF = dict_to_Frame(merged_dict)
-    new_DF = test_amounts(converted_DF)
-    new_DF = test_date(new_DF)
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    # print(
+    #     "//////////////////////////////////////////////////////////////////////////////////////////////////////"
+    # )
+    # print("ADDING TO DICTIONARY")
+    # print(
+    #     "------------------------------------------------------------------------------------------------------"
+    # )
+    # # <<<<<<<<WORKING>>>>>>>>>>>
+    # show_dict = input("PRINT OUT DICT Y/N\n")
+    # if "y" in show_dict.lower():
+    #     print("DICTIONARY VALUES :::::")
+    #     pp.pprint(merged_dict)
+    #     print(
+    #         "------------------------------------------------------------------------------------------------------"
+    #     )
+    # converted_DF = dict_to_Frame(merged_dict)
+    # new_DF = test_amounts(converted_DF)
+    # new_DF = test_date(new_DF)
+    # print(
+    #     "------------------------------------------------------------------------------------------------------"
+    # )
 
-    # <<<<<<<<WORKING>>>>>>>>>>>
-    # Change this to an input statement attached to the loop
-    # Formats amounts and dates if not already formatted
-    if data_formatted[1]:
-        pass
-    else:
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
-        print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
-        col_with_dates = "DATE"
-        sort_by = get_sort_by(new_DF, col_with_dates)
-        new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
-        pp.pprint(new_DF)
-        import format_data
+    # # <<<<<<<<WORKING>>>>>>>>>>>
+    # # Change this to an input statement attached to the loop
+    # # Formats amounts and dates if not already formatted
+    # if data_formatted[1]:
+    #     pass
+    # else:
+    #     print(
+    #         "------------------------------------------------------------------------------------------------------"
+    #     )
+    #     print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
+    #     col_with_dates = "DATE"
+    #     sort_by = get_sort_by(new_DF, col_with_dates)
+    #     new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
+    #     pp.pprint(new_DF)
+    #     import format_data
 
-        new_DF = format_data.convert_date(new_DF)
-        # <<<<<<<<WORKING>>>>>>>>>>>
-        # Change this to an input statement attached to the loop
-        print("PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS")
-        col_with_amounts = "AMOUNTS"
-        sort_by = get_sort_by(new_DF, col_with_amounts)
-        new_DF = make_num(new_DF, sort_by)
+    #     new_DF = format_data.convert_date(new_DF)
+    #     # <<<<<<<<WORKING>>>>>>>>>>>
+    #     # Change this to an input statement attached to the loop
+    #     print("PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS")
+    #     col_with_amounts = "AMOUNTS"
+    #     sort_by = get_sort_by(new_DF, col_with_amounts)
+    #     new_DF = make_num(new_DF, sort_by)
 
-    pp.pprint(new_DF.head())
-    create_database = input("ADD TO DATABASE? Y/N \n")
-    if "y" in create_database:
-        conn_mongo(merged_dict)
-        print("MongoDB Successful")
-    save_csv(new_DF)
-    t_end = datetime.datetime.now()
-    t_execute = t_end - t_start
-    print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
-    return data, new_DF
+    # pp.pprint(new_DF.head())
+    # create_database = input("ADD TO DATABASE? Y/N \n")
+    # if "y" in create_database:
+    #     conn_mongo(merged_dict)
+    #     print("MongoDB Successful")
+    # save_csv(new_DF)
+    # t_end = datetime.datetime.now()
+    # t_execute = t_end - t_start
+    # print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
+    # return data, new_DF
 
 
 if __name__ == "__main__":

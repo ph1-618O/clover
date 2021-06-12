@@ -165,6 +165,7 @@ def convert_date(df):
     for i in list(df.columns):
         if "date" in i.lower():
             all_date_time = [True for i in df['date'] if type(i) == type(datetime.datetime.now())]
+            print(all_date_time)
             if all(all_date_time):
                 print(
                     "//////////////////////////////////////////////////////////////////////////////////////////////////////"
@@ -184,7 +185,8 @@ def convert_date(df):
                         print("UNKNOWN DATE FORMAT SKIPPING FORMATTING")
                         return df
                 df[i] = date_time
-                df = df.sort_values(by='date').reset_index(drop=True)
+                df = df.sort_values(by=['date', 'transaction', 'amount']).reset_index(drop=True)
+                #(by=['date', 'category', 'identifier', 'amount']
             else:
                     print('your dates are a mess, see your programmer')
     return df
@@ -395,8 +397,10 @@ def initiate_format(df=0):
     # Dropping duplicates
     formatted = formatted.drop_duplicates()
     #Sorting cols by date
+    #[date_col, 'category', 'identifier', 'amount'])
     date_col = [col for col in list(formatted.columns) if "date" in col.lower()]
-    formatted = formatted.sort_values(by=date_col).reset_index(drop=True)
+    # date col is a list won't work in a list requiring a str, need to fix possibly
+    formatted = formatted.sort_values(by=['date', 'transaction', 'amount']).reset_index(drop=True)
     print(
         "------------------------------------------------------------------------------------------------------"
     )

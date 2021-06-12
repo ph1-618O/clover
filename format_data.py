@@ -184,7 +184,7 @@ def convert_date(df):
                         print("UNKNOWN DATE FORMAT SKIPPING FORMATTING")
                         return df
                 df[i] = date_time
-                df = df.reset_index(drop=True)
+                df = df.sort_values(by='date').reset_index(drop=True)
             else:
                     print('your dates are a mess, see your programmer')
     return df

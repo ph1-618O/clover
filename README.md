@@ -28,9 +28,8 @@ Clover is an application that utilizes banking data that the user inputs (most o
   - Allowing for user to keep all the columns imported and when added to DB it compares new column names and adds NaNs to Dataframe if not matching.
   
 ## Budget.py
+- Create budget dict. py takes data, compares it to a database, or creates a database and parses the data with user guided input. 
 
-Create budget dict. py takes data, compares it to a database, or creates a database and parses the data with user guided input. 
---
 1. First the user inputs a given a CSV, Excel file or Cliboard Data.
 2. It next asks the user what are the necessary columns for their budget and allows for column renaming and removing.
 3. The transaction column is auto selected or if not apparent to program is selected by user input.

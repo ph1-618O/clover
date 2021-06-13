@@ -14,7 +14,7 @@ def find_location(target_query=None):
         #target_query = "VIRGINIA BEACVA"
         params = {"address": target_query, "key": gKey}
         base_url = "https://maps.googleapis.com/maps/api/geocode/json"
-        print(f'Testing {target_query}')
+        #print(f'Testing {target_query}')
         response = requests.get(base_url, params=params)
         location = response.json()
         if response.status_code == 200:

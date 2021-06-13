@@ -481,29 +481,55 @@ def remove_stop_words(transaction_word_list):
     import location
     text_token = word_tokenize(transaction_word_list)
     stop_words = set(stopwords.words("english"))
-    tokens_without_sw = [
-        word for word in text_token if word.casefold() not in stop_words
-    ]
     # print(tokens_without_sw)
     # print(text_token)
     # testing string for address
+    tokens_without_sw = [
+        word for word in text_token if word.casefold() not in stop_words or word.casefold()
+    ]
     test_str = ' '.join(tokens_without_sw)
-    reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
+    print(test_str)
+
+    #reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
+    # removing spaces
+    reg_pattern = r'\b([A-Za-z]+(?:[A-Za-z]+)*) ? ([A-Za-z]{2})\b'
     city_state = re.findall(reg_pattern, test_str)
+
+    # count = 0
+    # match_index = {}
+    # for match in re.finditer(reg_pattern, test_str):
+    #     count += 1
+    #     print('match', count, match.group(), 'start', match.start(), 'end', match.end())
+    #     match_index[match.group()]=[match.start(), match.end()]
+
     print(city_state)
-    address_true = 0
-    
+
+    remove_city_state = 0
     for i in range(len(city_state)):
         search_location = location.find_location(' '.join(city_state[i]))
         if search_location:
-            address_true = search_location
-    #another way to do it
-    # pattern = re.compile(search)
-    # r = pattern.search(test_str)
-    # while r:
-    #     print(f'{r.start()},{r.end()-1}')
-    #     r = reg_pattern.search(test_str, r.start() + 1)
-        
+            remove_city_state = city_state[i]
+            count = 0
+            match_index = {}
+            for match in re.finditer(reg_pattern, test_str):
+                count += 1
+                print('match', count, match.group(), 'start',
+                    match.start(), 'end', match.end())
+                match_index[match.group()] = [match.start(), match.end()]
+
+    if remove_city_state:
+        print(search_location)
+        print(remove_city_state)
+
+        for key, value in match_index.items():
+            if key == ' '.join(remove_city_state):
+                tokens = test_str.replace(test_str[value[0]:value[1]], '')
+        for key in match_index.keys():
+            for i in key.split():
+                if i in tokens and i != ' ':
+                    tokens = tokens.replace(i, '')
+        tokens = tokens.split()
+        return tokens
     return tokens_without_sw
 
 
@@ -526,10 +552,9 @@ def add_transaction_type(df, i, sort_by=0):
         print('\n')
         print(purchase_type)
         print('\n')
-        exit()
         for index in range(len(purchase_type)):
             if len(purchase_type[index]) < 3:
-                sort_by = 'transaction' #was None to limit the id to > 3 letters but that didn't work
+                sort_by = 'transaction'  # was None to limit the id to > 3 letters but that didn't work
                 pass
             else:
                 if purchase_type[index].lower() == 'tst' or purchase_type[index].lower() == 'usa' or purchase_type[index].lower() == 'www' or purchase_type[index].lower() == 'afc':
@@ -711,13 +736,14 @@ def add_data(budget_dict, data):
         'fast': 'take away',
         'travel': 'holiday',
         'trav': 'holiday'
-        }
-    
+    }
+
     for sub_key, sub_value in sub_keys.items():
         if location.lower() == sub_key:
-            print(f'SWITCHING {location.upper()} WITH {sub_value.upper()}, {location.upper()} IS A DOUBLE MATCH')
+            print(
+                f'SWITCHING {location.upper()} WITH {sub_value.upper()}, {location.upper()} IS A DOUBLE MATCH')
             location = sub_value
-            
+
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
     if location[:3] not in [i[:3] for i in budget_dict.keys()] and (
         location != "0_format"
@@ -726,7 +752,7 @@ def add_data(budget_dict, data):
             f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n'
         )
         if "y" in add_key:
-            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL')        
+            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL')
             budget_dict[location] = []
         else:
             location = 'other'
@@ -775,7 +801,7 @@ def add_data(budget_dict, data):
         #         return budget_dict
         #     else:
         #         print("ERROR SKIPPING")
-        
+
         # elif location.lower() == 'fast food' or location == 'fast_food':
         #     key = 'take_away'
         #     if type(data[0]) != type([]):
@@ -1009,36 +1035,34 @@ def match_dataframes(new_DF, old_DF):
         if i in list(new_DF.columns) and i in list(old_DF.columns):
             test_merge_old = old_DF.loc[:, list_match].convert_dtypes()
             test_merge_new = new_DF.loc[:, list_match].convert_dtypes()
-    #print(test_merge_new.head())
-    #print(test_merge_old.head())
-    
-    
+    # print(test_merge_new.head())
+    # print(test_merge_old.head())
+
     # this came back with 12ish rows?  should be 0 with identical data
-    match_not_in_new = test_merge_old[~test_merge_old.index.isin(test_merge_new.index)]
+    match_not_in_new = test_merge_old[~test_merge_old.index.isin(
+        test_merge_new.index)]
     print('OLD NOT IN NEW')
     print(len(match_not_in_new))
     print(match_not_in_new)
-    
-    
+
     # This came back empty
-    match_not_in_old = test_merge_new[~test_merge_new.index.isin(test_merge_old.index)]
+    match_not_in_old = test_merge_new[~test_merge_new.index.isin(
+        test_merge_old.index)]
     print('OLD NOT IN NEW')
     print(len(match_not_in_old))
     print(match_not_in_old)
-    
-    
+
     # tests if the dataframes are exact equals
     equal = test_merge_old.equals(test_merge_new)
     print('EQUAL?')
     print(equal)
-    
-    test_concat = pd.concat([test_merge_old, test_merge_new]).drop_duplicates().reset_index(drop=True)
+
+    test_concat = pd.concat(
+        [test_merge_old, test_merge_new]).drop_duplicates().reset_index(drop=True)
     print('CONCAT W/ DROP')
     print(len(test_concat))
     print(test_concat.head())
-    
-    
-    
+
     # print(new_DF.iloc[214:226])
     # print(old_DF.iloc[214:226])
 
@@ -1099,7 +1123,8 @@ def dict_to_Frame(data_dict):
     )
     # PLACE TO ADD EXTRA COLUMNS
     # pp.pprint(rows)
-    df = pd.DataFrame(np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
+    df = pd.DataFrame(
+        np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
     skip_list_p = ", ".join(skip_list)
     len_skip = int(len(skip_list_p) / 2)
     print(
@@ -1113,7 +1138,7 @@ def dict_to_Frame(data_dict):
 
 
 def dict_to_Frame_with_data(data_dict):
-    import format_data as format
+
     print("PROCCESSING DATAFRAME")
     skip_list = []
     rows = []
@@ -1152,7 +1177,8 @@ def dict_to_Frame_with_data(data_dict):
     )
     # PLACE TO ADD EXTRA COLUMNS
     # pp.pprint(rows)
-    df = pd.DataFrame(np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
+    df = pd.DataFrame(
+        np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
     skip_list_p = ", ".join(skip_list)
     len_skip = int(len(skip_list_p) / 2)
     print(
@@ -1161,7 +1187,8 @@ def dict_to_Frame_with_data(data_dict):
         )
     )
     # place to add convert date from format_data to make all rows datetime objs
-    #df = format.convert_date(df)
+    #import format_data as format
+    #df = format_data.convert_date(df)
     return df
 
 
@@ -1195,6 +1222,7 @@ def conn_mongo(data):
     pprint.pprint(db.budgetDB.find())
     # db.budgetDB.find().pretty()
 
+
 def import_test_data():
     # Comparing a dataframe of new_data with old data
     # dropping duplicates
@@ -1205,7 +1233,7 @@ def import_test_data():
 
     # print(dictionary_DF.head())
 
-    #### Start
+    # Start
 
     # saving csv out before matching
     data = test_date(data)
@@ -1213,7 +1241,7 @@ def import_test_data():
         by=['date', 'transaction', 'amount']).reset_index(drop=True)
     save_csv(data)
 
-    #by=['date', 'category', 'identifier', 'amount']).drop_duplicates().reset_index(drop=True)
+    # by=['date', 'category', 'identifier', 'amount']).drop_duplicates().reset_index(drop=True)
 
     import format_data
     import json
@@ -1225,12 +1253,12 @@ def import_test_data():
     )
     dictionary_DF = test_date(dictionary_DF)
     save_csv(dictionary_DF)
-    #print(dictionary_DF.head())
-    #pp.pprint(dictionary_DF.head())
-    #print(data.head())
+    # print(dictionary_DF.head())
+    # pp.pprint(dictionary_DF.head())
+    # print(data.head())
     testing_frames = match_dataframes(data, dictionary_DF)
 
-    #place to limit data use data.head(num)
+    # place to limit data use data.head(num)
     if imported_dict and testing_frames:
         trans_dict = split_purchases(data, formatted_df, imported_dict)
     else:
@@ -1310,7 +1338,7 @@ def import_test_data():
     t_execute = t_end - t_start
     print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
     return data, new_DF
-    
+
 
 def main():
     t_start = datetime.datetime.now()
@@ -1436,7 +1464,7 @@ def main():
     print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
     return data, new_DF
 
-    #### NEW STUFF aka import_test_data():
+    # NEW STUFF aka import_test_data():
     # Comparing a dataframe of new_data with old data
     # dropping duplicates
     # dictionary_DF = (
@@ -1445,18 +1473,17 @@ def main():
     # )
 
     # print(dictionary_DF.head())
-    
-    #### Start
-    
-    
+
+    # Start
+
     # saving csv out before matching
     # data = test_date(data)
     # data = data.drop_duplicates().sort_values(
     #     by=['date', 'transaction','amount']).reset_index(drop=True)
     # save_csv(data)
-    
+
     # #by=['date', 'category', 'identifier', 'amount']).drop_duplicates().reset_index(drop=True)
-    
+
     # import format_data
     # import json
     # with open('data/test/dictionary.json') as import_dict:

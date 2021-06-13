@@ -30,17 +30,19 @@ Clover is an application that utilizes banking data that the user inputs (most o
 ## Budget.py
 
 Create budget dict. py takes data, compares it to a database, or creates a database and parses the data with user guided input. 
-- First the user inputs a given a CSV, Excel file or Cliboard Data.
-- It next asks the user what are the necessary columns for their budget and allows for column renaming and removing.
-- The transaction column is auto selected or if not apparent to program is selected by user input.
-- Attempting to find the distinct identifier the program splits and iterates through the transaction column, removing stopwords, two letter ids, numbers and addresses.
-- If unsuccessful it queries the user to know which part of data is the identifier.
-- Then sorting of the transaction data by distinct identifier occurs within the data. Such as: Food purchases, Home purchases added as category and passes to a dictionary.
-- The program then searches the entire imported dataset for similar identifiers and attaches the category and adding them to a dictionary as well.
-- Once the entire data set is marked with category and identifier it passes the dictionary to pandas.
-- Pandas creates a dataframe for output, it then queries the user if they'd like to save it as a CSV or add to a Database using MongoDB.
-- Upon repeated uses of the program, once the new data is imported by the user, the app queries the database, and identifies the matching categories and ids.
-- If any data is new and unitentifiable it queries the user for the correct category and identifier.
+--
+1. First the user inputs a given a CSV, Excel file or Cliboard Data.
+2. It next asks the user what are the necessary columns for their budget and allows for column renaming and removing.
+3. The transaction column is auto selected or if not apparent to program is selected by user input.
+4. Attempting to find the distinct identifier the program splits and iterates through the transaction column, removing stopwords, two letter ids, numbers and address/city/state. Utilized NLP, and Google Maps API. 
+5. If unsuccessful it queries the user to know which part of data is the identifier.
+6. Then sorting of the transaction data by distinct identifier occurs within the data. Such as: Food purchases, Home purchases added as category and passes to a dictionary.
+7. The program then searches the entire imported dataset for similar identifiers and attaches the category and adding them to a dictionary as well.
+8. Once the entire data set is marked with category and identifier it passes the dictionary to pandas.
+9. Pandas creates a dataframe for output, it then queries the user if they'd like to save it as a CSV or add to a Database using MongoDB.
+10. Upon repeated uses of the program, once the new data is imported by the user, the app queries the database, and identifies the matching categories and ids.
+11. If any data is new and unitentifiable it queries the user for the correct category and identifier.
+
 
 For example one line of data may be:: 
 ```"05/17/2021	05/16/2021 WHOLE FOODS #893 ARLINGTON VA	1528	-$200.61	$10,488.61"```

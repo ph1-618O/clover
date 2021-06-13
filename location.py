@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+# You can have up to 2,500 free directions requests per day
+# and the cost for additional requests is $0.50 USD per 1000 additional requests, up to 100,000 daily.
 # Location.py takes a string like "FOOD LION #1234 VIRGINIA BEACVA" or "AUTOZONE 1826 ARLINGTON VA" and verifies if there is a city and state located within it
 import requests
 import json
@@ -16,6 +18,7 @@ def find_location():
     lat = location["results"][0]["geometry"]["location"]["lat"]
     lng = location["results"][0]["geometry"]["location"]["lng"]
     print(f'{target_query}: {lat}, {lng}')
+    return True
 
 def main():
     find_location()

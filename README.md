@@ -49,8 +49,8 @@ For example one line of data may be::
 ```Date_Posted, Date_Pending, Transaction, Account, Amount, Balance```
 - User identifies the Transaction column 
 - ```"WHOLE FOODS #893 ARLINGTON VA"```
-- Program uses ```"WHOLE``` as identifier.
-- User chooses ```GROCERIES```, a category out of the defaults or adds their own. 
+- Program uses ```"WHOLE"``` as identifier.
+- User chooses ```"GROCERIES"```, a category out of the defaults or adds their own. 
 - This occurs repeatedly until the dataset is complete.
 
 - Later functionality will include

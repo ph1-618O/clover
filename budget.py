@@ -478,6 +478,7 @@ nltk.download("punkt")
 
 
 def remove_stop_words(transaction_word_list):
+    import location
     text_token = word_tokenize(transaction_word_list)
     stop_words = set(stopwords.words("english"))
     tokens_without_sw = [
@@ -485,6 +486,24 @@ def remove_stop_words(transaction_word_list):
     ]
     # print(tokens_without_sw)
     # print(text_token)
+    # testing string for address
+    test_str = ' '.join(tokens_without_sw)
+    reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
+    city_state = re.findall(reg_pattern, test_str)
+    print(city_state)
+    address_true = 0
+    
+    for i in range(len(city_state)):
+        search_location = location.find_location(' '.join(city_state[i]))
+        if search_location:
+            address_true = search_location
+    #another way to do it
+    # pattern = re.compile(search)
+    # r = pattern.search(test_str)
+    # while r:
+    #     print(f'{r.start()},{r.end()-1}')
+    #     r = reg_pattern.search(test_str, r.start() + 1)
+        
     return tokens_without_sw
 
 
@@ -497,12 +516,17 @@ def add_transaction_type(df, i, sort_by=0):
     ####################################################get_sort_by  '[^A-Za-z0-9]+'  ####################################################
     if sort_by:
         # Using re.sub to remove everyting but numbers and words
+        print(df[sort_by][i])
         purchase_type = remove_stop_words(
             re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
         )
         print(
             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
         )
+        print('\n')
+        print(purchase_type)
+        print('\n')
+        exit()
         for index in range(len(purchase_type)):
             if len(purchase_type[index]) < 3:
                 sort_by = 'transaction' #was None to limit the id to > 3 letters but that didn't work

@@ -4,11 +4,13 @@ Clover is an application that utilizes banking data that the user inputs (most o
 # User Instructions
 - Open terminal, or anaconda prompt
 - Navigate to the folder location of format_data.py and budget.py
-  - If using format_data go to Banking Website with tabluar data. Highlight the column names and rows hit either Ctrl-C (on PC), or Cmd-C to copy the rows onto the clipboard.
+  - If using format_data go to Banking Website with tabluar data. Highlight the column names and rows hit either ```Ctrl-C``` (on PC), or ```CMD-C``` to copy the rows onto the clipboard.
   - once complete follow the instructions below at the Activating Cliboard Functionality to change the functionality of Format_data.py 
   - Return to terminal or anaconda prompt. 
-  - Type in python Format_data.py // program will execute
-  - Type in python budget.py // program will execute
+  - To execute program just to format the data type in
+  ```python format_data.py```
+  - To both format and cateogorize data type:
+  ```python budget.py``` 
 
 # Program Function
 
@@ -22,8 +24,9 @@ Clover is an application that utilizes banking data that the user inputs (most o
 
 - Later functionality will include 
   - input queries to know if the user wants to sort the data by ascending or descending.
-  - formatting for TSV's, and excel files
-  - 
+  - formatting for TSV's
+  - Allowing for user to keep all the columns imported and when added to DB it compares new column names and adds NaNs to Dataframe if not matching.
+  
 ## Budget.py
 
 Create budget dict. py takes data, compares it to a database, or creates a database and parses the data with user guided input. 
@@ -40,11 +43,13 @@ Create budget dict. py takes data, compares it to a database, or creates a datab
 - If any data is new and unitentifiable it queries the user for the correct category and identifier.
 
 For example one line of data may be:: 
-"05/17/2021	05/16/2021 WHOLE FOODS #893 ARLINGTON VA	1528	-$200.61	$10,488.61"
-- Budget.py pulls out each column chosen by the user. Date_Posted, Date_Pending, Transaction, Account, Amount, Balance.
-- User identifies the Transaction column "WHOLE FOODS #893 ARLINGTON VA"
-- Program uses 'WHOLE' as identifier.
-- User chooses 'GROCERIES', a category out of the defaults or adds their own. 
+```"05/17/2021	05/16/2021 WHOLE FOODS #893 ARLINGTON VA	1528	-$200.61	$10,488.61"```
+- Budget.py pulls out each column chosen by the user. 
+```Date_Posted, Date_Pending, Transaction, Account, Amount, Balance```
+- User identifies the Transaction column 
+- ```"WHOLE FOODS #893 ARLINGTON VA"```
+- Program uses ```"WHOLE``` as identifier.
+- User chooses ```GROCERIES```, a category out of the defaults or adds their own. 
 - This occurs repeatedly until the dataset is complete.
 
 - Later functionality will include

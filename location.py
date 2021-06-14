@@ -14,15 +14,17 @@ def find_location(target_query=None):
         #target_query = "VIRGINIA BEACVA"
         params = {"address": target_query, "key": gKey}
         base_url = "https://maps.googleapis.com/maps/api/geocode/json"
-        #print(f'Testing {target_query}')
+        print(f'Testing {target_query}')
         response = requests.get(base_url, params=params)
         location = response.json()
         if response.status_code == 200:
-            #print('Success!')
+            print('Success!')
             l_type = location["results"][0]["geometry"]['location_type']
             if l_type.lower() == 'approximate':
+                print('returning true')
                 return True
             else:
+                print('returning false')
                 return False
         elif response.status_code == 404:
             print('Not Found.')

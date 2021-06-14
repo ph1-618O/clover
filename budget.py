@@ -465,92 +465,157 @@ def constrain_input_loop(sort_query, list_options):
                 # why is error thrown when exit == 'y' ??
 
 
+
+
+
+def remove_city_state(tokens_removed):
+    import location
+    test_str = ' '.join(tokens_removed)
+    print(f' Test str in remove city state {test_str}')
+    # This searches for City State
+    #reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
+    # removing spaces
+    reg_pattern = r'(\b[A-Za-z]+(?:[A-Za-z]+)*) ? ([A-Za-z]{2})\b'
+    city_state = re.findall(reg_pattern, test_str,
+                            re.IGNORECASE | re.MULTILINE)
+
+    # city_state = re.findall(r"\b([A-Za-z]+(?:[A-Za-z]+)*) ? ([A-Za-z]{2})\b", str2,
+    #                       re.IGNORECASE | re.MULTILINE)
+    
+    print(f'{city_state} city_state')
+    if len(city_state):
+        # Testing two letter strings against state db
+        import json
+        with open('data/stateAbbrv.json') as state:
+            state_dict = json.load(state)
+            print_json = json.dumps(state_dict, indent=4)
+            # print(print_json)
+        city_state = []
+        for i in city_state:
+            city_state.append(list(i))
+        for i in range(len(city_state)):
+            for key, value in state_dict['Code'].items():
+                if value in city_state[i]:
+                    print('search for state loop')
+                    print(city_state)
+                    city_state = city_state[i]
+
+        print(f'City_state {city_state}')
+
+        remove_city_state = 0
+        for i in range(len(city_state)):
+            search_location = location.find_location(
+                ' '.join(city_state[i]))
+            if search_location:
+                remove_city_state = city_state[i]
+                count = 0
+                match_index = {}
+                for match in re.finditer(reg_pattern, test_str):
+                    count += 1
+                    print('match', count, match.group(), 'start',
+                            match.start(), 'end', match.end())
+                    match_index[match.group()] = [
+                        match.start(), match.end()]
+
+        if remove_city_state:
+            print(f'Search_location {search_location}')
+            print(f'Remove city state {remove_city_state}')
+
+            for key, value in match_index.items():
+                if key == ' '.join(remove_city_state):
+                    tokens = test_str.replace(
+                        test_str[value[0]:value[1]], '')
+            for key in match_index.keys():
+                for i in key.split():
+                    if i in tokens and i != ' ':
+                        tokens = tokens.replace(i, '')
+            print(f'Returning tokens {tokens}')
+            return tokens
+        else:
+            print('No city or state1')
+            print(f'Tokens removed1 {tokens_removed}')
+            return tokens_removed
+    else:
+        print('No city or state2')
+        print(f'Tokens removed2 {tokens_removed}')
+        return tokens_removed
+
 # Removing stop words dependencies
 # pip install nltk
 # import nltk
 # from nltk.corpus import stopwords
 # from nltk.tokenize import word_tokenize
 
-nltk.download("stopwords")
-nltk.download("punkt")
-
+#nltk.download("stopwords")
+#nltk.download("punkt")
 # Removes most common words
 
 
 def remove_stop_words(transaction_word_list):
-    import location
+    #if type(transaction_word_list) == type('[]'):
+        #transaction_word_list = ' '.join(transaction_word_list)
+    print(f'WORD LIST {transaction_word_list}')
+    # removing words like 'the, a, and'
     text_token = word_tokenize(transaction_word_list)
     stop_words = set(stopwords.words("english"))
-    # print(tokens_without_sw)
-    # print(text_token)
+    print(f'Text token {text_token}')
     # testing string for address
     tokens_without_sw = [
-        word for word in text_token if word.casefold() not in stop_words or word.casefold()
+        word for word in text_token if word.casefold() not in stop_words
     ]
-    test_str = ' '.join(tokens_without_sw)
-    print(test_str)
-
-    #reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
-    # removing spaces
-    reg_pattern = r'\b([A-Za-z]+(?:[A-Za-z]+)*) ? ([A-Za-z]{2})\b'
-    city_state = re.findall(reg_pattern, test_str)
-
-    # count = 0
-    # match_index = {}
-    # for match in re.finditer(reg_pattern, test_str):
-    #     count += 1
-    #     print('match', count, match.group(), 'start', match.start(), 'end', match.end())
-    #     match_index[match.group()]=[match.start(), match.end()]
-
-    print(city_state)
-
-    remove_city_state = 0
-    for i in range(len(city_state)):
-        search_location = location.find_location(' '.join(city_state[i]))
-        if search_location:
-            remove_city_state = city_state[i]
-            count = 0
-            match_index = {}
-            for match in re.finditer(reg_pattern, test_str):
-                count += 1
-                print('match', count, match.group(), 'start',
-                    match.start(), 'end', match.end())
-                match_index[match.group()] = [match.start(), match.end()]
-
-    if remove_city_state:
-        print(search_location)
-        print(remove_city_state)
-
-        for key, value in match_index.items():
-            if key == ' '.join(remove_city_state):
-                tokens = test_str.replace(test_str[value[0]:value[1]], '')
-        for key in match_index.keys():
-            for i in key.split():
-                if i in tokens and i != ' ':
-                    tokens = tokens.replace(i, '')
-        tokens = tokens.split()
-        return tokens
+    print(f'tokens without sw{tokens_without_sw}')
     return tokens_without_sw
 
+# Matches all words anywhere no numbers, no special chars except www, com, sq, tst, bill
+# flags are /gmi
+# \b([A-Za-z]{3, }+(?: [A-Za-z]+)*)(?<!WWW | COM | SQ | TST | bill)
 
-# original regex
-# / ^[A-Za-z0-9]{3, }/
-# new
-# (?i)(?!\bTST\b | WWW | USA)( ^ [A-Za-z0-9]{3, })
 
 def add_transaction_type(df, i, sort_by=0):
     ####################################################get_sort_by  '[^A-Za-z0-9]+'  ####################################################
     if sort_by:
         # Using re.sub to remove everyting but numbers and words
-        print(df[sort_by][i])
-        purchase_type = remove_stop_words(
-            re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
-        )
+        print(f'Sending to Remove Stop Words {df[sort_by][i]}')
+        regex_no_state = r"(?!WWW|COM|SQ|TST|bill)\b([A-Za-z]{3,}(?:[A-Za-z]+)*)"
+        print('test1 remove state')
+        print(re.findall(regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
+
+        # Keeps city and state
+        print('test2 remove 3 char words')
+        print(re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]))
+
+        no_city_state = remove_city_state(df[sort_by][i].split())
+        # no_city_state = remove_city_state(
+        #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]).split())
+
+        if no_city_state:
+            if type(no_city_state) == type([]):
+                print('list')
+                print(f'NO city state {no_city_state}, {type(no_city_state)}')
+                print(f" No city state sent to remove stop {remove_stop_words(''.join(no_city_state))}")
+                purchase_type = remove_stop_words(' '.join(re.findall(
+                    regex_no_state, ' '.join(no_city_state), re.IGNORECASE | re.MULTILINE)))
+            elif type(no_city_state) == type('s'):
+                print('string')
+                purchase_type = remove_stop_words(' '.join(re.findall(
+                    regex_no_state, no_city_state, re.IGNORECASE | re.MULTILINE)))
+            else:
+                print('SOME KIND OF ERROR IN TYPE')
+            print(f'Purchase type after regex {purchase_type}')
+            
+        else:
+            #print(f'NO city state {no_city_state}, {type(no_city_state)}')
+            purchase_type = remove_stop_words(re.findall(
+                regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
+
+        # purchase_type = remove_stop_words(
+        #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
+        # )
         print(
             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
         )
         print('\n')
-        print(purchase_type)
+        print(f'Purchase type after filters {purchase_type}')
         print('\n')
         for index in range(len(purchase_type)):
             if len(purchase_type[index]) < 3:
@@ -757,7 +822,7 @@ def add_data(budget_dict, data):
         else:
             location = 'other'
             budget_dict[location] = []
-            print(f'ADDING TO"{location.upper()}" SUCCESSFUL')
+            print(f'ADDING TO "{location.upper()}" SUCCESSFUL')
     # Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
         # find a better way to do this with a dictionary {'fast_food:'take_away', 'food':'groceries, 'travel':'holiday'} etc
@@ -1223,7 +1288,7 @@ def conn_mongo(data):
     # db.budgetDB.find().pretty()
 
 
-def import_test_data():
+def import_test_data(data):
     # Comparing a dataframe of new_data with old data
     # dropping duplicates
     # dictionary_DF = (
@@ -1465,6 +1530,7 @@ def main():
     return data, new_DF
 
     # NEW STUFF aka import_test_data():
+    # make sure you check import_test_data's variables
     # Comparing a dataframe of new_data with old data
     # dropping duplicates
     # dictionary_DF = (

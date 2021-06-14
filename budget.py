@@ -465,7 +465,7 @@ def constrain_input_loop(sort_query, list_options):
                 # why is error thrown when exit == 'y' ??
 
 
-
+global_state = []
 
 
 def remove_city_state(tokens_removed):
@@ -484,61 +484,92 @@ def remove_city_state(tokens_removed):
     
     print(f'{city_state} city_state')
     if len(city_state):
+        remove_matches = city_state
         # Testing two letter strings against state db
         import json
         with open('data/stateAbbrv.json') as state:
             state_dict = json.load(state)
             print_json = json.dumps(state_dict, indent=4)
             # print(print_json)
-        city_state = []
+        test_cs = []
         for i in city_state:
-            city_state.append(list(i))
+            test_cs.append(list(i))
         for i in range(len(city_state)):
             for key, value in state_dict['Code'].items():
-                if value in city_state[i]:
-                    print('search for state loop')
-                    print(city_state)
-                    city_state = city_state[i]
-
+                if value in test_cs[i]:
+                    #print(value)
+                    #print('search for state loop')
+                    #print(test_cs[i])
+                    city_state = test_cs[i]
+                    #print(city_state)
+                    break
+                else:
+                    #print(city_state[i])
+                    #print('not in there')
+                    continue
+                
         print(f'City_state {city_state}')
 
+# Problem here, its iterating over the word A R L I N G T O N, and V A instead of ARLINGTON, and VA
         remove_city_state = 0
-        for i in range(len(city_state)):
+        if len(city_state) >= 2 and type(city_state[0]) == type('s'):
             search_location = location.find_location(
-                ' '.join(city_state[i]))
+                ' '.join(city_state))
             if search_location:
-                remove_city_state = city_state[i]
+                remove_city_state = city_state
                 count = 0
                 match_index = {}
                 for match in re.finditer(reg_pattern, test_str):
                     count += 1
-                    print('match', count, match.group(), 'start',
-                            match.start(), 'end', match.end())
+                    print('match', count, match.group(), 'start', match.start(), 'end', match.end())
                     match_index[match.group()] = [
                         match.start(), match.end()]
+            
+        elif len(city_state) >= 2 and type(city_state[0]) != type('s'):
+            for i in range(len(city_state)):
+                search_location = location.find_location(
+                    ' '.join(city_state[i]))
+                if search_location:
+                    remove_city_state = city_state[i]
+                    count = 0
+                    match_index = {}
+                    for match in re.finditer(reg_pattern, test_str):
+                        count += 1
+                        print('match', count, match.group(), 'start',
+                                match.start(), 'end', match.end())
+                        match_index[match.group()] = [
+                            match.start(), match.end()]
+        else:
+            print('something else went wrong')
+            
 
         if remove_city_state:
+            global_state.append(remove_city_state)
+            print(f'remove matches {remove_matches}')
             print(f'Search_location {search_location}')
             print(f'Remove city state {remove_city_state}')
+            print(match_index)
 
             for key, value in match_index.items():
                 if key == ' '.join(remove_city_state):
                     tokens = test_str.replace(
                         test_str[value[0]:value[1]], '')
+            print(tokens)
+            
             for key in match_index.keys():
                 for i in key.split():
-                    if i in tokens and i != ' ':
+                    if i in remove_city_state and i != ' ':
                         tokens = tokens.replace(i, '')
             print(f'Returning tokens {tokens}')
             return tokens
         else:
             print('No city or state1')
-            print(f'Tokens removed1 {tokens_removed}')
-            return tokens_removed
+            print(f'Tokens removed1 {test_str}')
+            return test_str
     else:
         print('No city or state2')
-        print(f'Tokens removed2 {tokens_removed}')
-        return tokens_removed
+        print(f'Tokens removed2 {test_str}')
+        return test_str
 
 # Removing stop words dependencies
 # pip install nltk
@@ -1527,6 +1558,7 @@ def main():
     t_end = datetime.datetime.now()
     t_execute = t_end - t_start
     print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
+    print(global_state)
     return data, new_DF
 
     # NEW STUFF aka import_test_data():

@@ -470,8 +470,18 @@ global_state = []
 
 def remove_city_state(tokens_removed):
     import location
+    import json
+    with open('data/stateAbbrv.json') as state:
+        state_dict = json.load(state)
+        #print_json = json.dumps(state_dict, indent=4)
+    # Removing long form state names
+    for i in range(len(tokens_removed)):
+        for key, value in state_dict['State'].items():
+            if value.lower() == tokens_removed[i].lower():
+                tokens_removed[i] = tokens_removed[i].replace(tokens_removed[i], '')
+            
     test_str = ' '.join(tokens_removed)
-    print(f' Test str in remove city state {test_str}')
+    print(f'test_str after both abbv and long state search {test_str}')
     # This searches for City State
     #reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
     # removing spaces
@@ -486,10 +496,6 @@ def remove_city_state(tokens_removed):
     if len(city_state):
         remove_matches = city_state
         # Testing two letter strings against state db
-        import json
-        with open('data/stateAbbrv.json') as state:
-            state_dict = json.load(state)
-            print_json = json.dumps(state_dict, indent=4)
             # print(print_json)
         test_cs = []
         for i in city_state:
@@ -507,10 +513,10 @@ def remove_city_state(tokens_removed):
                     #print(city_state[i])
                     #print('not in there')
                     continue
-                
+        print(f'city_state after abbv search {city_state}')
         print(f'City_state {city_state}')
 
-# Problem here, its iterating over the word A R L I N G T O N, and V A instead of ARLINGTON, and VA
+        # Problem here, its iterating over the word A R L I N G T O N, and V A instead of ARLINGTON, and VA
         remove_city_state = 0
         if len(city_state) >= 2 and type(city_state[0]) == type('s'):
             search_location = location.find_location(
@@ -542,26 +548,33 @@ def remove_city_state(tokens_removed):
         else:
             print('something else went wrong')
             
-
         if remove_city_state:
-            global_state.append(remove_city_state)
-            print(f'remove matches {remove_matches}')
-            print(f'Search_location {search_location}')
-            print(f'Remove city state {remove_city_state}')
-            print(match_index)
+            for i in remove_city_state:
+                if i.lower() not in global_state:
+                    global_state.append(i.lower())
+                    print(f'remove matches {remove_matches}')
+                    print(f'Search_location {search_location}')
+                    print(f'Remove city state {remove_city_state}')
+                    print(match_index)
 
-            for key, value in match_index.items():
-                if key == ' '.join(remove_city_state):
-                    tokens = test_str.replace(
-                        test_str[value[0]:value[1]], '')
-            print(tokens)
-            
-            for key in match_index.keys():
-                for i in key.split():
-                    if i in remove_city_state and i != ' ':
-                        tokens = tokens.replace(i, '')
-            print(f'Returning tokens {tokens}')
-            return tokens
+                    for key, value in match_index.items():
+                        if key == ' '.join(remove_city_state):
+                            tokens = test_str.replace(
+                                test_str[value[0]:value[1]], '')
+                    print(tokens)
+                    
+                    for key in match_index.keys():
+                        for i in key.split():
+                            if i in remove_city_state and i != ' ':
+                                tokens = tokens.replace(i, '')
+                    print(f'Returning tokens {tokens}')
+                    return tokens
+                else:
+                    test_str = test_str.replace(i, '')
+                    print(f'Replaced {i} in {test_str}')
+                    continue
+            print(f'Loop done, returning test_str{test_str}')   
+            return test_str
         else:
             print('No city or state1')
             print(f'Tokens removed1 {test_str}')
@@ -653,7 +666,10 @@ def add_transaction_type(df, i, sort_by=0):
                 sort_by = 'transaction'  # was None to limit the id to > 3 letters but that didn't work
                 pass
             else:
+                # grabbing the edge cases that the regex fails?
                 if purchase_type[index].lower() == 'tst' or purchase_type[index].lower() == 'usa' or purchase_type[index].lower() == 'www' or purchase_type[index].lower() == 'afc':
+                    continue
+                elif purchase_type[index].lower() in global_state:
                     continue
                 else:
                     print(f'TESTING IDENTIFIER:: "{purchase_type[index]}"')
@@ -743,7 +759,7 @@ def make_dict(categories, old_dict=0):
 # Need to clean up add_Data and search_dict
 def search_dict(budget_dict, data, data_point):  # location is column name
     print(f"SEARCHING DICT FOR {data_point.upper()}")
-    if data_point.lower() == "the":
+    if data_point.lower() == "the" or data_point.lower() in global_state:
         pass
     else:
         for key, value in budget_dict.items():

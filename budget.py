@@ -594,7 +594,6 @@ def remove_stop_words(transaction_word_list):
 
 
 def add_transaction_type(df, i, sort_by=0):
-    ####################################################get_sort_by  '[^A-Za-z0-9]+'  ####################################################
     if sort_by:
         # Using re.sub to remove everyting but numbers and words
         print(f'Sending to Remove Stop Words {df[sort_by][i]}')
@@ -657,7 +656,6 @@ def add_transaction_type(df, i, sort_by=0):
 
 
 # def add_transaction_type_confirm(df, i, sort_by=0):
-#     ####################################################get_sort_by####################################################
 #     if sort_by:
 #         purchase_type = df[sort_by][i].replace('*', ' ').split()
 #         p_slash()
@@ -914,31 +912,23 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     # if statement separates data if a correctly formatted dictionary is passed to it
     # else it creates a dictionary
     if type(budget_dict) == type({}):
-        ######################################### get_categories ##############################################
         categories = get_categories(list(budget_dict.keys()))
-        ######################################### make_dict ##############################################
         trans_type = make_dict(categories, budget_dict)
-        ######################################### get_sort_by ##############################################
         sort_by = get_sort_by(df, "CATEGORY DATA")
         print(f'SORT BY "{sort_by.upper()}" WITH DICT')
 
     else:
-        ######################################### get_categories ##############################################
         categories = get_categories()
-        ############################################## make_dict ##############################################
         trans_type = make_dict(categories)
-        ############################################## get_sort_by ##############################################
         sort_by = get_sort_by(df, "CATEGORY DATA")
         print(f'SORT BY "{sort_by.upper()}" WITHOUT DICT')
 
     skip_rows = []
     for i in range(len(df)):
-        ##############################################add_trans_type ###############################################
         if i not in skip_rows:
             get_col = add_transaction_type(df, i, sort_by)
             # print(get_col)
             identity = get_col[1]
-            #########data grouping search##############
             # NEED TO ADD A TYPE TEST BEFORE THIS
             # print(identity)
             mask = df.select_dtypes(
@@ -987,7 +977,6 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     # print(f'TRANSACTION TYPE IS:: {trans_type}\n')
     # print("DF is :: ")
     # pp.pprint(df)
-    ############################################## search_dict ##############################################
 
 
 def make_test_dict(df):

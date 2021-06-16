@@ -139,13 +139,10 @@ def get_data_type():
             data = read_data("csv")
             for i in data.columns:
                 data = data.rename(columns={i: i.lower()})
-            p_line()
-                
+            p_line() 
             print("CHECKING COLUMNS")
             import format_data
-
             check_cols = format_data.get_col_names(data)
-            
             data = check_cols[1]
             print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
             print("DATASET SAMPLE")
@@ -162,7 +159,6 @@ def get_data_type():
         or "n" in query_format.lower()
     ):
         format_q = (f'FORMAT "{import_data.upper()}" DATA? Y/N').lower()
-        
         if "n" in format_q.lower():
             # <<<<<<<<WORKING>>>>>>>>>>>
             # Fix Module import statement
@@ -175,18 +171,18 @@ def get_data_type():
                 data = format_data.initiate_format(data)
                 for i in data.columns:
                     data = data.rename(columns={i: i.lower()})
+                formatted = "formatted"
                 print(f'\n"{import_data.upper()}" DATASET...IMPORT SUCCESS\n')
                 print("DATASET")
                 p_line()
                 pp.pprint(data.head())
-                formatted = "formatted"
-
-            
+                
             elif "format" in query_format.lower() or "n" in query_format.lower():
                 data = read_data("csv")
                 data = format_data.initiate_format(data)
                 for i in data.columns:
                     data = data.rename(columns={i: i.lower()})
+                formatted = "formatted"
                 p_slash()
                 print(
                     f'"{import_data.upper()}" FORMATED DATASET, ...IMPORT SUCCESS\n RETURNING TO CREATE_BUDGET_DICT'
@@ -196,9 +192,7 @@ def get_data_type():
                 p_line()
                 pp.pprint(data.head())
                 p_line()
-                formatted = "formatted"
-                
-            formatted = "formatted"
+        formatted = "formatted"
 
     elif "excel" in import_data or "xls" in import_data:
         data = read_data("excel")
@@ -633,9 +627,7 @@ def add_transaction_type(df, i, sort_by=0):
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
         # )
         p_slash()
-        print('\n')
         print(f'Purchase type after filters {purchase_type}')
-        print('\n')
         for index in range(len(purchase_type)):
             if len(purchase_type[index]) < 3:
                 sort_by = 'transaction'  # was None to limit the id to > 3 letters but that didn't work
@@ -647,6 +639,7 @@ def add_transaction_type(df, i, sort_by=0):
                 elif purchase_type[index].lower() in global_state:
                     continue
                 else:
+                    p_line()
                     print(f'TESTING IDENTIFIER:: "{purchase_type[index]}"')
                     p_slash()
                     print(
@@ -697,14 +690,14 @@ def make_num(df, col_name):
     return df
 
 
-def make_dict(categories, old_dict=0):
+def make_dict(categories, cols, old_dict=0):
     # <<<<<<<<WORKING>>>>>>>>>>>
     # look at jupyter notebook with purchases categorized as essential, non essential, fixed, variable, one-time and reoccuring
     # add these into the make dict with new sub categories
     if type(old_dict) == type({}):
         # print('DICT CONFIRMED')
         if "0_format" not in old_dict.keys():
-            # print('0_FORMAT NOT IN DICTIONARY ADDING\n')
+            # old_dict["0_format"] = cols
             old_dict["0_format"] = [
                 "date",
                 "transaction",
@@ -712,6 +705,11 @@ def make_dict(categories, old_dict=0):
                 "identifier",
                 "category"
             ]
+        else:
+            print('WORKING ON THIS')
+            # for new_col in cols:
+            #     if new_col in old_dict['0_format']: 
+            
         for i in categories:
             if i not in old_dict.keys():
                 old_dict[i] = []
@@ -720,6 +718,7 @@ def make_dict(categories, old_dict=0):
     else:
         trans_type = {"0_format": [
             "date", "transaction", "amount", "identifier", "category"]}
+        # trans_type = {"0_format": cols}
         for i in categories:
             trans_type[i] = []
     return trans_type
@@ -799,9 +798,9 @@ def add_data(budget_dict, data):
     else:
         print_trans = data[1]
     print(
-        f'f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n"')
+        f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n")
     location = str(
-        input(" CHOICE? \n"))
+        input("CHOICE? \n"))
     sub_keys = {
         'food': 'groceries',
         'foo': 'groceries',
@@ -905,23 +904,27 @@ def add_data(budget_dict, data):
 
 
 def split_purchases(df, formatted_df=0, budget_dict=0):
-    cols = confirm_cols(df, formatted_df)
+    #cols = confirm_cols(df, formatted_df)
     # pp.pprint(df)
     print("BEGIN PURCHASE CATEGORIZATION")
     p_line()
     # if statement separates data if a correctly formatted dictionary is passed to it
     # else it creates a dictionary
     if type(budget_dict) == type({}):
+        cols = confirm_cols(df, formatted_df)
         categories = get_categories(list(budget_dict.keys()))
-        trans_type = make_dict(categories, budget_dict)
+        trans_type = make_dict(categories, cols, budget_dict)
         sort_by = get_sort_by(df, "CATEGORY DATA")
         print(f'SORT BY "{sort_by.upper()}" WITH DICT')
+        p_line()
 
     else:
+        cols = confirm_cols(df, formatted_df)
         categories = get_categories()
-        trans_type = make_dict(categories)
+        trans_type = make_dict(categories, cols)
         sort_by = get_sort_by(df, "CATEGORY DATA")
         print(f'SORT BY "{sort_by.upper()}" WITHOUT DICT')
+        p_line()
 
     skip_rows = []
     for i in range(len(df)):
@@ -1367,9 +1370,9 @@ def main():
 
     # OLD STUFF THAT WORKS
     if dictionary:
-        trans_dict = split_purchases(data, formatted_df, dictionary)
+        trans_dict = split_purchases(data.head(2), formatted_df, dictionary)
     else:
-        trans_dict = split_purchases(data, formatted_df)
+        trans_dict = split_purchases(data.head(2), formatted_df)
 
     print("SPLIT PURCHASES PROGRAM COMPLETE")
     p_line()

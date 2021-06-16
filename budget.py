@@ -31,6 +31,23 @@ import matplotlib.pyplot as plt
 import matplotlib
 import platform
 
+
+import os
+line_size = os.get_terminal_size()
+line = line_size[0]
+def p_line():
+    line = ''
+    for i in range(line_size[0]):
+        line += '-'
+    print(line)
+    
+def p_slash():
+    line = ''
+    for i in range(line_size[0]):
+        line += '/'
+    print(line)
+
+
 # working with dates, month abbrev, and the
 #  it takes to run prg
 import datetime
@@ -71,9 +88,7 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 def version_assistant():
     # print versions
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     print("PYTHON VERSIONS")
     print("-----------------------------------------")
     print("python     : ", platform.python_version())
@@ -82,11 +97,14 @@ def version_assistant():
     print("squarify   :  0.4.3")
     print("-----------------------------------------\n\n")
 
+def getting_terminal_size():
+    import os
+    size = os.get_terminal_size()
+    print(size)
+
 
 def read_data(file_type):
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     data_file = input(f'ENTER "{file_type.upper()}" LOCATION\\NAME\n')
     if "csv" in file_type.lower():
         if data_file.endswith(".csv"):
@@ -116,28 +134,27 @@ def get_data_type():
     if ("csv" in import_data.lower() and "y" in query_format.lower()) or (
         "csv" in import_data.lower() and "n" in query_format.lower()
     ):
-        # Normalizing the column names to lower
-        data = read_data("csv")
-        for i in data.columns:
-            data = data.rename(columns={i: i.lower()})
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
-        print("CHECKING COLUMNS")
-        import format_data
+        if "csv" in import_data.lower() and "y" in query_format.lower():
+            # Normalizing the column names to lower
+            data = read_data("csv")
+            for i in data.columns:
+                data = data.rename(columns={i: i.lower()})
+            p_line()
+                
+            print("CHECKING COLUMNS")
+            import format_data
 
-        check_cols = format_data.get_col_names(data)
-        data = check_cols[1]
-        print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
-        print("DATASET SAMPLE")
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
-        pp.pprint(data.head())
-        print(
-            "------------------------------------------------------------------------------------------------------\n\n"
-        )
-        formatted = "formatted"
+            check_cols = format_data.get_col_names(data)
+            
+            data = check_cols[1]
+            print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
+            print("DATASET SAMPLE")
+            p_line()
+            pp.pprint(data.head())
+            p_line()
+            print('\n\n')
+            formatted = "formatted"
+            
 
     elif (
         "clip" in import_data.lower()
@@ -145,12 +162,11 @@ def get_data_type():
         or "n" in query_format.lower()
     ):
         format_q = (f'FORMAT "{import_data.upper()}" DATA? Y/N').lower()
+        
         if "n" in format_q.lower():
             # <<<<<<<<WORKING>>>>>>>>>>>
             # Fix Module import statement
-            print(
-                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-            )
+            p_slash()
             print("RUNNING FORMAT_DATA PROGRAM")
             import format_data
 
@@ -161,35 +177,27 @@ def get_data_type():
                     data = data.rename(columns={i: i.lower()})
                 print(f'\n"{import_data.upper()}" DATASET...IMPORT SUCCESS\n')
                 print("DATASET")
-                print(
-                    "------------------------------------------------------------------------------------------------------"
-                )
+                p_line()
                 pp.pprint(data.head())
                 formatted = "formatted"
-                # print('------------------------------------------------------------------------------------------------------')
+
+            
             elif "format" in query_format.lower() or "n" in query_format.lower():
                 data = read_data("csv")
                 data = format_data.initiate_format(data)
                 for i in data.columns:
                     data = data.rename(columns={i: i.lower()})
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
+                p_slash()
                 print(
                     f'"{import_data.upper()}" FORMATED DATASET, ...IMPORT SUCCESS\n RETURNING TO CREATE_BUDGET_DICT'
                 )
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
+                p_slash()
                 print("DATASET")
-                print(
-                    "------------------------------------------------------------------------------------------------------"
-                )
+                p_line()
                 pp.pprint(data.head())
-                print(
-                    "------------------------------------------------------------------------------------------------------\n\n"
-                )
+                p_line()
                 formatted = "formatted"
+                
             formatted = "formatted"
 
     elif "excel" in import_data or "xls" in import_data:
@@ -203,13 +211,10 @@ def get_data_type():
         formatted = "formatted"
         print(f'\n"{import_data.upper()}" DATASET...IMPORT SUCCESS\n')
         print("DATASET")
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
         pp.pprint(data.head())
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
+
 
     else:
         print("INVALID INPUT, PLEASE TRY AGAIN")
@@ -219,9 +224,7 @@ def get_data_type():
 
 def import_clip():
     clipDF = pd.read_clipboard()
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     csvName = input("WHAT TYPE OF ACCOUNT FOR FILENAME?\n")
     csvName = csvName + ".csv"
     clipDF.to_csv(csvName, index=False)
@@ -232,7 +235,7 @@ def import_clip():
 # Redundant, kept if needed to add more than one csv file in the future?
 # def import_csv():
 #     csvName = input('ENTER CSV LOCATION\\NAME\n')
-#     print('------------------------------------------------------------------------------------------------------')
+#     p_line()
 #     if csvName.endswith('.csv'):
 #         return pd.read_csv(csvName)
 #     else:
@@ -281,27 +284,16 @@ def import_excel(path):
 # <<<<<<<<WORKING>>>>>>>>>>>
 # figure out if these comments are useful
 def get_sort_by(df, sort_query):
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     print("DATAFRAME")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     pp.pprint(df.head())
-
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     print(f'SORTING BY "{sort_query.upper()}"')
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     if sort_query != "CATEGORY DATA":
         print(f'OPTIONS::: {" - ".join(list(df.columns))}')
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
 
     sort_col = constrain_input_loop(sort_query, list(df.columns))
     sort = " ".join(
@@ -368,7 +360,7 @@ def get_categories(categories=0):
                 #     categories = sorted(categories)
     else:
         categories = defaults
-        # print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+        # p_slash()
         # d_list2 = " - ".join(defaults)
         # d_len2 = len(d_list2)
         # print(f'DEFAULT CATEGORIES::: \n------------------------------------------------------------------------------------------------------\n{d_list2[:int(d_len2/2)]}\n{d_list2[int(d_len2/2):]}\n------------------------------------------------------------------------------------------------------')
@@ -391,36 +383,24 @@ def get_categories(categories=0):
     # print out the list with index numbers, ask which number is wrong
     # add a loop to make sure you fix all the type errors
     if categories[0].lower() == "0_format":
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
         cat_list2 = " - ".join([str(x) for x in [*categories[1:]]])
         c_len2 = len(cat_list2)
         print(
             f'CATEGORIES ARE::: "{cat_list2[:int(c_len2/2)]}\n{cat_list2[int(c_len2/2):]}"'
         )
-        print(
-            "------------------------------------------------------------------------------------------------------\n"
-        )
-        print(
-            "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
-        )
+        p_line()
+        p_slash()
     else:
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
         cat_list3 = " - ".join([str(x) for x in [*categories]])
         c_len3 = len(cat_list3)
         print(
             f'CATEGORIES ARE:::\n"{cat_list3[:int(c_len3/2)]}\n{cat_list3[int(c_len3/2):]}"'
         )
         # print(f'CATEGORIES ARE::: "{" - ".join([str(x) for x in [*categories]])}"')
-        print(
-            "------------------------------------------------------------------------------------------------------\n"
-        )
-        print(
-            "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
-        )
+        p_line()
+        p_slash()
     return categories
 
 
@@ -445,9 +425,7 @@ def constrain_input_loop(sort_query, list_options):
                     f'SORT THIS {sort_query} BY:: "{list_options[index].upper()}", Y/N OR EXIT\n'
                 )
                 if "y" in correct.lower():
-                    print(
-                        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                    )
+                    p_slash()
                     print(
                         f'YOU WILL SORT THIS "{sort_query}" BY::"{list_options[index].upper()}"\n'
                     )
@@ -655,9 +633,7 @@ def add_transaction_type(df, i, sort_by=0):
         # purchase_type = remove_stop_words(
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
         # )
-        print(
-            "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-        )
+        p_slash()
         print('\n')
         print(f'Purchase type after filters {purchase_type}')
         print('\n')
@@ -673,9 +649,7 @@ def add_transaction_type(df, i, sort_by=0):
                     continue
                 else:
                     print(f'TESTING IDENTIFIER:: "{purchase_type[index]}"')
-                    print(
-                        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                    )
+                    p_slash()
                     print(
                         f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::"{purchase_type[index].upper()}"'
                     )
@@ -686,21 +660,19 @@ def add_transaction_type(df, i, sort_by=0):
 #     ####################################################get_sort_by####################################################
 #     if sort_by:
 #         purchase_type = df[sort_by][i].replace('*', ' ').split()
-#         print('//////////////////////////////////////////////////////////////////////////////////////////////////////')
+#         p_slash()
 #         key = ''
 #         while 'y' not in key.lower():
 #             for index in range(len(purchase_type)):
 #                 key = input(
 #                     f'SORT THIS PURCHASE BY:: "{purchase_type[index]}", Y/N\n')
 #                 if 'y' in key:
-#                     print(
-#                         '//////////////////////////////////////////////////////////////////////////////////////////////////////')
+#                     p_slash()
 #                     print(
 #                         f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::{purchase_type[index].upper()}')
 #                     return sort_by, purchase_type[index].lower()
 #                 else:
-#                     print(
-#                         '//////////////////////////////////////////////////////////////////////////////////////////////////////')
+#                     p_slash()
 #                     print('YOU MUST ENTER YES OR NO')
 #                     print('CHOOSE AGAIN')
 #                     continue
@@ -772,9 +744,7 @@ def search_dict(budget_dict, data, data_point):  # location is column name
                                 re.search(rf"{data_point}", str(
                                     j), re.IGNORECASE) != None
                             ):
-                                print(
-                                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                                )
+                                p_slash()
                                 print(f"DATA POINT IDENTIFIED")
                                 print(f'ADDING TO CATEGORY "{key.upper()}"')
                                 for x in data:
@@ -793,8 +763,6 @@ def search_dict(budget_dict, data, data_point):  # location is column name
 
 # <<<<<<<<WORKING>>>>>>>>>>>
 # NEED TO ADD TRY/ACCEPT STATEMENTS for ALL_INPUTS
-
-
 def confirm_cols(df, formatted_df=0):
     if formatted_df:
         return list(df.columns)
@@ -822,13 +790,9 @@ def confirm_cols(df, formatted_df=0):
 # <<<<<<<<WORKING>>>>>>>>>>>
 # Need to format location input into a prettier line of code
 def add_data(budget_dict, data):
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     print("RUNNING ADD DATA")
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     cat_options2 = " - ".join(sorted(list(budget_dict.keys()))[1:])
     len_cat = int(len(cat_options2) / 2)
     # formatting print statement to only print transaction data
@@ -836,11 +800,10 @@ def add_data(budget_dict, data):
         print_trans = data[1][1]
     else:
         print_trans = data[1]
+    print(
+        f'f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n"')
     location = str(
-        input(
-            f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n"
-        )
-    )
+        input(" CHOICE? \n"))
     sub_keys = {
         'food': 'groceries',
         'foo': 'groceries',
@@ -877,18 +840,14 @@ def add_data(budget_dict, data):
         #     key = 'holiday'
         #     if type(data[0]) != type([]):
         #         value.append(data + [key])
-        #         print(
-        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-        #         )
+        #         p_slash()
         #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
         #         return budget_dict
         #     elif type(data[0]) == type([]) and len(data) > 1:
         #         for z in data:
         #             z.append(key)
         #             value.append(z)
-        #         print(
-        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
-        #         )
+        #         p_slash()
         #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
         #         return budget_dict
         #     else:
@@ -897,18 +856,14 @@ def add_data(budget_dict, data):
         #     key = 'grocery'
         #     if type(data[0]) != type([]):
         #         value.append(data + [key])
-        #         print(
-        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-        #         )
+        #         p_slash()
         #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
         #         return budget_dict
         #     elif type(data[0]) == type([]) and len(data) > 1:
         #         for z in data:
         #             z.append(key)
         #             value.append(z)
-        #         print(
-        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
-        #         )
+        #         p_slash()
         #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
         #         return budget_dict
         #     else:
@@ -918,18 +873,14 @@ def add_data(budget_dict, data):
         #     key = 'take_away'
         #     if type(data[0]) != type([]):
         #         value.append(data + [key])
-        #         print(
-        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-        #         )
+        #         p_slash()
         #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
         #         return budget_dict
         #     elif type(data[0]) == type([]) and len(data) > 1:
         #         for z in data:
         #             z.append(key)
         #             value.append(z)
-        #         print(
-        #             "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
-        #         )
+        #         p_slash()
         #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
         #         return budget_dict
         #     else:
@@ -940,18 +891,14 @@ def add_data(budget_dict, data):
             )
             if type(data[0]) != type([]):
                 value.append(data + [key])
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
+                p_slash()
                 print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
                 return budget_dict
             elif type(data[0]) == type([]) and len(data) > 1:
                 for z in data:
                     z.append(key)
                     value.append(z)
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////\n"
-                )
+                p_slash()
                 print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
                 return budget_dict
             else:
@@ -963,9 +910,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     cols = confirm_cols(df, formatted_df)
     # pp.pprint(df)
     print("BEGIN PURCHASE CATEGORIZATION")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     # if statement separates data if a correctly formatted dictionary is passed to it
     # else it creates a dictionary
     if type(budget_dict) == type({}):
@@ -1026,13 +971,9 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
         new_dict = searched_dict[0]
         if "identified" not in searched_dict[1].lower():
             budget_dict = add_data(new_dict, data)
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     print("PROGRAM COMPLETE")
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     return new_dict
 
     # PRINT TESTING STATEMENTS for SPLIT PURCHASES
@@ -1069,13 +1010,9 @@ def make_test_dict(df):
 def test_date(df):
     # testing all columns with the word date
     # if test in list col num and list_cols comprehension are redundant too tired to fix
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     print('TESTING DATES')
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     list_cols = [i.lower() for i in df.columns.tolist()]
     test_cols = ["date", "pending", "posted"]
     verified_cols = []
@@ -1088,22 +1025,16 @@ def test_date(df):
         if all(df[tested].map(type) != type(datetime.datetime.now())):
             # add second conditional here that tests the col for floats, ints and strings
             print("CONVERTING DATAFRAME DATES TO DATETIME")
-            print(
-                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-            )
+            p_slash()
             df[tested] = pd.to_datetime(df[tested])
     # pp.pprint(df)
     return df
 
 
 def test_amounts(df):
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     print('TESTING AMOUNTS')
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     converted_col = []
     list_cols = [i.lower() for i in df.columns.tolist()]
     test_cols = ["amount", "value", "balance"]
@@ -1122,13 +1053,9 @@ def test_amounts(df):
             continue
         elif (df[tested].map(type) == str).all():
             # add second conditional here that tests the col for floats, ints and strings
-            print(
-                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-            )
+            p_slash()
             print("NORMALIZING AMOUNTS")
-            print(
-                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-            )
+            p_slash()
             for row_num in range(len(df)):
                 converted_col.append(convert_amount(
                     df[tested][row_num]))
@@ -1216,9 +1143,7 @@ def dict_to_Frame(data_dict):
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
         if key == "0_format":
-            print(
-                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-            )
+            p_slash()
             print("SKIPPING FORMAT ROW")
             continue
         elif len(value) == 0:
@@ -1230,9 +1155,7 @@ def dict_to_Frame(data_dict):
                     rows.append(value[i])
                 else:
                     rows.append(value[i] + [key])
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     # PLACE TO ADD EXTRA COLUMNS
     # pp.pprint(rows)
     df = pd.DataFrame(
@@ -1270,9 +1193,7 @@ def dict_to_Frame_with_data(data_dict):
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
         if key == "0_format":
-            print(
-                "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-            )
+            p_slash()
             print("SKIPPING FORMAT ROW")
             continue
         elif len(value) == 0:
@@ -1284,9 +1205,7 @@ def dict_to_Frame_with_data(data_dict):
                     rows.append(value[i])
                 else:
                     rows.append(value[i] + [key])
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     # PLACE TO ADD EXTRA COLUMNS
     # pp.pprint(rows)
     df = pd.DataFrame(
@@ -1390,31 +1309,21 @@ def import_test_data(data):
 
     trans_dict = omit_old_data(trans_dict, imported_dict)
     print("SPLIT PURCHASES PROGRAM COMPLETE")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
 
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     print("ADDING TO DICTIONARY")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     # <<<<<<<<WORKING>>>>>>>>>>>
     show_dict = input("PRINT OUT DICT Y/N\n")
     if "y" in show_dict.lower():
         print("DICTIONARY VALUES :::::")
         pp.pprint(merged_dict)
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
     converted_DF = dict_to_Frame(merged_dict)
     new_DF = test_amounts(converted_DF)
     new_DF = test_date(new_DF)
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
 
     # <<<<<<<<WORKING>>>>>>>>>>>
     # Change this to an input statement attached to the loop
@@ -1422,9 +1331,7 @@ def import_test_data(data):
     if data_formatted[1]:
         pass
     else:
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
         print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
         col_with_dates = "DATE"
         sort_by = get_sort_by(new_DF, col_with_dates)
@@ -1454,51 +1361,20 @@ def import_test_data(data):
 
 def main():
     t_start = datetime.datetime.now()
-
-    # <<<<<<<<WORKING>>>>>>>>>>>
-    # Add import DB from mongo
-    # Right now using written in dictionary
-
-    #     dictionary = {
-    #     '0_format': ['date', 'location data', 'float amount', 'identifier', 'category'],
-    #     'home': [
-    #         ['01/24/21', 'HOME_DEPOT',  -57, 'DEPOT','home'],
-    #         ['01/12/21', 'LOWES', -100, 'LOWES', 'home'],
-    #         ['02/14/21', 'TRUE_VALUE', -60, 'TRUE', 'home']],
-
-    #     'take_away': [
-    #         ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A','take_away'],
-    #         ['03/15/21', 'BOJANGLES 5555 ELIZABETH CITY NY', -12.99, 'BOJANGLES', 'take_away']
-    #         ],
-
-    #     'groceries': [
-    #         ['01/22/21', 'FOOD LION',  -200, 'FOOD LION', 'groceries'],
-    #         ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS', 'groceries'],
-    #         ['03/15/21', 'FARM_FRESH', -150, 'FRESH', 'groceries']],
-    #     'gas':[
-    #         ['03/22/21', 'SHELL OIL 2423423423423 LUCY, PA', -28, 'SHELL', 'gas']
-    #     ],
-    #     'utilities':[
-    #         ['03/18/21', 'DENVER SANITATION 489-4698-06456 CO', -80, 'SANITATION', 'utilities']
-    #         ]
-    # }
-
     dictionary = None
 
     print("RUNNING GET DATA TYPE\n")
     formatted_df = None
     data_formatted = get_data_type()
+    
+    
     data = data_formatted[0]
     if data_formatted[1]:
         print(f"CONFIRMED DATA IS {data_formatted[1].upper()}")
         formatted_df = data_formatted[1]
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     print("RUNNING SPLIT PURCHASES PROGRAM")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
 
     # OLD STUFF THAT WORKS
     if dictionary:
@@ -1507,17 +1383,10 @@ def main():
         trans_dict = split_purchases(data, formatted_df)
 
     print("SPLIT PURCHASES PROGRAM COMPLETE")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
-
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_line()
+    p_slash()
     print("ADDING TO DICTIONARY")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     # <<<<<<<<WORKING>>>>>>>>>>>
     show_dict = input("PRINT OUT DICT Y/N\n")
     if "y" in show_dict.lower():
@@ -1528,9 +1397,7 @@ def main():
         print("DICTIONARY VALUES :::::")
         pp.pprint(trans_dict)
         # exit()
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
     converted_DF = dict_to_Frame(trans_dict)
     # if dictionary:
     #     converted_DF = dict_to_Frame(trans_dict, 'dictionary')
@@ -1538,9 +1405,7 @@ def main():
     #     converted_DF = dict_to_Frame(trans_dict)
     new_DF = test_amounts(converted_DF)
     new_DF = test_date(new_DF)
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
 
     # <<<<<<<<WORKING>>>>>>>>>>>
     # Change this to an input statement attached to the loop
@@ -1548,9 +1413,7 @@ def main():
     if data_formatted[1]:
         pass
     else:
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
         print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
         col_with_dates = "DATE"
         sort_by = get_sort_by(new_DF, col_with_dates)
@@ -1633,31 +1496,21 @@ def main():
 
     # trans_dict = omit_old_data(trans_dict, imported_dict)
     # print("SPLIT PURCHASES PROGRAM COMPLETE")
-    # print(
-    #     "------------------------------------------------------------------------------------------------------"
-    # )
+    # p_line()
 
-    # print(
-    #     "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    # )
+    # p_slash()
     # print("ADDING TO DICTIONARY")
-    # print(
-    #     "------------------------------------------------------------------------------------------------------"
-    # )
+    # p_line()
     # # <<<<<<<<WORKING>>>>>>>>>>>
     # show_dict = input("PRINT OUT DICT Y/N\n")
     # if "y" in show_dict.lower():
     #     print("DICTIONARY VALUES :::::")
     #     pp.pprint(merged_dict)
-    #     print(
-    #         "------------------------------------------------------------------------------------------------------"
-    #     )
+    #     p_line()
     # converted_DF = dict_to_Frame(merged_dict)
     # new_DF = test_amounts(converted_DF)
     # new_DF = test_date(new_DF)
-    # print(
-    #     "------------------------------------------------------------------------------------------------------"
-    # )
+    # p_line()
 
     # # <<<<<<<<WORKING>>>>>>>>>>>
     # # Change this to an input statement attached to the loop
@@ -1665,9 +1518,7 @@ def main():
     # if data_formatted[1]:
     #     pass
     # else:
-    #     print(
-    #         "------------------------------------------------------------------------------------------------------"
-    #     )
+    #     p_line()
     #     print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
     #     col_with_dates = "DATE"
     #     sort_by = get_sort_by(new_DF, col_with_dates)
@@ -1697,3 +1548,32 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    # Create Seed Dictionary
+    # <<<<<<<<WORKING>>>>>>>>>>>
+    # Add import DB from mongo
+    # Right now using written in dictionary
+
+    #     dictionary = {
+    #     '0_format': ['date', 'location data', 'float amount', 'identifier', 'category'],
+    #     'home': [
+    #         ['01/24/21', 'HOME_DEPOT',  -57, 'DEPOT','home'],
+    #         ['01/12/21', 'LOWES', -100, 'LOWES', 'home'],
+    #         ['02/14/21', 'TRUE_VALUE', -60, 'TRUE', 'home']],
+
+    #     'take_away': [
+    #         ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A','take_away'],
+    #         ['03/15/21', 'BOJANGLES 5555 ELIZABETH CITY NY', -12.99, 'BOJANGLES', 'take_away']
+    #         ],
+
+    #     'groceries': [
+    #         ['01/22/21', 'FOOD LION',  -200, 'FOOD LION', 'groceries'],
+    #         ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS', 'groceries'],
+    #         ['03/15/21', 'FARM_FRESH', -150, 'FRESH', 'groceries']],
+    #     'gas':[
+    #         ['03/22/21', 'SHELL OIL 2423423423423 LUCY, PA', -28, 'SHELL', 'gas']
+    #     ],
+    #     'utilities':[
+    #         ['03/18/21', 'DENVER SANITATION 489-4698-06456 CO', -80, 'SANITATION', 'utilities']
+    #         ]
+    # }

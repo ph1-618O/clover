@@ -10,6 +10,7 @@
 # export data to MONGO DB
 
 
+import os
 import platform
 
 # working with dates, month abbrev, and the
@@ -41,6 +42,22 @@ nltk.download("stopwords")
 nltk.download("punkt")
 
 pp = pprint.PrettyPrinter(indent=4)
+line_size = os.get_terminal_size()
+line = line_size[0]
+
+
+def p_line():
+    line = ''
+    for i in range(line_size[0]):
+        line += '-'
+    print(line)
+
+
+def p_slash():
+    line = ''
+    for i in range(line_size[0]):
+        line += '/'
+    print(line)
 
 # graphing
 import matplotlib
@@ -70,9 +87,7 @@ pd.set_option("expand_frame_repr", False)
 # print versions
 def version_assistant():
     # print versions
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     print("PYTHON VERSIONS")
     print("-----------------------------------------")
     print("python     : ", platform.python_version())
@@ -89,9 +104,7 @@ def version_assistant():
 
 def import_clip():
     clipDF = pd.read_clipboard()
-    print(
-        "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-    )
+    p_slash()
     csvName = input("WHAT TYPE OF ACCOUNT FOR FILENAME?\n")
     csvName = csvName + ".csv"
     clipDF.to_csv(csvName, index=False)
@@ -167,13 +180,9 @@ def convert_date(df):
             all_date_time = [True for i in df['date'] if type(i) == type(datetime.datetime.now())]
             print(all_date_time)
             if all(all_date_time):
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
+                p_slash()
                 print('ALL DATES ARE IN DATETIME SKIPPING')
-                print(
-                    "//////////////////////////////////////////////////////////////////////////////////////////////////////"
-                )
+                p_slash()
             elif not all(all_date_time):
                 date_time = []
                 for j in df[i]:
@@ -193,22 +202,14 @@ def convert_date(df):
 
 
 def get_sort_by(df, sort_query):
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     print("UNSORTED DATAFRAME")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     pp.pprint(df.head())
     print(f"\nSORTING BY {sort_query}")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     print(f'OPTIONS::: {" - ".join(list(df.columns))}')
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     # none_in = [print(list(df.columns)[i].upper(), end =" ") for i in range(len(list(df.columns)))]
     try:
         df[sort_query]
@@ -226,7 +227,7 @@ def get_sort_by(df, sort_query):
 # Bringing in Data
 def import_csv():
     csvName = input("ENTER CSV NAME\n")
-    print("-----------------------------------------")
+    p_line()
     if csvName.endswith(".csv"):
         return pd.read_csv(csvName)
     else:
@@ -260,13 +261,9 @@ def rename_cols(df, columns_list):
 
 
 def remove_cols(df):
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     pp.pprint(df.head(1))
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     remove_query = input("REMOVE COLUMNS? Y/N\n").lower()
     if "y" in remove_query.lower():
         remove_cols = input("COLUMNS TO REMOVE::\n").lower()
@@ -289,33 +286,21 @@ def remove_cols(df):
 def get_col_names(df):
     rename_cols_query = "test"
     while "y" not in rename_cols_query:
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
         print(f'CURRENT COLUMNS::: {" - ".join(list(df.columns))}')
-        print(
-            "------------------------------------------------------------------------------------------------------"
-        )
+        p_line()
         rename_cols_query = input("RENAME COLUMNS? Y/N\n").lower()
         suggested_cols = ["Date", "Transaction", "Account", "Amount", "Balance"]
         cols = list(df.columns)
         if "y" in rename_cols_query:
-            print(
-                "------------------------------------------------------------------------------------------------------"
-            )
+            p_line()
             print(f"PLEASE ENTER {len(df.columns)} COLUMN NAMES")
             print("WARNING COLUMN NAMES MUST BE UNIQUE")
-            print(
-                "------------------------------------------------------------------------------------------------------"
-            )
+            p_line()
             print(f'SUGGESTED::: {" - ".join(suggested_cols)}')
-            print(
-                "------------------------------------------------------------------------------------------------------"
-            )
+            p_line()
             print("REQUIRED ::: Date, Transaction, Amount")
-            print(
-                "------------------------------------------------------------------------------------------------------"
-            )
+            p_line()
             cols = input("ENTER COLUMN NAMES IN ORDER\n").lower()
             cat = ""
             for i in cols:
@@ -341,9 +326,7 @@ def get_col_names(df):
             ).lower()
             if "y" in exit_program or "exit" in exit_program:
                 exit()
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     return cols, rename_cols_query
 
 #import texthero as hero
@@ -389,10 +372,9 @@ def format_data(df):
 
 
 def initiate_format(df=0):
+    p_line()
     print("FORMATTING CLIPBOARD, EXCEL OR CSV INPUT")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     formatted = format_data(df)
     # Dropping duplicates
     formatted = formatted.drop_duplicates()
@@ -401,24 +383,15 @@ def initiate_format(df=0):
     date_col = [col for col in list(formatted.columns) if "date" in col.lower()]
     # date col is a list won't work in a list requiring a str, need to fix possibly
     formatted = formatted.sort_values(by=['date', 'transaction', 'amount']).reset_index(drop=True)
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     print("FORMATTED DATAFRAME")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     pp.pprint(formatted.head())
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
+    p_line()
     print("FORMATTING CLIPBOARD OR CSV COMPLETE")
-    print(
-        "------------------------------------------------------------------------------------------------------"
-    )
-    print(
-        "------------------------------------------------------------------------------------------------------\n\n"
-    )
+    p_line()
+    p_line()
+    print('\n\n')
     return formatted
 
 

@@ -33,6 +33,7 @@ import platform
 
 
 import os
+# Formatting for output on terminal
 line_size = os.get_terminal_size()
 line = line_size[0]
 def p_line():
@@ -160,8 +161,6 @@ def get_data_type():
     ):
         format_q = (f'FORMAT "{import_data.upper()}" DATA? Y/N').lower()
         if "n" in format_q.lower():
-            # <<<<<<<<WORKING>>>>>>>>>>>
-            # Fix Module import statement
             p_slash()
             print("RUNNING FORMAT_DATA PROGRAM")
             import format_data
@@ -223,18 +222,6 @@ def import_clip():
     csvName = csvName + ".csv"
     clipDF.to_csv(csvName, index=False)
     return pd.read_csv(csvName)
-
-
-# <<<<<<<<WORKING>>>>>>>>>>>
-# Redundant, kept if needed to add more than one csv file in the future?
-# def import_csv():
-#     csvName = input('ENTER CSV LOCATION\\NAME\n')
-#     p_line()
-#     if csvName.endswith('.csv'):
-#         return pd.read_csv(csvName)
-#     else:
-#         csvName = csvName + '.csv'
-#         return pd.read_csv(csvName)
 
 
 def save_csv(df):
@@ -694,17 +681,22 @@ def make_dict(categories, cols, old_dict=0):
     # <<<<<<<<WORKING>>>>>>>>>>>
     # look at jupyter notebook with purchases categorized as essential, non essential, fixed, variable, one-time and reoccuring
     # add these into the make dict with new sub categories
+    if 'identifier' not in cols:
+            cols = cols + ['identifier']
+    if 'category' not in cols:
+            cols = cols + ['category']
     if type(old_dict) == type({}):
         # print('DICT CONFIRMED')
+        print(cols)
         if "0_format" not in old_dict.keys():
-            # old_dict["0_format"] = cols
-            old_dict["0_format"] = [
-                "date",
-                "transaction",
-                "amount",
-                "identifier",
-                "category"
-            ]
+            old_dict["0_format"] = cols
+            # old_dict["0_format"] = [
+            #     "date",
+            #     "transaction",
+            #     "amount",
+            #     "identifier",
+            #     "category"
+            # ]
         else:
             print('WORKING ON THIS')
             # for new_col in cols:
@@ -716,9 +708,10 @@ def make_dict(categories, cols, old_dict=0):
         trans_type = old_dict
 
     else:
-        trans_type = {"0_format": [
-            "date", "transaction", "amount", "identifier", "category"]}
-        # trans_type = {"0_format": cols}
+        print(cols)
+        # trans_type = {"0_format": [
+        #     "date", "transaction", "amount", "identifier", "category"]}
+        trans_type = {"0_format": cols}
         for i in categories:
             trans_type[i] = []
     return trans_type
@@ -793,10 +786,14 @@ def add_data(budget_dict, data):
     cat_options2 = " - ".join(sorted(list(budget_dict.keys()))[1:])
     len_cat = int(len(cat_options2) / 2)
     # formatting print statement to only print transaction data
-    if len(data[1]) == 4:
-        print_trans = data[1][1]
-    else:
-        print_trans = data[1]
+    print(f'printing trans {data}')
+    print(type(data[0]))
+    # Assuming that the transaction info is the longest str
+    print_trans = max([str(i) for i in data], key=len)
+    # if len(data[1]) == 4:
+    #     print_trans = data[1][1]
+    # else:
+    #     print_trans = data[1]
     print(
         f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n")
     location = str(
@@ -934,9 +931,12 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             identity = get_col[1]
             # NEED TO ADD A TYPE TEST BEFORE THIS
             # print(identity)
+            # print(df.select_dtypes(
+            #     include=["object"], exclude=["float64", "int64", "datetime"]
+            # ))
             mask = df.select_dtypes(
                 include=["object"], exclude=["float64", "int64", "datetime"]
-            ).apply(lambda x: x.str.contains(rf"{identity}", na=False, case=False))
+            ).apply(lambda x: x.astype(str).str.contains(rf"{identity}", na=False, case=False))
             # mask = df.apply(lambda x: x.str.contains(rf'{identity}', na=False, case=False))
             matching_rows = df.loc[mask.any(axis=1)]
             skip_rows += matching_rows.index.tolist()
@@ -1382,12 +1382,12 @@ def main():
     # <<<<<<<<WORKING>>>>>>>>>>>
     show_dict = input("PRINT OUT DICT Y/N\n")
     if "y" in show_dict.lower():
+        pp.pprint(trans_dict)
         # this saves the newly made dict to json to compare later
         import json
         with open('data/test/dictionary.json', 'w') as save_dict:
             save_dict.write(json.dumps(trans_dict))
         print("DICTIONARY VALUES :::::")
-        pp.pprint(trans_dict)
         # exit()
         p_line()
     converted_DF = dict_to_Frame(trans_dict)

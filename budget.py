@@ -1030,24 +1030,19 @@ def test_amounts(df):
     p_slash()
     #converted_col = []
     list_cols = [i.lower() for i in df.columns.tolist()]
-    test_cols = ["amount", "value", "balance"]
+    test_cols = ["amount", "value", "balance", "price", "cost", "dollars", "total"]
     verified_cols = []
     for col in list_cols:
         for test in test_cols:
             if test in col:
                 verified_cols.append(col)
-    print(verified_cols)
+    # print(verified_cols)
     for tested in verified_cols:
         search_floats = df[tested].apply(
             lambda x: 'True' if isinstance(x, float) else 'False')
-        #floats_test = [True for i in range(len(df[tested])) if type(df[tested][i]) == type(0.1)]
-        #print(search_floats)
         if not search_floats.any():
             print('COLUMNS ARE FLOATS SKIPPING')
             continue
-        # if search_floats.all():
-        #     print('COLUMNS ARE FLOATS SKIPPING')
-        #     continue
         elif (df[tested].map(type) == str).all():
             # add second conditional here that tests the col for floats, ints and strings
             p_slash()
@@ -1058,6 +1053,8 @@ def test_amounts(df):
                 converted_col.append(convert_amount(
                     df[tested][row_num]))
             df[tested] = converted_col
+        elif search_floats.all():
+            print('COLUMNS ARE ALL FLOATS SKIPPING')
         else:
             print(f'your {tested} columns are all a mess, see your programmer')
     return df

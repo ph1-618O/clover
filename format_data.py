@@ -5,11 +5,30 @@
 # xls format so that it has proper headings, datetime, and numerical formatting for computation
 
 
-## WORKING
+# WORKING
 # ADD DATETIME FORMATTING FOR DATE COLUMN
 # export data to MONGO DB
 
 
+from texthero import preprocessing
+import re
+import requests
+from bs4 import BeautifulSoup as soup
+from googlesearch import search
+from fastnumbers import fast_float
+import random
+from random import randint
+from random import seed
+import plotly.graph_objects as go
+import squarify
+from matplotlib.lines import Line2D
+import matplotlib.ticker as ticker
+import matplotlib.pyplot as plt
+import matplotlib
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import nltk
+import pprint
 import os
 import platform
 
@@ -30,13 +49,9 @@ import numpy as np
 
 pd.options.mode.chained_assignment = None
 
-#Test Editing Libraries
-import pprint
+# Test Editing Libraries
 # import texthero as hero #pip install texthero==1.0.5 works with newer python versions
-#pip install nltk #NLP
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+# pip install nltk #NLP
 
 nltk.download("stopwords")
 nltk.download("punkt")
@@ -59,32 +74,21 @@ def p_slash():
         line += '/'
     print(line)
 
+
 # graphing
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-from matplotlib.lines import Line2D
-import squarify
-import plotly.graph_objects as go
 
 # for generating random data from original to test and share to github
-from random import seed
-from random import randint
-import random
 
 # Dealing with number input inconsistencies, avoids VALUE ERROR, ATTRIBUTE ERROR
-from fastnumbers import fast_float
 
 # trying to grab the trans data from google, need another way to do it
-from googlesearch import search
-from bs4 import BeautifulSoup as soup
-import requests
-import re
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 pd.set_option("expand_frame_repr", False)
 
 # print versions
+
+
 def version_assistant():
     # print versions
     p_slash()
@@ -112,6 +116,23 @@ def import_clip():
 
 
 # convert_amount keeps value at positive or negative
+
+def reconcile_column_type(df, dict):
+    new_cols = list(df.columns)
+    old_cols = dict['0_format']
+    test_new = set(new_cols)
+    test_old = set(old_cols)
+    diff = test_new.difference(test_old)
+    col_format = {}
+    if not diff:
+        print('Column list is the same')
+    else:
+        print(diff)
+        for i in diff:
+            if i in new_cols:
+                print(i)
+            elif i in old_cols:
+                print(i)
 
 
 def convert_amount(entry):
@@ -146,7 +167,7 @@ def split_date(date_str):
     return clean_list
 
 
-# CONVERT DATE 2 is for more complicated date formats
+# CONVERT DATE complicated is for more complicated date formats
 def convert_date_complicated(df):
     import datetime
 
@@ -174,30 +195,72 @@ def convert_date_complicated(df):
 
 def convert_date(df):
     import datetime
+    list_cols = [i.lower() for i in df.columns.tolist()]
+    test_cols = ["date", "day", "time", "occurence"]
+    verified_cols = []
+    for col in list_cols:
+        for test in test_cols:
+            if test in col:
+                verified_cols.append(col)
+    for tested in verified_cols:
+        search_dates = df[tested].apply(
+            lambda x: 'True' if isinstance(x, datetime.date) else 'False')
+    #all_date_time = [True for i in df['date'] if type(i) == type(datetime.datetime.now())]
+    #print(all_date_time)
+        if not search_dates.any():
+            p_slash()
+            print('ALL DATES ARE IN DATETIME SKIPPING')
+            p_slash()
+            continue
+        elif (df[tested].map(type) == str).all():
+            date_time = []
+            for j in df[tested]:
+                if len(j) == 10:
+                    date_time.append(
+                        datetime.datetime.strptime(j, "%m/%d/%Y"))
+                elif len(j) == 8:
+                    date_time.append(
+                        datetime.datetime.strptime(j, "%m/%d/%y"))
+                else:
+                    print("UNKNOWN DATE FORMAT SKIPPING FORMATTING")
+                    return df
+            df[tested] = date_time
+            df = df.sort_values(
+                by=[tested]).reset_index(drop=True)
+            # df = df.sort_values(
+            #     by=['date', 'transaction', 'amount']).reset_index(drop=True)
+            # (by=['date', 'category', 'identifier', 'amount']
+        else:
+            print('your dates are a mess, see your programmer')
+    return df
 
-    for i in list(df.columns):
-        if "date" in i.lower():
-            all_date_time = [True for i in df['date'] if type(i) == type(datetime.datetime.now())]
-            print(all_date_time)
-            if all(all_date_time):
-                p_slash()
-                print('ALL DATES ARE IN DATETIME SKIPPING')
-                p_slash()
-            elif not all(all_date_time):
-                date_time = []
-                for j in df[i]:
-                    if len(j) == 10:
-                        date_time.append(datetime.datetime.strptime(j, "%m/%d/%Y"))
-                    elif len(j) == 8:
-                        date_time.append(datetime.datetime.strptime(j, "%m/%d/%y"))
-                    else:
-                        print("UNKNOWN DATE FORMAT SKIPPING FORMATTING")
-                        return df
-                df[i] = date_time
-                df = df.sort_values(by=['date', 'transaction', 'amount']).reset_index(drop=True)
-                #(by=['date', 'category', 'identifier', 'amount']
-            else:
-                    print('your dates are a mess, see your programmer')
+
+# def convert_date(df):
+#     import datetime
+
+#     for i in list(df.columns):
+#         if "date" in i.lower():
+#             all_date_time = [True for i in df['date'] if type(i) == type(datetime.datetime.now())]
+#             print(all_date_time)
+#             if all(all_date_time):
+#                 p_slash()
+#                 print('ALL DATES ARE IN DATETIME SKIPPING')
+#                 p_slash()
+#             elif not all(all_date_time):
+#                 date_time = []
+#                 for j in df[i]:
+#                     if len(j) == 10:
+#                         date_time.append(datetime.datetime.strptime(j, "%m/%d/%Y"))
+#                     elif len(j) == 8:
+#                         date_time.append(datetime.datetime.strptime(j, "%m/%d/%y"))
+#                     else:
+#                         print("UNKNOWN DATE FORMAT SKIPPING FORMATTING")
+#                         return df
+#                 df[i] = date_time
+#                 df = df.sort_values(by=['date', 'transaction', 'amount']).reset_index(drop=True)
+#                 #(by=['date', 'category', 'identifier', 'amount']
+#             else:
+#                     print('your dates are a mess, see your programmer')
     return df
 
 
@@ -290,7 +353,8 @@ def get_col_names(df):
         print(f'CURRENT COLUMNS::: {" - ".join(list(df.columns))}')
         p_line()
         rename_cols_query = input("RENAME COLUMNS? Y/N\n").lower()
-        suggested_cols = ["Date", "Transaction", "Account", "Amount", "Balance"]
+        suggested_cols = ["Date", "Transaction",
+                          "Account", "Amount", "Balance"]
         cols = list(df.columns)
         if "y" in rename_cols_query:
             p_line()
@@ -329,24 +393,23 @@ def get_col_names(df):
     p_line()
     return cols, rename_cols_query
 
+
 #import texthero as hero
-from texthero import preprocessing
+
+
 def strip_db_space(df):
-    remove_white = [preprocessing.fillna
-                    #, preprocessing.lowercase
-                    #, preprocessing.remove_digits
-                    #, preprocessing.remove_punctuation
-                    #, preprocessing.remove_diacritics
-                    #, preprocessing.remove_stopwords
+    remove_white = [preprocessing.fillna                    # , preprocessing.lowercase
+                    # , preprocessing.remove_digits
+                    # , preprocessing.remove_punctuation
+                    # , preprocessing.remove_diacritics
+                    # , preprocessing.remove_stopwords
                     , preprocessing.remove_whitespace
-                    #, preprocessing.stem
-    ]
+                    # , preprocessing.stem
+                    ]
     for i in range(len(df.columns)):
-        df = hero.clean(df.iloc[:, i], pipeline = remove_white)
+        df = hero.clean(df.iloc[:, i], pipeline=remove_white)
     return df
 
-        
-        
 
 def format_data(df):
     test_cols = get_col_names(df)
@@ -378,11 +441,13 @@ def initiate_format(df=0):
     formatted = format_data(df)
     # Dropping duplicates
     formatted = formatted.drop_duplicates()
-    #Sorting cols by date
-    #[date_col, 'category', 'identifier', 'amount'])
-    date_col = [col for col in list(formatted.columns) if "date" in col.lower()]
+    # Sorting cols by date
+    # [date_col, 'category', 'identifier', 'amount'])
+    date_col = [col for col in list(
+        formatted.columns) if "date" in col.lower()]
     # date col is a list won't work in a list requiring a str, need to fix possibly
-    formatted = formatted.sort_values(by=['date', 'transaction', 'amount']).reset_index(drop=True)
+    formatted = formatted.sort_values(
+        by=['date', 'transaction', 'amount']).reset_index(drop=True)
     p_line()
     print("FORMATTED DATAFRAME")
     p_line()

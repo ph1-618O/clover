@@ -1347,20 +1347,22 @@ def main():
         print("RUNNING SPLIT PURCHASES PROGRAM")
         p_line()
         trans_dict = split_purchases(data, formatted_df)
-
+    final_dict = trans_dict
     # Test to see if any data is overlapping, omitting if it is
-    new_data = omit_old_data(imported_dict, trans_dict)
-    if new_data:
-        from itertools import chain
+    if imported_dict:
+        new_data = omit_old_data(imported_dict, trans_dict)
+        if new_data:
+            from itertools import chain
 
-        merged_dict = {}
-        for k, v in chain(imported_dict.items(), trans_dict.items()):
-            merged_dict.setdefault(k, []).extend(v)
-    else:
-        print("THERE IS NO NEW DATA, EXITING")
-        exit()
-
-    trans_dict = omit_old_data(trans_dict, imported_dict)
+            merged_dict = {}
+            for k, v in chain(imported_dict.items(), trans_dict.items()):
+                merged_dict.setdefault(k, []).extend(v)
+        else:
+            print("THERE IS NO NEW DATA, EXITING")
+            exit()
+        trans_dict = omit_old_data(trans_dict, imported_dict)
+        final_dict = merged_dict
+    
     print("SPLIT PURCHASES PROGRAM COMPLETE")
     p_line()
 
@@ -1371,9 +1373,9 @@ def main():
     show_dict = input("PRINT OUT DICT Y/N\n")
     if "y" in show_dict.lower():
         print("DICTIONARY VALUES :::::")
-        pp.pprint(merged_dict)
+        pp.pprint(final_dict)
         p_line()
-    converted_DF = dict_to_Frame(merged_dict)
+    converted_DF = dict_to_Frame(final_dict)
     new_DF = test_amounts(converted_DF)
     new_DF = test_date(new_DF)
     p_line()
@@ -1403,7 +1405,7 @@ def main():
     pp.pprint(new_DF.head())
     create_database = input("ADD TO DATABASE? Y/N \n")
     if "y" in create_database:
-        conn_mongo(merged_dict)
+        conn_mongo(final_dict)
         print("MongoDB Successful")
     save_csv(new_DF)
     t_end = datetime.datetime.now()

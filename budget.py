@@ -486,7 +486,7 @@ def remove_city_state(tokens_removed):
                 match_index = {}
                 for match in re.finditer(reg_pattern, test_str):
                     count += 1
-                    print('match', count, match.group(), 'start', match.start(), 'end', match.end())
+                    #print('match', count, match.group(), 'start', match.start(), 'end', match.end())
                     match_index[match.group()] = [
                         match.start(), match.end()]
             
@@ -500,8 +500,7 @@ def remove_city_state(tokens_removed):
                     match_index = {}
                     for match in re.finditer(reg_pattern, test_str):
                         count += 1
-                        print('match', count, match.group(), 'start',
-                                match.start(), 'end', match.end())
+                        #print('match', count, match.group(), 'start',match.start(), 'end', match.end())
                         match_index[match.group()] = [
                             match.start(), match.end()]
         else:
@@ -514,7 +513,7 @@ def remove_city_state(tokens_removed):
                     # print(f'remove matches {remove_matches}')
                     # print(f'Search_location {search_location}')
                     # print(f'Remove city state {remove_city_state}')
-                    print(match_index)
+                    #print(match_index)
 
                     for key, value in match_index.items():
                         if key == ' '.join(remove_city_state):
@@ -526,7 +525,7 @@ def remove_city_state(tokens_removed):
                         for i in key.split():
                             if i in remove_city_state and i != ' ':
                                 tokens = tokens.replace(i, '')
-                    print(f'Returning tokens {tokens}')
+                    #print(f'Returning tokens {tokens}')
                     return tokens
                 else:
                     test_str = test_str.replace(i, '')
@@ -613,8 +612,8 @@ def add_transaction_type(df, i, sort_by=0):
         # purchase_type = remove_stop_words(
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
         # )
-        p_slash()
-        print(f'Purchase type after filters {purchase_type}')
+        #p_slash()
+        #print(f'Purchase type after filters {purchase_type}')
         for index in range(len(purchase_type)):
             if len(purchase_type[index]) < 3:
                 sort_by = 'transaction'  # was None to limit the id to > 3 letters but that didn't work
@@ -626,7 +625,7 @@ def add_transaction_type(df, i, sort_by=0):
                 elif purchase_type[index].lower() in global_state:
                     continue
                 else:
-                    p_line()
+                    p_slash()
                     print(f'TESTING IDENTIFIER:: "{purchase_type[index]}"')
                     p_slash()
                     print(
@@ -774,6 +773,17 @@ def confirm_cols(df, formatted_df=0):
             cols = df.columns
     return cols
 
+def mostly_alpha(string):
+    counter = 0
+    length = len(string)
+    for i in string:
+        if i.isnumeric():
+            # print(counter)
+            # print(i)
+            counter += 1
+    percent_nums = round(counter/length * 100)
+    return percent_nums
+
 
 # <<<<<<<<WORKING>>>>>>>>>>>
 # Need to format location input into a prettier line of code
@@ -784,14 +794,17 @@ def add_data(budget_dict, data):
     cat_options2 = " - ".join(sorted(list(budget_dict.keys()))[1:])
     len_cat = int(len(cat_options2) / 2)
     # formatting print statement to only print transaction data
-    print(f'printing trans {data}')
-    print(type(data[0]))
+    #print(f'printing trans {data}')
+    #print(type(data[0]))
     # Assuming that the transaction info is the longest str
-    print_trans = max([str(i) for i in data], key=len)
-    # if len(data[1]) == 4:
-    #     print_trans = data[1][1]
-    # else:
-    #     print_trans = data[1]
+    # Additional removing the strs with timestamp and mostly numbers
+    if isinstance(data, list) and isinstance(data[0], list):
+        print_trans = max([str(i) for i in data[0] if ('Timestamp' not in str(i)) and (mostly_alpha(str(i)) < 65)], key=len)
+    elif isinstance(data, list):
+        print_trans = max([str(i) for i in data if (
+            'Timestamp' not in str(i)) and (mostly_alpha(str(i)) < 65)], key=len)
+    else:
+        print_trans = max([str(i) for i in data if (mostly_alpha(str(i)) < 65)], key=len)
     print(
         f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n")
     location = str(
@@ -1252,7 +1265,7 @@ def main():
     t_start = datetime.datetime.now()
     # Getting new data, initiating the program
     p_slash()
-    print("RUNNING GET DATA TYPE\n")
+    print("RUNNING GET DATA TYPE")
     p_slash()
     formatted_df = None
     data_formatted = get_data_type()
@@ -1280,7 +1293,10 @@ def main():
     try:
         with open('data/test/dictionary.json') as import_dict:
             imported_dict = json.load(import_dict)
+        p_line()
+        p_slash()
         print('IMPORTING JSON DICT CONVERTING TO DF')
+        p_slash()
         dictionary_DF = (
             dict_to_Frame(imported_dict).drop_duplicates().sort_values(
                 by=['date', 'transaction', 'amount']).reset_index(drop=True)
@@ -1288,6 +1304,7 @@ def main():
         dictionary_DF = test_date(dictionary_DF)
         dictionary_DF = test_amounts(dictionary_DF)
     except:
+        p_line()
         p_slash()
         print('FILE DOES NOT EXIST')
         p_slash()

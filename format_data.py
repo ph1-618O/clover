@@ -324,8 +324,7 @@ def get_col_names(df):
         print(f'CURRENT COLUMNS::: {" - ".join(list(df.columns))}')
         p_line()
         rename_cols_query = input("RENAME COLUMNS? Y/N\n").lower()
-        suggested_cols = ["Date", "Transaction",
-                          "Account", "Amount", "Balance"]
+        suggested_cols = ["Date", "Transaction", "Account", "Amount", "Balance"]
         cols = list(df.columns)
         if "y" in rename_cols_query:
             p_line()
@@ -336,7 +335,9 @@ def get_col_names(df):
             p_line()
             print("REQUIRED ::: Date, Transaction, Amount")
             p_line()
-            cols = input("ENTER COLUMN NAMES IN ORDER\n").lower()
+            #cols = input("ENTER COLUMN NAMES IN ORDER\n").lower()
+            # SEEDED DATA
+            cols = "date_pending, date, transaction, account, amount, balance"
             cat = ""
             for i in cols:
                 if "," in cols:

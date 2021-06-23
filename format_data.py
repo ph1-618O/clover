@@ -53,8 +53,8 @@ pd.options.mode.chained_assignment = None
 # import texthero as hero #pip install texthero==1.0.5 works with newer python versions
 # pip install nltk #NLP
 
-nltk.download("stopwords")
-nltk.download("punkt")
+# nltk.download("stopwords")
+# nltk.download("punkt")
 
 pp = pprint.PrettyPrinter(indent=4)
 line_size = os.get_terminal_size()
@@ -205,8 +205,6 @@ def convert_date(df):
     for tested in verified_cols:
         search_dates = df[tested].apply(
             lambda x: 'True' if isinstance(x, datetime.date) else 'False')
-    #all_date_time = [True for i in df['date'] if type(i) == type(datetime.datetime.now())]
-    #print(all_date_time)
         if not search_dates.any():
             p_slash()
             print('ALL DATES ARE IN DATETIME SKIPPING')
@@ -227,6 +225,7 @@ def convert_date(df):
             df[tested] = date_time
             df = df.sort_values(
                 by=[tested]).reset_index(drop=True)
+            # Want to use sort_values by tested, however, because its a loop it wont choose the primary date col
             # df = df.sort_values(
             #     by=['date', 'transaction', 'amount']).reset_index(drop=True)
             # (by=['date', 'category', 'identifier', 'amount']
@@ -234,34 +233,6 @@ def convert_date(df):
             print('your dates are a mess, see your programmer')
     return df
 
-
-# def convert_date(df):
-#     import datetime
-
-#     for i in list(df.columns):
-#         if "date" in i.lower():
-#             all_date_time = [True for i in df['date'] if type(i) == type(datetime.datetime.now())]
-#             print(all_date_time)
-#             if all(all_date_time):
-#                 p_slash()
-#                 print('ALL DATES ARE IN DATETIME SKIPPING')
-#                 p_slash()
-#             elif not all(all_date_time):
-#                 date_time = []
-#                 for j in df[i]:
-#                     if len(j) == 10:
-#                         date_time.append(datetime.datetime.strptime(j, "%m/%d/%Y"))
-#                     elif len(j) == 8:
-#                         date_time.append(datetime.datetime.strptime(j, "%m/%d/%y"))
-#                     else:
-#                         print("UNKNOWN DATE FORMAT SKIPPING FORMATTING")
-#                         return df
-#                 df[i] = date_time
-#                 df = df.sort_values(by=['date', 'transaction', 'amount']).reset_index(drop=True)
-#                 #(by=['date', 'category', 'identifier', 'amount']
-#             else:
-#                     print('your dates are a mess, see your programmer')
-    return df
 
 
 def get_sort_by(df, sort_query):

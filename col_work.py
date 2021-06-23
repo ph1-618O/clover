@@ -1,17 +1,16 @@
 
 
-import numpy as np
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
-import json
-with open('data/train_dict.json') as j:
-    dict = json.load(j)
+# import numpy as np
+# import pprint
+# pp = pprint.PrettyPrinter(indent=4)
+# import json
+# with open('data/train_dict.json') as j:
+#     dict = json.load(j)
 
-import pandas as pd
-test_df = pd.read_csv('data/train_cols.csv')
+# import pandas as pd
+# test_df = pd.read_csv('data/train_cols.csv')
 
-
-
+#working with dataframe and dictionary
 def rec_col_type(df, dict):
     new_cols = list(df.columns)
     old_cols = dict['0_format']
@@ -101,10 +100,10 @@ def rec_col_type(df, dict):
                                 for data_list in value:
                                     data_list.insert(insert_loc, dict_cols[counter])
                                     counter += 1
-            
-    print(reordered_df)
-    pp.pprint(dict)
+    return reordered_df, dict       
+    # print(reordered_df)
+    # pp.pprint(dict)
         
-rec_col_type(test_df, dict)
+# rec_col_type(test_df, dict)
                 
 

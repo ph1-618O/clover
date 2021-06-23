@@ -440,7 +440,7 @@ def remove_city_state(tokens_removed):
                 tokens_removed[i] = tokens_removed[i].replace(tokens_removed[i], '')
             
     test_str = ' '.join(tokens_removed)
-    print(f'test_str after both abbv and long state search {test_str}')
+    #print(f'test_str after both abbv and long state search {test_str}')
     # This searches for City State
     #reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
     # removing spaces
@@ -451,7 +451,7 @@ def remove_city_state(tokens_removed):
     # city_state = re.findall(r"\b([A-Za-z]+(?:[A-Za-z]+)*) ? ([A-Za-z]{2})\b", str2,
     #                       re.IGNORECASE | re.MULTILINE)
     
-    print(f'{city_state} city_state')
+    #print(f'{city_state} city_state')
     if len(city_state):
         remove_matches = city_state
         # Testing two letter strings against state db
@@ -472,8 +472,8 @@ def remove_city_state(tokens_removed):
                     #print(city_state[i])
                     #print('not in there')
                     continue
-        print(f'city_state after abbv search {city_state}')
-        print(f'City_state {city_state}')
+        #print(f'city_state after abbv search {city_state}')
+        #print(f'City_state {city_state}')
 
         # Problem here, its iterating over the word A R L I N G T O N, and V A instead of ARLINGTON, and VA
         remove_city_state = 0
@@ -511,16 +511,16 @@ def remove_city_state(tokens_removed):
             for i in remove_city_state:
                 if i.lower() not in global_state:
                     global_state.append(i.lower())
-                    print(f'remove matches {remove_matches}')
-                    print(f'Search_location {search_location}')
-                    print(f'Remove city state {remove_city_state}')
+                    # print(f'remove matches {remove_matches}')
+                    # print(f'Search_location {search_location}')
+                    # print(f'Remove city state {remove_city_state}')
                     print(match_index)
 
                     for key, value in match_index.items():
                         if key == ' '.join(remove_city_state):
                             tokens = test_str.replace(
                                 test_str[value[0]:value[1]], '')
-                    print(tokens)
+                    # print(tokens)
                     
                     for key in match_index.keys():
                         for i in key.split():
@@ -530,17 +530,17 @@ def remove_city_state(tokens_removed):
                     return tokens
                 else:
                     test_str = test_str.replace(i, '')
-                    print(f'Replaced {i} in {test_str}')
+                    # print(f'Replaced {i} in {test_str}')
                     continue
-            print(f'Loop done, returning test_str{test_str}')   
+            # print(f'Loop done, returning test_str{test_str}')   
             return test_str
         else:
-            print('No city or state1')
-            print(f'Tokens removed1 {test_str}')
+            # print('No city or state1')
+            # print(f'Tokens removed1 {test_str}')
             return test_str
     else:
-        print('No city or state2')
-        print(f'Tokens removed2 {test_str}')
+        # print('No city or state2')
+        # print(f'Tokens removed2 {test_str}')
         return test_str
 
 # Removing stop words dependencies
@@ -557,16 +557,16 @@ def remove_city_state(tokens_removed):
 def remove_stop_words(transaction_word_list):
     #if type(transaction_word_list) == type('[]'):
         #transaction_word_list = ' '.join(transaction_word_list)
-    print(f'WORD LIST {transaction_word_list}')
+    #print(f'WORD LIST {transaction_word_list}')
     # removing words like 'the, a, and'
     text_token = word_tokenize(transaction_word_list)
     stop_words = set(stopwords.words("english"))
-    print(f'Text token {text_token}')
+    #print(f'Text token {text_token}')
     # testing string for address
     tokens_without_sw = [
         word for word in text_token if word.casefold() not in stop_words
     ]
-    print(f'tokens without sw{tokens_without_sw}')
+    #print(f'tokens without sw{tokens_without_sw}')
     return tokens_without_sw
 
 # Matches all words anywhere no numbers, no special chars except www, com, sq, tst, bill
@@ -577,14 +577,14 @@ def remove_stop_words(transaction_word_list):
 def add_transaction_type(df, i, sort_by=0):
     if sort_by:
         # Using re.sub to remove everyting but numbers and words
-        print(f'Sending to Remove Stop Words {df[sort_by][i]}')
+        # print(f'Sending to Remove Stop Words {df[sort_by][i]}')
         regex_no_state = r"(?!WWW|COM|SQ|TST|bill)\b([A-Za-z]{3,}(?:[A-Za-z]+)*)"
-        print('test1 remove state')
-        print(re.findall(regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
+        # print('test1 remove state')
+        #print(re.findall(regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
 
         # Keeps city and state
-        print('test2 remove 3 char words')
-        print(re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]))
+        # print('test2 remove 3 char words')
+        #print(re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]))
 
         no_city_state = remove_city_state(df[sort_by][i].split())
         # no_city_state = remove_city_state(
@@ -592,18 +592,18 @@ def add_transaction_type(df, i, sort_by=0):
 
         if no_city_state:
             if type(no_city_state) == type([]):
-                print('list')
-                print(f'NO city state {no_city_state}, {type(no_city_state)}')
-                print(f" No city state sent to remove stop {remove_stop_words(''.join(no_city_state))}")
+                #print('list')
+                #print(f'NO city state {no_city_state}, {type(no_city_state)}')
+                #print(f" No city state sent to remove stop {remove_stop_words(''.join(no_city_state))}")
                 purchase_type = remove_stop_words(' '.join(re.findall(
                     regex_no_state, ' '.join(no_city_state), re.IGNORECASE | re.MULTILINE)))
             elif type(no_city_state) == type('s'):
-                print('string')
+                #print('string')
                 purchase_type = remove_stop_words(' '.join(re.findall(
                     regex_no_state, no_city_state, re.IGNORECASE | re.MULTILINE)))
             else:
                 print('SOME KIND OF ERROR IN TYPE')
-            print(f'Purchase type after regex {purchase_type}')
+            #print(f'Purchase type after regex {purchase_type}')
             
         else:
             #print(f'NO city state {no_city_state}, {type(no_city_state)}')
@@ -686,8 +686,7 @@ def make_dict(categories, cols, old_dict=0):
     if 'category' not in cols:
             cols = cols + ['category']
     if type(old_dict) == type({}):
-        # print('DICT CONFIRMED')
-        print(cols)
+        print('DICT CONFIRMED')
         if "0_format" not in old_dict.keys():
             old_dict["0_format"] = cols
             # old_dict["0_format"] = [
@@ -698,20 +697,18 @@ def make_dict(categories, cols, old_dict=0):
             #     "category"
             # ]
         else:
-            print('WORKING ON THIS')
-            
-            # for new_col in cols:
-            #     if new_col in old_dict['0_format']: 
-            
+            if 'identifier' in old_dict['0_format'] and 'category' in old_dict['0_format']:
+                print('WORKING ON THIS')
+                old_dict['format'].append('identifier')
+                old_dict['format'].append('category')
+        # Adding new keys to old dictionary
         for i in categories:
             if i not in old_dict.keys():
                 old_dict[i] = []
         trans_type = old_dict
 
     else:
-        print(cols)
-        # trans_type = {"0_format": [
-        #     "date", "transaction", "amount", "identifier", "category"]}
+        # Wondering if this is ok because it is the first run, do i need to add identifier and category here?
         trans_type = {"0_format": cols}
         for i in categories:
             trans_type[i] = []
@@ -1075,31 +1072,26 @@ def match_dataframes(new_DF, old_DF):
     # this came back with 12ish rows?  should be 0 with identical data
     match_not_in_new = test_merge_old[~test_merge_old.index.isin(
         test_merge_new.index)].reset_index(drop=True)
-    print('OLD NOT IN NEW')
-    print(len(match_not_in_new))
-    print(match_not_in_new)
+    #print('OLD NOT IN NEW')
+    #print(len(match_not_in_new))
+    #print(match_not_in_new)
 
     # This came back empty
     match_not_in_old = test_merge_new[~test_merge_new.index.isin(
         test_merge_old.index)].reset_index(drop=True)
-    print('NEW NOT IN OLD')
-    print(len(match_not_in_old))
-    print(match_not_in_old)
+    #print('NEW NOT IN OLD')
+    #print(len(match_not_in_old))
+    #print(match_not_in_old)
 
     # tests if the dataframes are exact equals
     equal = test_merge_old.equals(test_merge_new)
-    print('EQUAL?')
-    print(equal)
+    print(f'EQUAL? {str(equal).upper()}')
 
     test_concat = pd.concat(
         [test_merge_old, test_merge_new]).drop_duplicates().reset_index(drop=True)
     print('CONCAT W/ DROP')
-    print(len(test_concat))
+    #print(len(test_concat))
     print(test_concat.head())
-    print(type(test_concat['amount'][0]))
-    print(type(test_concat['amount'][2]))
-    print(type(test_concat['amount'][1]))
-    print(type(test_concat['amount'][3]))
     data_dups = len(test_concat)
     duplicate_rows = [g for _, g in test_concat.groupby(
         list(test_concat.columns)) if len(g) > 1]
@@ -1110,12 +1102,12 @@ def match_dataframes(new_DF, old_DF):
         data = test_concat.drop_duplicates().sort_values(
             by=['date', 'transaction', 'amount']).reset_index(drop=True)
         print(f'Removed {len(data) - data_dups} from original dataframe')
-
-
-    # print(new_DF.iloc[214:226])
-    # print(old_DF.iloc[214:226])
-
-    exit()
+    # If equal is true, dataframes are the same passing false to exit split purchases
+    # If equal is false, new_DF has new data, passing to split purchases
+    if equal:
+        return False, old_DF
+    else:
+        return True, new_DF
 
 
 # Omit old data removes the chance of making copies of data already within db or dict
@@ -1129,14 +1121,6 @@ def omit_old_data(old_data_dict, new_data_dict):
         return None
     else:
         return new_data
-
-
-# def dict_to_Frame(data_dict, dictionary = 0):
-#     if dictionary:
-#         df = dict_to_Frame_with_data(data_dict)
-#     else:
-#         df = dict_to_Frame_no_data(data_dict)
-#     return df
 
 
 def dict_to_Frame(data_dict):
@@ -1263,241 +1247,88 @@ def conn_mongo(data):
     pprint.pprint(db.budgetDB.find())
     # db.budgetDB.find().pretty()
 
-#data is dataframe from format_data.py
-def import_test_data(data):
-    # Comparing a dataframe of new_data with old data
-    # dropping duplicates
-    # dictionary_DF = (
-    #     dict_to_Frame(dictionary).sort_values(
-    #         by="date").drop_duplicates().reset_index(drop=True)
-    # )
-
-    # print(dictionary_DF.head())
-
-    # Start
-
-    # saving csv out before matching
-    data = test_date(data)
-    data = data.drop_duplicates().sort_values(
-        by=['date', 'transaction', 'amount']).reset_index(drop=True)
-    save_csv(data)
-
-    # by=['date', 'category', 'identifier', 'amount']).drop_duplicates().reset_index(drop=True)
-
-    import format_data
-    import json
-    with open('data/test/dictionary.json') as import_dict:
-        imported_dict = json.load(import_dict)
-    dictionary_DF = (
-        dict_to_Frame(imported_dict).drop_duplicates().sort_values(
-            by=['date', 'transaction', 'amount']).reset_index(drop=True)
-    )
-    dictionary_DF = test_date(dictionary_DF)
-    save_csv(dictionary_DF)
-    # print(dictionary_DF.head())
-    # pp.pprint(dictionary_DF.head())
-    # print(data.head())
-    testing_frames = match_dataframes(data, dictionary_DF)
-
-    # place to limit data use data.head(num)
-    if imported_dict and testing_frames:
-        trans_dict = split_purchases(data, formatted_df, imported_dict)
-    else:
-        trans_dict = split_purchases(data, formatted_df)
-
-    # Test to see if any data is overlapping, omitting if it is
-    new_data = omit_old_data(imported_dict, trans_dict)
-    if new_data:
-        from itertools import chain
-
-        merged_dict = {}
-        for k, v in chain(imported_dict.items(), trans_dict.items()):
-            merged_dict.setdefault(k, []).extend(v)
-    else:
-        print("THERE IS NO NEW DATA, EXITING")
-        exit()
-
-    trans_dict = omit_old_data(trans_dict, imported_dict)
-    print("SPLIT PURCHASES PROGRAM COMPLETE")
-    p_line()
-
-    p_slash()
-    print("ADDING TO DICTIONARY")
-    p_line()
-    # <<<<<<<<WORKING>>>>>>>>>>>
-    show_dict = input("PRINT OUT DICT Y/N\n")
-    if "y" in show_dict.lower():
-        print("DICTIONARY VALUES :::::")
-        pp.pprint(merged_dict)
-        p_line()
-    converted_DF = dict_to_Frame(merged_dict)
-    new_DF = test_amounts(converted_DF)
-    new_DF = test_date(new_DF)
-    p_line()
-
-    # <<<<<<<<WORKING>>>>>>>>>>>
-    # Change this to an input statement attached to the loop
-    # Formats amounts and dates if not already formatted
-    if data_formatted[1]:
-        pass
-    else:
-        p_line()
-        print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
-        col_with_dates = "DATE"
-        sort_by = get_sort_by(new_DF, col_with_dates)
-        new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
-        pp.pprint(new_DF)
-        import format_data
-
-        new_DF = format_data.convert_date(new_DF)
-        # <<<<<<<<WORKING>>>>>>>>>>>
-        # Change this to an input statement attached to the loop
-        print("PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS")
-        col_with_amounts = "AMOUNTS"
-        sort_by = get_sort_by(new_DF, col_with_amounts)
-        new_DF = make_num(new_DF, sort_by)
-
-    pp.pprint(new_DF.head())
-    create_database = input("ADD TO DATABASE? Y/N \n")
-    if "y" in create_database:
-        conn_mongo(merged_dict)
-        print("MongoDB Successful")
-    save_csv(new_DF)
-    t_end = datetime.datetime.now()
-    t_execute = t_end - t_start
-    print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
-    return data, new_DF
-
 
 def main():
     t_start = datetime.datetime.now()
-    dictionary = None
-
+    # Getting new data, initiating the program
+    p_slash()
     print("RUNNING GET DATA TYPE\n")
+    p_slash()
     formatted_df = None
     data_formatted = get_data_type()
-    
-    
     data = data_formatted[0]
     if data_formatted[1]:
         print(f"CONFIRMED DATA IS {data_formatted[1].upper()}")
         formatted_df = data_formatted[1]
-    p_slash()
-    print("RUNNING SPLIT PURCHASES PROGRAM")
-    p_line()
-
-    # OLD STUFF THAT WORKS
-    # if dictionary:
-    #     trans_dict = split_purchases(data.head(2), formatted_df, dictionary)
-    # else:
-    #     trans_dict = split_purchases(data.head(2), formatted_df)
-
-    # print("SPLIT PURCHASES PROGRAM COMPLETE")
-    # p_line()
-    # p_slash()
-    # print("ADDING TO DICTIONARY")
-    # p_line()
-    # # <<<<<<<<WORKING>>>>>>>>>>>
-    # show_dict = input("PRINT OUT DICT Y/N\n")
-    # if "y" in show_dict.lower():
-    #     pp.pprint(trans_dict)
-    #     # this saves the newly made dict to json to compare later
-    #     import json
-    #     with open('data/test/dictionary.json', 'w') as save_dict:
-    #         save_dict.write(json.dumps(trans_dict))
-    #     print("DICTIONARY VALUES :::::")
-    #     # exit()
-    #     p_line()
-    # converted_DF = dict_to_Frame(trans_dict)
-    # # if dictionary:
-    # #     converted_DF = dict_to_Frame(trans_dict, 'dictionary')
-    # # else:
-    # #     converted_DF = dict_to_Frame(trans_dict)
-    # new_DF = test_amounts(converted_DF)
-    # new_DF = test_date(new_DF)
-    # p_line()
-
-    # # <<<<<<<<WORKING>>>>>>>>>>>
-    # # Change this to an input statement attached to the loop
-    # # Formats amounts and dates if not already formatted
-    # if data_formatted[1]:
-    #     pass
-    # else:
-    #     p_line()
-    #     print("PLEASE ENTER THE COLUMN NAME OF THE DATE")
-    #     col_with_dates = "DATE"
-    #     sort_by = get_sort_by(new_DF, col_with_dates)
-    #     new_DF = new_DF.sort_values(by=sort_by).reset_index(drop=True)
-    #     pp.pprint(new_DF)
-    #     import format_data
-    #     new_DF = format_data.convert_date(new_DF)
-    #     # <<<<<<<<WORKING>>>>>>>>>>>
-    #     # Change this to an input statement attached to the loop
-    #     print("PLEASE ENTER THE COLUMN NAME OF THE AMOUNTS")
-    #     col_with_amounts = "AMOUNTS"
-    #     sort_by = get_sort_by(new_DF, col_with_amounts)
-    #     new_DF = make_num(new_DF, sort_by)
-
-    # pp.pprint(new_DF.head())
-    # create_database = input("ADD TO DATABASE? Y/N \n")
-    # if "y" in create_database:
-    #     conn_mongo(merged_dict)
-    #     print("MongoDB Successful")
-    # save_csv(new_DF)
-    # t_end = datetime.datetime.now()
-    # t_execute = t_end - t_start
-    # print(f"PROGRAM EXECUTION TIME {t_execute.total_seconds()/60}")
-    # print(global_state)
-    # return data, new_DF
-
-    # NEW STUFF aka import_test_data():
-    # make sure you check import_test_data's variables
-    # Comparing a dataframe of new_data with old data
-    # dropping duplicates
-    # dictionary_DF = (
-    #     dict_to_Frame(dictionary).sort_values(
-    #         by="date").drop_duplicates().reset_index(drop=True)
-    # )
-
-    # print(dictionary_DF.head())
-
-    # Start
-
-    # saving csv out before matching
     data = test_date(data)
     data = test_amounts(data)
     data_dups = len(data)
     duplicate_rows = [g for _, g in data.groupby(
         list(data.columns)) if len(g) > 1]
     if duplicate_rows:
-        duplicates = pd.concat(g for _, g in data.groupby(list(data.columns)) if len(g) > 1)
+        duplicates = pd.concat(g for _, g in data.groupby(
+            list(data.columns)) if len(g) > 1)
         print(f' There are {len(duplicates)/2} duplicated rows, Removing')
         data = data.drop_duplicates().sort_values(
-            by=['date', 'transaction','amount']).reset_index(drop=True)
+            by=['date', 'transaction', 'amount']).reset_index(drop=True)
         print(f'Removed {len(data) - data_dups} from original dataframe')
-    save_csv(data)
-
+        
+    # Pulling in Dictionary as JSON, sub for importing from mongoDB when ready
+    imported_dict = None
     import format_data
     import json
-    with open('data/test/dictionary.json') as import_dict:
-        imported_dict = json.load(import_dict)
-    print('IMPORTING JSON DICT CONVERTING TO DF')
-    dictionary_DF = (
-        dict_to_Frame(imported_dict).drop_duplicates().sort_values(
-            by=['date', 'transaction', 'amount']).reset_index(drop=True)
-    )
-    dictionary_DF = test_date(dictionary_DF)
-    dictionary_DF = test_amounts(dictionary_DF)
-    save_csv(dictionary_DF)
-    #print(dictionary_DF.head())
-    #pp.pprint(dictionary_DF.head())
-    #print(data.head())
-    testing_frames = match_dataframes(data, dictionary_DF)
+    try:
+        with open('data/test/dictionary.json') as import_dict:
+            imported_dict = json.load(import_dict)
+        print('IMPORTING JSON DICT CONVERTING TO DF')
+        dictionary_DF = (
+            dict_to_Frame(imported_dict).drop_duplicates().sort_values(
+                by=['date', 'transaction', 'amount']).reset_index(drop=True)
+        )
+        dictionary_DF = test_date(dictionary_DF)
+        dictionary_DF = test_amounts(dictionary_DF)
+    except:
+        p_slash()
+        print('FILE DOES NOT EXIST')
+        p_slash()
+        import_dict = None
+        dictionary_DF = None
+
+        
+        
+    #Saving CSV before sending to split purchases
+    #save_csv(data)
+    #
+    # PUT OLD STUFF THAT WORKS HERE
+    # NEW STUFF aka import_test_data():
+    # make sure you check import_test_data's variables
+    # Comparing a dataframe of new_data with old data
+    # dropping duplicates
+    # dictionary_DF = (dict_to_Frame(dictionary).sort_values(by="date").drop_duplicates().reset_index(drop=True))
+
+    # print(dictionary_DF.head())
+    # Start
+    # saving csv out before matching
+    
+    # Default for testing frames is False or None because the default is no old data
+    testing_frames = False
+    if dictionary_DF:
+        testing_frames = match_dataframes(data, dictionary_DF)
 
     #place to limit data use data.head(num)
-    if imported_dict and testing_frames:
+    if imported_dict and testing_frames[0]:
+        p_slash()
+        print("RUNNING SPLIT PURCHASES PROGRAM")
+        p_line()
         trans_dict = split_purchases(data, formatted_df, imported_dict)
+    elif imported_dict and testing_frames[1]:
+        print("THERE IS NO NEW DATA, EXITING")
+        exit()
     else:
+        print('FIRST RUN')
+        p_slash()
+        print("RUNNING SPLIT PURCHASES PROGRAM")
+        p_line()
         trans_dict = split_purchases(data, formatted_df)
 
     # Test to see if any data is overlapping, omitting if it is

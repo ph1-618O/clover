@@ -196,7 +196,7 @@ def convert_date_complicated(df):
 def convert_date(df):
     import datetime
     list_cols = [i.lower() for i in df.columns.tolist()]
-    test_cols = ["date", "day", "time", "occurence"]
+    test_cols = ["date", "day", "time", "occurrence"]
     verified_cols = []
     for col in list_cols:
         for test in test_cols:

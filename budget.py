@@ -17,7 +17,14 @@
 # Think about separating functions into different .py files based on function
 # Watch the order!!
 
-import texthero as hero  # pip install texthero==1.0.5 works with newer python versions
+# pip install texthero==1.0.5 works with newer python versions
+import numpy as np
+import pandas as pd
+import re
+import time
+from calendar import month_abbr
+import datetime
+import texthero as hero
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import nltk
@@ -36,12 +43,15 @@ import os
 # Formatting for output on terminal
 line_size = os.get_terminal_size()
 line = line_size[0]
+
+
 def p_line():
     line = ''
     for i in range(line_size[0]):
         line += '-'
     print(line)
-    
+
+
 def p_slash():
     line = ''
     for i in range(line_size[0]):
@@ -51,19 +61,13 @@ def p_slash():
 
 # working with dates, month abbrev, and the
 #  it takes to run prg
-import datetime
 
 # from datetime import datetime
 # from datetime import date
-from calendar import month_abbr
-import time
 
 # # for importing from excel to pandas
 # from pandas import ExcelWriter
 # from pandas import ExcelFile
-import re
-import pandas as pd
-import numpy as np
 
 pd.options.mode.chained_assignment = None
 
@@ -97,6 +101,7 @@ def version_assistant():
     print("matplotlib : ", matplotlib.__version__)
     print("squarify   :  0.4.3")
     print("-----------------------------------------\n\n")
+
 
 def getting_terminal_size():
     import os
@@ -140,7 +145,7 @@ def get_data_type():
             data = read_data("csv")
             for i in data.columns:
                 data = data.rename(columns={i: i.lower()})
-            p_line() 
+            p_line()
             print("CHECKING COLUMNS")
             import format_data
             check_cols = format_data.get_col_names(data)
@@ -152,7 +157,6 @@ def get_data_type():
             p_line()
             print('\n\n')
             formatted = "formatted"
-            
 
     elif (
         "clip" in import_data.lower()
@@ -175,7 +179,7 @@ def get_data_type():
                 print("DATASET")
                 p_line()
                 pp.pprint(data.head())
-                
+
             elif "format" in query_format.lower() or "n" in query_format.lower():
                 data = read_data("csv")
                 data = format_data.initiate_format(data)
@@ -207,7 +211,6 @@ def get_data_type():
         p_line()
         pp.pprint(data.head())
         p_line()
-
 
     else:
         print("INVALID INPUT, PLEASE TRY AGAIN")
@@ -247,6 +250,19 @@ def save_csv(df):
     else:
         print("EXITING")
         # exit()
+        
+def save_json(dictionary):
+    import json
+    with open("data/test/dictionary.json", "w") as outfile:
+        json_string = json.dumps(
+            dictionary, default = str, sort_keys=True, indent=2)
+        #dictionary, default = lambda o: o.__dict__, sort_keys=True, indent=2)
+        outfile.write(json_string)
+        #json.dumps(dictionary, outfile)
+        
+def json_dt_converter(o):
+    if isinstance(o, datetime.datetime):
+        return o.__str__()
 
 
 def import_excel(path):
@@ -363,7 +379,16 @@ def get_categories(categories=0):
     # Add a section that if you ask the user to continue and there is any other value than y
     # print out the list with index numbers, ask which number is wrong
     # add a loop to make sure you fix all the type errors
-    if categories[0].lower() == "0_format":
+    if categories[0].lower() == "0_format" and categories[1].lower == '1_seed':
+        p_line()
+        cat_list2 = " - ".join([str(x) for x in [*categories[2:]]])
+        c_len2 = len(cat_list2)
+        print(
+            f'CATEGORIES ARE::: "{cat_list2[:int(c_len2/2)]}\n{cat_list2[int(c_len2/2):]}"'
+        )
+        p_line()
+        p_slash()
+    elif categories[0].lower() == "0_format":
         p_line()
         cat_list2 = " - ".join([str(x) for x in [*categories[1:]]])
         c_len2 = len(cat_list2)
@@ -432,17 +457,18 @@ def remove_city_state(tokens_removed):
     import json
     with open('data/stateAbbrv.json') as state:
         state_dict = json.load(state)
-        #print_json = json.dumps(state_dict, indent=4)
+        # print_json = json.dumps(state_dict, indent=4)
     # Removing long form state names
     for i in range(len(tokens_removed)):
         for key, value in state_dict['State'].items():
             if value.lower() == tokens_removed[i].lower():
-                tokens_removed[i] = tokens_removed[i].replace(tokens_removed[i], '')
-            
+                tokens_removed[i] = tokens_removed[i].replace(
+                    tokens_removed[i], '')
+
     test_str = ' '.join(tokens_removed)
-    #print(f'test_str after both abbv and long state search {test_str}')
+    # print(f'test_str after both abbv and long state search {test_str}')
     # This searches for City State
-    #reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
+    # reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
     # removing spaces
     reg_pattern = r'(\b[A-Za-z]+(?:[A-Za-z]+)*) ? ([A-Za-z]{2})\b'
     city_state = re.findall(reg_pattern, test_str,
@@ -450,8 +476,8 @@ def remove_city_state(tokens_removed):
 
     # city_state = re.findall(r"\b([A-Za-z]+(?:[A-Za-z]+)*) ? ([A-Za-z]{2})\b", str2,
     #                       re.IGNORECASE | re.MULTILINE)
-    
-    #print(f'{city_state} city_state')
+
+    # print(f'{city_state} city_state')
     if len(city_state):
         remove_matches = city_state
         # Testing two letter strings against state db
@@ -462,18 +488,18 @@ def remove_city_state(tokens_removed):
         for i in range(len(city_state)):
             for key, value in state_dict['Code'].items():
                 if value in test_cs[i]:
-                    #print(value)
-                    #print('search for state loop')
-                    #print(test_cs[i])
+                    # print(value)
+                    # print('search for state loop')
+                    # print(test_cs[i])
                     city_state = test_cs[i]
-                    #print(city_state)
+                    # print(city_state)
                     break
                 else:
-                    #print(city_state[i])
-                    #print('not in there')
+                    # print(city_state[i])
+                    # print('not in there')
                     continue
-        #print(f'city_state after abbv search {city_state}')
-        #print(f'City_state {city_state}')
+        # print(f'city_state after abbv search {city_state}')
+        # print(f'City_state {city_state}')
 
         # Problem here, its iterating over the word A R L I N G T O N, and V A instead of ARLINGTON, and VA
         remove_city_state = 0
@@ -486,10 +512,10 @@ def remove_city_state(tokens_removed):
                 match_index = {}
                 for match in re.finditer(reg_pattern, test_str):
                     count += 1
-                    #print('match', count, match.group(), 'start', match.start(), 'end', match.end())
+                    # print('match', count, match.group(), 'start', match.start(), 'end', match.end())
                     match_index[match.group()] = [
                         match.start(), match.end()]
-            
+
         elif len(city_state) >= 2 and type(city_state[0]) != type('s'):
             for i in range(len(city_state)):
                 search_location = location.find_location(
@@ -500,12 +526,12 @@ def remove_city_state(tokens_removed):
                     match_index = {}
                     for match in re.finditer(reg_pattern, test_str):
                         count += 1
-                        #print('match', count, match.group(), 'start',match.start(), 'end', match.end())
+                        # print('match', count, match.group(), 'start',match.start(), 'end', match.end())
                         match_index[match.group()] = [
                             match.start(), match.end()]
         else:
             print('something else went wrong')
-            
+
         if remove_city_state:
             for i in remove_city_state:
                 if i.lower() not in global_state:
@@ -513,25 +539,25 @@ def remove_city_state(tokens_removed):
                     # print(f'remove matches {remove_matches}')
                     # print(f'Search_location {search_location}')
                     # print(f'Remove city state {remove_city_state}')
-                    #print(match_index)
+                    # print(match_index)
 
                     for key, value in match_index.items():
                         if key == ' '.join(remove_city_state):
                             tokens = test_str.replace(
                                 test_str[value[0]:value[1]], '')
                     # print(tokens)
-                    
+
                     for key in match_index.keys():
                         for i in key.split():
                             if i in remove_city_state and i != ' ':
                                 tokens = tokens.replace(i, '')
-                    #print(f'Returning tokens {tokens}')
+                    # print(f'Returning tokens {tokens}')
                     return tokens
                 else:
                     test_str = test_str.replace(i, '')
                     # print(f'Replaced {i} in {test_str}')
                     continue
-            # print(f'Loop done, returning test_str{test_str}')   
+            # print(f'Loop done, returning test_str{test_str}')
             return test_str
         else:
             # print('No city or state1')
@@ -548,24 +574,24 @@ def remove_city_state(tokens_removed):
 # from nltk.corpus import stopwords
 # from nltk.tokenize import word_tokenize
 
-#nltk.download("stopwords")
-#nltk.download("punkt")
+# nltk.download("stopwords")
+# nltk.download("punkt")
 # Removes most common words
 
 
 def remove_stop_words(transaction_word_list):
-    #if type(transaction_word_list) == type('[]'):
-        #transaction_word_list = ' '.join(transaction_word_list)
-    #print(f'WORD LIST {transaction_word_list}')
+    # if type(transaction_word_list) == type('[]'):
+        # transaction_word_list = ' '.join(transaction_word_list)
+    # print(f'WORD LIST {transaction_word_list}')
     # removing words like 'the, a, and'
     text_token = word_tokenize(transaction_word_list)
     stop_words = set(stopwords.words("english"))
-    #print(f'Text token {text_token}')
+    # print(f'Text token {text_token}')
     # testing string for address
     tokens_without_sw = [
         word for word in text_token if word.casefold() not in stop_words
     ]
-    #print(f'tokens without sw{tokens_without_sw}')
+    # print(f'tokens without sw{tokens_without_sw}')
     return tokens_without_sw
 
 # Matches all words anywhere no numbers, no special chars except www, com, sq, tst, bill
@@ -579,11 +605,11 @@ def add_transaction_type(df, i, sort_by=0):
         # print(f'Sending to Remove Stop Words {df[sort_by][i]}')
         regex_no_state = r"(?!WWW|COM|SQ|TST|bill)\b([A-Za-z]{3,}(?:[A-Za-z]+)*)"
         # print('test1 remove state')
-        #print(re.findall(regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
+        # print(re.findall(regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
 
         # Keeps city and state
         # print('test2 remove 3 char words')
-        #print(re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]))
+        # print(re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]))
 
         no_city_state = remove_city_state(df[sort_by][i].split())
         # no_city_state = remove_city_state(
@@ -591,29 +617,29 @@ def add_transaction_type(df, i, sort_by=0):
 
         if no_city_state:
             if type(no_city_state) == type([]):
-                #print('list')
-                #print(f'NO city state {no_city_state}, {type(no_city_state)}')
-                #print(f" No city state sent to remove stop {remove_stop_words(''.join(no_city_state))}")
+                # print('list')
+                # print(f'NO city state {no_city_state}, {type(no_city_state)}')
+                # print(f" No city state sent to remove stop {remove_stop_words(''.join(no_city_state))}")
                 purchase_type = remove_stop_words(' '.join(re.findall(
                     regex_no_state, ' '.join(no_city_state), re.IGNORECASE | re.MULTILINE)))
             elif type(no_city_state) == type('s'):
-                #print('string')
+                # print('string')
                 purchase_type = remove_stop_words(' '.join(re.findall(
                     regex_no_state, no_city_state, re.IGNORECASE | re.MULTILINE)))
             else:
                 print('SOME KIND OF ERROR IN TYPE')
-            #print(f'Purchase type after regex {purchase_type}')
-            
+            # print(f'Purchase type after regex {purchase_type}')
+
         else:
-            #print(f'NO city state {no_city_state}, {type(no_city_state)}')
+            # print(f'NO city state {no_city_state}, {type(no_city_state)}')
             purchase_type = remove_stop_words(re.findall(
                 regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
 
         # purchase_type = remove_stop_words(
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
         # )
-        #p_slash()
-        #print(f'Purchase type after filters {purchase_type}')
+        # p_slash()
+        # print(f'Purchase type after filters {purchase_type}')
         for index in range(len(purchase_type)):
             if len(purchase_type[index]) < 3:
                 sort_by = 'transaction'  # was None to limit the id to > 3 letters but that didn't work
@@ -688,18 +714,11 @@ def make_dict(categories, cols, old_dict=0):
         print('DICT CONFIRMED')
         if "0_format" not in old_dict.keys():
             old_dict["0_format"] = cols
-            # old_dict["0_format"] = [
-            #     "date",
-            #     "transaction",
-            #     "amount",
-            #     "identifier",
-            #     "category"
-            # ]
         else:
-            if 'identifier' in old_dict['0_format'] and 'category' in old_dict['0_format']:
+            if 'identifier' not in old_dict['0_format'] and 'category' not in old_dict['0_format']:
                 print('WORKING ON THIS')
-                old_dict['format'].append('identifier')
-                old_dict['format'].append('category')
+                old_dict['0_format'].append('identifier')
+                old_dict['0_format'].append('category')
         # Adding new keys to old dictionary
         for i in categories:
             if i not in old_dict.keys():
@@ -720,6 +739,26 @@ def search_dict(budget_dict, data, data_point):  # location is column name
     print(f"SEARCHING DICT FOR {data_point.upper()}")
     if data_point.lower() == "the" or data_point.lower() in global_state:
         pass
+    # first searching 1_seed for identifier
+    elif '1_seed' in budget_dict.keys():
+        for key, value in budget_dict.items():
+            if key == '0_format' or key == '1_seed':
+                continue
+            else:
+                for category, identifier in budget_dict['1_seed'].items():
+                    for id in identifier:
+                        if data_point in id:
+                            p_slash()
+                            print(f"DATA POINT IDENTIFIED")
+                            print(f'ADDING TO CATEGORY "{key.upper()}"')
+                            for x in data:
+                                if type(x) == type([]) and len(data) == 1:
+                                    return budget_dict, "identified"
+                                elif type(x) == type([]) and len(data) > 1:
+                                    value.append(x + [key])
+                                else:
+                                    value.append(data + [key])
+                                    return budget_dict, "identified"            
     else:
         for key, value in budget_dict.items():
             # skip keys that are empty
@@ -794,8 +833,8 @@ def add_data(budget_dict, data):
     cat_options2 = " - ".join(sorted(list(budget_dict.keys()))[1:])
     len_cat = int(len(cat_options2) / 2)
     # formatting print statement to only print transaction data
-    #print(f'printing trans {data}')
-    #print(type(data[0]))
+    # print(f'printing trans {data}')
+    # print(type(data[0]))
     # Assuming that the transaction info is the longest str
     # Additional removing the strs with timestamp and mostly numbers
     if isinstance(data, list) and isinstance(data[0], list):
@@ -825,9 +864,7 @@ def add_data(budget_dict, data):
             location = sub_value
 
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
-    if location[:3] not in [i[:3] for i in budget_dict.keys()] and (
-        location != "0_format"
-    ):
+    if location[:3] not in [i[:3] for i in budget_dict.keys()] and (location != "0_format") and (location != '1_seed'):
         add_key = input(
             f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n'
         )
@@ -840,56 +877,6 @@ def add_data(budget_dict, data):
             print(f'ADDING TO "{location.upper()}" SUCCESSFUL')
     # Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
-        # find a better way to do this with a dictionary {'fast_food:'take_away', 'food':'groceries, 'travel':'holiday'} etc
-        # if location.lower() == 'travel':
-        #     key = 'holiday'
-        #     if type(data[0]) != type([]):
-        #         value.append(data + [key])
-        #         p_slash()
-        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
-        #         return budget_dict
-        #     elif type(data[0]) == type([]) and len(data) > 1:
-        #         for z in data:
-        #             z.append(key)
-        #             value.append(z)
-        #         p_slash()
-        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
-        #         return budget_dict
-        #     else:
-        #         print("ERROR SKIPPING")
-        # elif location.lower() == 'food':
-        #     key = 'grocery'
-        #     if type(data[0]) != type([]):
-        #         value.append(data + [key])
-        #         p_slash()
-        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
-        #         return budget_dict
-        #     elif type(data[0]) == type([]) and len(data) > 1:
-        #         for z in data:
-        #             z.append(key)
-        #             value.append(z)
-        #         p_slash()
-        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
-        #         return budget_dict
-        #     else:
-        #         print("ERROR SKIPPING")
-
-        # elif location.lower() == 'fast food' or location == 'fast_food':
-        #     key = 'take_away'
-        #     if type(data[0]) != type([]):
-        #         value.append(data + [key])
-        #         p_slash()
-        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
-        #         return budget_dict
-        #     elif type(data[0]) == type([]) and len(data) > 1:
-        #         for z in data:
-        #             z.append(key)
-        #             value.append(z)
-        #         p_slash()
-        #         print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
-        #         return budget_dict
-        #     else:
-        #         print("ERROR SKIPPING")
         if location[:3] == key[:3]:
             print(
                 f'YOU ENTERED "{location.upper()}" WE ARE MATCHING TO "{key.upper()}"'
@@ -912,7 +899,7 @@ def add_data(budget_dict, data):
 
 
 def split_purchases(df, formatted_df=0, budget_dict=0):
-    #cols = confirm_cols(df, formatted_df)
+    # cols = confirm_cols(df, formatted_df)
     # pp.pprint(df)
     print("BEGIN PURCHASE CATEGORIZATION")
     p_line()
@@ -1038,7 +1025,7 @@ def test_amounts(df):
     p_slash()
     print('TESTING AMOUNTS')
     p_slash()
-    #converted_col = []
+    # converted_col = []
     list_cols = [i.lower() for i in df.columns.tolist()]
     test_cols = ["amount", "value", "balance", "price", "cost", "dollars", "total"]
     verified_cols = []
@@ -1085,16 +1072,16 @@ def match_dataframes(new_DF, old_DF):
     # this came back with 12ish rows?  should be 0 with identical data
     match_not_in_new = test_merge_old[~test_merge_old.index.isin(
         test_merge_new.index)].reset_index(drop=True)
-    #print('OLD NOT IN NEW')
-    #print(len(match_not_in_new))
-    #print(match_not_in_new)
+    # print('OLD NOT IN NEW')
+    # print(len(match_not_in_new))
+    # print(match_not_in_new)
 
     # This came back empty
     match_not_in_old = test_merge_new[~test_merge_new.index.isin(
         test_merge_old.index)].reset_index(drop=True)
-    #print('NEW NOT IN OLD')
-    #print(len(match_not_in_old))
-    #print(match_not_in_old)
+    # print('NEW NOT IN OLD')
+    # print(len(match_not_in_old))
+    # print(match_not_in_old)
 
     # tests if the dataframes are exact equals
     equal = test_merge_old.equals(test_merge_new)
@@ -1103,7 +1090,7 @@ def match_dataframes(new_DF, old_DF):
     test_concat = pd.concat(
         [test_merge_old, test_merge_new]).drop_duplicates().reset_index(drop=True)
     print('CONCAT W/ DROP')
-    #print(len(test_concat))
+    # print(len(test_concat))
     print(test_concat.head())
     data_dups = len(test_concat)
     duplicate_rows = [g for _, g in test_concat.groupby(
@@ -1137,6 +1124,7 @@ def omit_old_data(old_data_dict, new_data_dict):
 
 
 def dict_to_Frame(data_dict):
+    pp.pprint(data_dict)
     import format_data as format
     print("PROCCESSING DATAFRAME")
     skip_list = []
@@ -1149,9 +1137,9 @@ def dict_to_Frame(data_dict):
     cols = data_dict["0_format"]
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
-        if key == "0_format":
+        if key == "0_format" or key == '1_seed':
             p_slash()
-            print("SKIPPING FORMAT ROW")
+            print("SKIPPING FORMATTING ROWS")
             continue
         elif len(value) == 0:
             skip_list.append(key)
@@ -1164,7 +1152,8 @@ def dict_to_Frame(data_dict):
                     rows.append(value[i] + [key])
     p_slash()
     # PLACE TO ADD EXTRA COLUMNS
-    # pp.pprint(rows)
+    pp.pprint(rows)
+    print(cols)
     df = pd.DataFrame(
         np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
     skip_list_p = ", ".join(skip_list)
@@ -1175,7 +1164,7 @@ def dict_to_Frame(data_dict):
         )
     )
     # place to add convert date from format_data to make all rows datetime objs
-    #df = format.convert_date(df)
+    # df = format.convert_date(df)
     return df
 
 
@@ -1199,7 +1188,7 @@ def dict_to_Frame_with_data(data_dict):
     cols = data_dict["0_format"]
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
-        if key == "0_format":
+        if key == "0_format" or key=='1_seed':
             p_slash()
             print("SKIPPING FORMAT ROW")
             continue
@@ -1225,8 +1214,8 @@ def dict_to_Frame_with_data(data_dict):
         )
     )
     # place to add convert date from format_data to make all rows datetime objs
-    #import format_data as format
-    #df = format_data.convert_date(df)
+    # import format_data as format
+    # df = format_data.convert_date(df)
     return df
 
 
@@ -1237,6 +1226,17 @@ def dict_to_Frame_with_data(data_dict):
 
 # Notes https://docs.mongodb.com/manual/reference/method/db.collection.find/
 # https://www.analyticsvidhya.com/blog/2020/08/query-a-mongodb-database-using-pymongo/
+
+def make_seed_data(df):
+    # Add this in after each run of data
+    # making seed data
+    seed_data = {}
+    for index, row in df.iterrows():
+        if row['category'] not in seed_data.keys():
+            seed_data[row['category']] = []  # [row['identifier']]
+        if row['identifier'] not in seed_data[row['category']]:
+            seed_data[row['category']].append(row['identifier'])
+    return seed_data
 
 
 def conn_mongo(data):
@@ -1313,8 +1313,8 @@ def main():
 
         
         
-    #Saving CSV before sending to split purchases
-    #save_csv(data)
+    # Saving CSV before sending to split purchases
+    # save_csv(data)
     #
     # PUT OLD STUFF THAT WORKS HERE
     # NEW STUFF aka import_test_data():
@@ -1329,15 +1329,17 @@ def main():
     
     # Default for testing frames is False or None because the default is no old data
     testing_frames = False
-    if dictionary_DF:
+    if dictionary_DF is not None:
         testing_frames = match_dataframes(data, dictionary_DF)
 
-    #place to limit data use data.head(num)
+    # place to limit data use data.head(num)
+    pp.pprint(imported_dict)
+    print(testing_frames)
     if imported_dict and testing_frames[0]:
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM")
         p_line()
-        trans_dict = split_purchases(data, formatted_df, imported_dict)
+        trans_dict = split_purchases(data.head(5), formatted_df, imported_dict)
     elif imported_dict and testing_frames[1]:
         print("THERE IS NO NEW DATA, EXITING")
         exit()
@@ -1346,10 +1348,11 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM")
         p_line()
-        trans_dict = split_purchases(data, formatted_df)
+        trans_dict = split_purchases(data.head(5), formatted_df)
     final_dict = trans_dict
     # Test to see if any data is overlapping, omitting if it is
     if imported_dict:
+        print('TESTING IMPORTED DATA FOR DUPLICATES\n')
         new_data = omit_old_data(imported_dict, trans_dict)
         if new_data:
             from itertools import chain
@@ -1370,14 +1373,22 @@ def main():
     print("ADDING TO DICTIONARY")
     p_line()
     # <<<<<<<<WORKING>>>>>>>>>>>
+    
+    converted_DF = dict_to_Frame(final_dict)
+    new_DF = test_amounts(converted_DF)
+    new_DF = test_date(new_DF)
+    seed_categories = make_seed_data(converted_DF)
+    final_dict['1_seed'] = seed_categories
     show_dict = input("PRINT OUT DICT Y/N\n")
     if "y" in show_dict.lower():
         print("DICTIONARY VALUES :::::")
         pp.pprint(final_dict)
         p_line()
-    converted_DF = dict_to_Frame(final_dict)
-    new_DF = test_amounts(converted_DF)
-    new_DF = test_date(new_DF)
+    p_line()
+    save_dict = input("SAVE DICT TO JSON Y/N\n")
+    if "y" in save_dict.lower():
+        save_json(final_dict)
+        p_line()
     p_line()
 
     # <<<<<<<<WORKING>>>>>>>>>>>

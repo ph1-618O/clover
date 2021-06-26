@@ -186,12 +186,12 @@ def get_data_type():
                 for i in data.columns:
                     data = data.rename(columns={i: i.lower()})
                 formatted = "formatted"
+                p_line()
+                print(f'"{import_data.upper()}" FORMATED DATASET, ...IMPORT SUCCESS')
+                p_line()
+                print('RETURNING TO BUDGET PROGRAM')
                 p_slash()
-                print(
-                    f'"{import_data.upper()}" FORMATED DATASET, ...IMPORT SUCCESS\n RETURNING TO CREATE_BUDGET_DICT'
-                )
-                p_slash()
-                print("DATASET")
+                print("DATASET SAMPLE")
                 p_line()
                 pp.pprint(data.head())
                 p_line()
@@ -1004,35 +1004,50 @@ def test_date(df, test_dict=0):
     print('TESTING DATES')
     p_slash()
     if isinstance(test_dict, dict):
-        print('CHECKING DICTIONARY VALUES')
+        print('CHECKING DICTIONARY VALUES FOR DATES')
+        p_slash()
         list_cols = test_dict['0_format']
         test_cols = ["date", "pending", "posted"]
         date_indici = []
-        print(list_cols)
+        #print(list_cols)
+        
         for col_indici in range(len(list_cols)):
             for test in test_cols:
-                print(test)
+                #print(f'SORTING OUT COLS WITH DATE INFO {test.upper()}')
+                #Somehow skipping out of the loop here to next if statement
+                #print(test)
+                #print(col_indici)
                 if test in list_cols[col_indici]:
-                    print(list_cols[date_indici])
-                    date_indici.append(col_indici)           
+                    #print(list_cols[col_indici])
+                    date_indici.append(col_indici)
+                else:
+                    #print(f'SKIPPING {list_cols[col_indici]}')
+                    continue
+        #print(date_indici)         
         for key, value in test_dict.items():
             if key == '0_format' or key == '1_seed':
+                #print('SKIPPING FORMATTING DATA')
                 continue
             elif len(value) == 0:
-                #print(f'{key} is empty skipping')
+                #print(f'{key} IS EMPTY SKIPPING')
                 continue
             else:
                 for data in value:
                     for indici in date_indici:
-                        print('CONVERTING DICTIONARY DATES TO DATETIME')
-                        print(data)
-                        print(indici)
-                        data[indici] = datetime.strptime(data[indici], '%Y-%m-%d, %H:%M:%S')
-                        print(data)
-        pp.pprint(test_dict)
+                        #print('CONVERTING DICTIONARY DATES TO DATETIME')
+                        #print(data)
+                        #print(indici)
+                        try:
+                            #print(data[indici])
+                            data[indici] = datetime.datetime.strptime(data[indici], '%Y-%m-%d %H:%M:%S')
+                        except TypeError:
+                            #print('DATA IS ALREADY IN DATETIME')
+                            continue
+                        #print(data)
+        #pp.pprint(test_dict)
         return test_dict       
     if isinstance(df, pd.DataFrame):
-        print('CHECKING DATAFRAME VALUES')
+        #print('CHECKING DATAFRAME VALUES')
         list_cols = [i.lower() for i in df.columns.tolist()]
         test_cols = ["date", "pending", "posted"]
         verified_cols = []
@@ -1044,9 +1059,10 @@ def test_date(df, test_dict=0):
         for tested in verified_cols:
             if all(df[tested].map(type) != type(datetime.datetime.now())):
                 # add second conditional here that tests the col for floats, ints and strings
-                print("CONVERTING DATAFRAME DATES TO DATETIME")
-                p_slash()
-                df[tested] = pd.to_datetime(df[tested])
+                #print("CONVERTING DATAFRAME DATES TO DATETIME")
+                #p_slash()
+                df[tested] = pd.to_datetime(
+                    df[tested], format='%Y-%m-%d %H:%M:%S')
         # pp.pprint(df)
         return df
 
@@ -1078,7 +1094,7 @@ def test_date(df, test_dict=0):
 
 
 def test_amounts(df):
-    p_slash()
+    p_line()
     print('TESTING AMOUNTS')
     p_slash()
     # converted_col = []
@@ -1094,11 +1110,10 @@ def test_amounts(df):
         search_floats = df[tested].apply(
             lambda x: 'True' if isinstance(x, float) else 'False')
         if not search_floats.any():
-            print('COLUMNS ARE FLOATS SKIPPING')
+            #print('COLUMNS ARE FLOATS SKIPPING')
             continue
         elif (df[tested].map(type) == str).all():
             # add second conditional here that tests the col for floats, ints and strings
-            p_slash()
             print("NORMALIZING AMOUNTS")
             p_slash()
             converted_col = []
@@ -1107,7 +1122,8 @@ def test_amounts(df):
                     df[tested][row_num]))
             df[tested] = converted_col
         elif search_floats.all():
-            print('COLUMNS ARE ALL FLOATS SKIPPING')
+            continue
+            #print('COLUMNS ARE ALL FLOATS SKIPPING')
         else:
             print(f'your {tested} columns are all a mess, see your programmer')
     return df
@@ -1141,13 +1157,16 @@ def match_dataframes(new_DF, old_DF):
 
     # tests if the dataframes are exact equals
     equal = test_merge_old.equals(test_merge_new)
-    print(f'EQUAL? {str(equal).upper()}')
+    p_line()
+    print(f'DUPLICATED DATA? {str(equal).upper()}')
+    p_line()
+    #ie are they equal
 
     test_concat = pd.concat(
         [test_merge_old, test_merge_new]).drop_duplicates().reset_index(drop=True)
-    print('CONCAT W/ DROP')
+    #print('CONCAT W/ DROP')
     # print(len(test_concat))
-    print(test_concat.head())
+    #print(test_concat.head())
     data_dups = len(test_concat)
     duplicate_rows = [g for _, g in test_concat.groupby(
         list(test_concat.columns)) if len(g) > 1]
@@ -1161,9 +1180,9 @@ def match_dataframes(new_DF, old_DF):
     # If equal is true, dataframes are the same passing false to exit split purchases
     # If equal is false, new_DF has new data, passing to split purchases
     if equal:
-        return False, old_DF
+        return True, old_DF
     else:
-        return True, new_DF
+        return False, new_DF
 
 
 # Omit old data removes the chance of making copies of data already within db or dict
@@ -1180,7 +1199,7 @@ def omit_old_data(old_data_dict, new_data_dict):
 
 
 def dict_to_Frame(data_dict):
-    pp.pprint(data_dict)
+    #pp.pprint(data_dict)
     import format_data as format
     print("PROCCESSING DATAFRAME")
     skip_list = []
@@ -1194,8 +1213,8 @@ def dict_to_Frame(data_dict):
     for key, value in data_dict.items():
         # Skipping the first entry which is the columns
         if key == "0_format" or key == '1_seed':
-            p_slash()
-            print("SKIPPING FORMATTING ROWS")
+            #p_slash()
+            #print("SKIPPING FORMATTING ROWS")
             continue
         elif len(value) == 0:
             skip_list.append(key)
@@ -1206,14 +1225,14 @@ def dict_to_Frame(data_dict):
                     rows.append(value[i])
                 else:
                     rows.append(value[i] + [key])
-    p_slash()
     # PLACE TO ADD EXTRA COLUMNS
-    pp.pprint(rows)
-    print(cols)
+    #pp.pprint(rows)
+    #print(cols)
     df = pd.DataFrame(
         np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
     skip_list_p = ", ".join(skip_list)
     len_skip = int(len(skip_list_p) / 2)
+    p_line()
     print(
         (
             f"NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME:::\n{skip_list_p[:len_skip]}\n{skip_list_p[len_skip:]}"
@@ -1264,6 +1283,7 @@ def dict_to_Frame_with_data(data_dict):
         np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
     skip_list_p = ", ".join(skip_list)
     len_skip = int(len(skip_list_p) / 2)
+    p_line()
     print(
         (
             f"NO AVAILABLE DATA, SKIPPING CATEGORIES IN DATAFRAME:::\n{skip_list_p[:len_skip]}\n{skip_list_p[len_skip:]}"
@@ -1318,8 +1338,14 @@ def conn_mongo(data):
 
 
 def main():
+    #-----------------------------------------------------------------------------------------------------------
+    # Starting the timer
+    #-----------------------------------------------------------------------------------------------------------
     t_start = datetime.datetime.now()
-    # Getting new data, initiating the program
+    
+    #-----------------------------------------------------------------------------------------------------------
+    # # Getting new data, initiating the program
+    #-----------------------------------------------------------------------------------------------------------
     p_slash()
     print("RUNNING GET DATA TYPE")
     p_slash()
@@ -1329,10 +1355,18 @@ def main():
     if data_formatted[1]:
         print(f"CONFIRMED DATA IS {data_formatted[1].upper()}")
         formatted_df = data_formatted[1]
+        
+    #-----------------------------------------------------------------------------------------------------------
+    # Checking Amount and Date Columns from New Data
+    #-----------------------------------------------------------------------------------------------------------
     no_dict = 0
     data = test_date(data, no_dict)
     data = test_amounts(data)
     data_dups = len(data)
+    
+    #-----------------------------------------------------------------------------------------------------------
+    # Testing for Duplicate Rows from New Data
+    #-----------------------------------------------------------------------------------------------------------
     duplicate_rows = [g for _, g in data.groupby(
         list(data.columns)) if len(g) > 1]
     if duplicate_rows:
@@ -1342,28 +1376,16 @@ def main():
         data = data.drop_duplicates().sort_values(
             by=['date', 'transaction', 'amount']).reset_index(drop=True)
         print(f'Removed {len(data) - data_dups} from original dataframe')
-        
-    # Pulling in Dictionary as JSON, sub for importing from mongoDB when ready
+    
+    #-----------------------------------------------------------------------------------------------------------
+    # Bringing in Database Data as Dictionary --- Pulling in Dictionary as JSON, sub for importing from mongoDB when ready
+    #-----------------------------------------------------------------------------------------------------------
     imported_dict = None
     import format_data
     import json
     try:
         with open('data/test/dictionary.json') as import_dict:
             raw_dict = json.load(import_dict)
-        empty_df = 0
-        imported_dict = test_date(empty_df, raw_dict)
-        pp.pprint(imported_dict)
-        p_line()
-        p_slash()
-        print('IMPORTING JSON DICT CONVERTING TO DF')
-        p_slash()
-        dictionary_DF = (
-            dict_to_Frame(imported_dict).drop_duplicates().sort_values(
-                by=['date', 'transaction', 'amount']).reset_index(drop=True)
-        )
-        no_dict = 0
-        dictionary_DF = test_date(dictionary_DF, no_dict)
-        dictionary_DF = test_amounts(dictionary_DF)
     except:
         p_line()
         p_slash()
@@ -1371,43 +1393,55 @@ def main():
         p_slash()
         import_dict = None
         dictionary_DF = None
-
         
+    if raw_dict:
+        #pp.pprint(raw_dict)
+        p_line()
+        p_slash()
+        print('IMPORTING JSON DICT CONVERTING TO DF')
+        empty_df = 0
+        imported_dict = test_date(empty_df, raw_dict)
+        #pp.pprint(imported_dict)
+        dictionary_DF = (
+            dict_to_Frame(imported_dict).drop_duplicates().sort_values(
+                by=['date', 'transaction', 'amount']).reset_index(drop=True)
+        )
+        no_dict = 0
+        #dictionary_DF = test_date(dictionary_DF, no_dict)
+        dictionary_DF = test_amounts(dictionary_DF)
         
-    # Saving CSV before sending to split purchases
-    # save_csv(data)
-    #
-    # PUT OLD STUFF THAT WORKS HERE
-    # NEW STUFF aka import_test_data():
-    # make sure you check import_test_data's variables
-    # Comparing a dataframe of new_data with old data
-    # dropping duplicates
-    # dictionary_DF = (dict_to_Frame(dictionary).sort_values(by="date").drop_duplicates().reset_index(drop=True))
 
-    # print(dictionary_DF.head())
-    # Start
-    # saving csv out before matching
-    
+    #-----------------------------------------------------------------------------------------------------------
+    # Comparing DataFrames from DB and new Data
+    #-----------------------------------------------------------------------------------------------------------
     # Default for testing frames is False or None because the default is no old data
     testing_frames = False
     if dictionary_DF is not None:
-        testing_frames = match_dataframes(data, dictionary_DF)
+        testing_frames = match_dataframes(data.head(5), dictionary_DF)
 
+    #-----------------------------------------------------------------------------------------------------------
+    # Sending new dataframe to split purchases
+    #-----------------------------------------------------------------------------------------------------------
     # place to limit data use data.head(num)
-    pp.pprint(imported_dict)
-    print(testing_frames)
-    if imported_dict and testing_frames[0]:
+    #pp.pprint(imported_dict)
+    #print(testing_frames[1].head(5))
+    # If there is both a Database file, and a True Value 
+    if imported_dict and (testing_frames[0] == False):
         p_slash()
-        print("RUNNING SPLIT PURCHASES PROGRAM")
+        print("RUNNING SPLIT PURCHASES PROGRAM 1")
         p_line()
         trans_dict = split_purchases(data.head(5), formatted_df, imported_dict)
-    elif imported_dict and testing_frames[1]:
+        
+    elif imported_dict and (testing_frames[0] == True):
+        p_slash()
         print("THERE IS NO NEW DATA, EXITING")
+        p_slash()
         exit()
+        
     else:
         print('FIRST RUN')
         p_slash()
-        print("RUNNING SPLIT PURCHASES PROGRAM")
+        print("RUNNING SPLIT PURCHASES PROGRAM 2")
         p_line()
         trans_dict = split_purchases(data.head(5), formatted_df)
     final_dict = trans_dict

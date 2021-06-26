@@ -329,6 +329,7 @@ def get_col_names(df):
         if "y" in rename_cols_query:
             p_line()
             print(f"PLEASE ENTER {len(df.columns)} COLUMN NAMES")
+            p_line()
             print("WARNING COLUMN NAMES MUST BE UNIQUE")
             p_line()
             print(f'SUGGESTED::: {" - ".join(suggested_cols)}')

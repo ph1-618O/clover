@@ -747,9 +747,9 @@ def search_dict(budget_dict, data, data_point):  # location is column name
             else:
                 for category, identifier in budget_dict['1_seed'].items():
                     for id in identifier:
-                        if data_point in id:
+                        if data_point in id and category == key:
                             p_slash()
-                            print(f"DATA POINT IDENTIFIED")
+                            print(f"DATA POINT IDENTIFIED FROM SEED DATA")
                             print(f'ADDING TO CATEGORY "{key.upper()}"')
                             for x in data:
                                 if type(x) == type([]) and len(data) == 1:
@@ -997,28 +997,84 @@ def make_test_dict(df):
     return test_dict
 
 
-def test_date(df):
+def test_date(df, test_dict=0):
     # testing all columns with the word date
     # if test in list col num and list_cols comprehension are redundant too tired to fix
     p_slash()
     print('TESTING DATES')
     p_slash()
-    list_cols = [i.lower() for i in df.columns.tolist()]
-    test_cols = ["date", "pending", "posted"]
-    verified_cols = []
-    for col in list_cols:
-        for test in test_cols:
-            if test in col:
-                verified_cols.append(col)
-    # print(verified_cols)
-    for tested in verified_cols:
-        if all(df[tested].map(type) != type(datetime.datetime.now())):
-            # add second conditional here that tests the col for floats, ints and strings
-            print("CONVERTING DATAFRAME DATES TO DATETIME")
-            p_slash()
-            df[tested] = pd.to_datetime(df[tested])
-    # pp.pprint(df)
-    return df
+    if isinstance(test_dict, dict):
+        print('CHECKING DICTIONARY VALUES')
+        list_cols = test_dict['0_format']
+        test_cols = ["date", "pending", "posted"]
+        date_indici = []
+        print(list_cols)
+        for col_indici in range(len(list_cols)):
+            for test in test_cols:
+                print(test)
+                if test in list_cols[col_indici]:
+                    print(list_cols[date_indici])
+                    date_indici.append(col_indici)           
+        for key, value in test_dict.items():
+            if key == '0_format' or key == '1_seed':
+                continue
+            elif len(value) == 0:
+                #print(f'{key} is empty skipping')
+                continue
+            else:
+                for data in value:
+                    for indici in date_indici:
+                        print('CONVERTING DICTIONARY DATES TO DATETIME')
+                        print(data)
+                        print(indici)
+                        data[indici] = datetime.strptime(data[indici], '%Y-%m-%d, %H:%M:%S')
+                        print(data)
+        pp.pprint(test_dict)
+        return test_dict       
+    if isinstance(df, pd.DataFrame):
+        print('CHECKING DATAFRAME VALUES')
+        list_cols = [i.lower() for i in df.columns.tolist()]
+        test_cols = ["date", "pending", "posted"]
+        verified_cols = []
+        for col in list_cols:
+            for test in test_cols:
+                if test in col:
+                    verified_cols.append(col)
+        # print(verified_cols)
+        for tested in verified_cols:
+            if all(df[tested].map(type) != type(datetime.datetime.now())):
+                # add second conditional here that tests the col for floats, ints and strings
+                print("CONVERTING DATAFRAME DATES TO DATETIME")
+                p_slash()
+                df[tested] = pd.to_datetime(df[tested])
+        # pp.pprint(df)
+        return df
+
+
+
+
+# def test_date(df):
+#     # testing all columns with the word date
+#     # if test in list col num and list_cols comprehension are redundant too tired to fix
+#     p_slash()
+#     print('TESTING DATES')
+#     p_slash()
+#     list_cols = [i.lower() for i in df.columns.tolist()]
+#     test_cols = ["date", "pending", "posted"]
+#     verified_cols = []
+#     for col in list_cols:
+#         for test in test_cols:
+#             if test in col:
+#                 verified_cols.append(col)
+#     # print(verified_cols)
+#     for tested in verified_cols:
+#         if all(df[tested].map(type) != type(datetime.datetime.now())):
+#             # add second conditional here that tests the col for floats, ints and strings
+#             print("CONVERTING DATAFRAME DATES TO DATETIME")
+#             p_slash()
+#             df[tested] = pd.to_datetime(df[tested])
+#     # pp.pprint(df)
+#     return df
 
 
 def test_amounts(df):
@@ -1273,7 +1329,8 @@ def main():
     if data_formatted[1]:
         print(f"CONFIRMED DATA IS {data_formatted[1].upper()}")
         formatted_df = data_formatted[1]
-    data = test_date(data)
+    no_dict = 0
+    data = test_date(data, no_dict)
     data = test_amounts(data)
     data_dups = len(data)
     duplicate_rows = [g for _, g in data.groupby(
@@ -1292,7 +1349,10 @@ def main():
     import json
     try:
         with open('data/test/dictionary.json') as import_dict:
-            imported_dict = json.load(import_dict)
+            raw_dict = json.load(import_dict)
+        empty_df = 0
+        imported_dict = test_date(empty_df, raw_dict)
+        pp.pprint(imported_dict)
         p_line()
         p_slash()
         print('IMPORTING JSON DICT CONVERTING TO DF')
@@ -1301,7 +1361,8 @@ def main():
             dict_to_Frame(imported_dict).drop_duplicates().sort_values(
                 by=['date', 'transaction', 'amount']).reset_index(drop=True)
         )
-        dictionary_DF = test_date(dictionary_DF)
+        no_dict = 0
+        dictionary_DF = test_date(dictionary_DF, no_dict)
         dictionary_DF = test_amounts(dictionary_DF)
     except:
         p_line()
@@ -1376,7 +1437,8 @@ def main():
     
     converted_DF = dict_to_Frame(final_dict)
     new_DF = test_amounts(converted_DF)
-    new_DF = test_date(new_DF)
+    no_dict = 0
+    new_DF = test_date(new_DF, no_dict)
     seed_categories = make_seed_data(converted_DF)
     final_dict['1_seed'] = seed_categories
     show_dict = input("PRINT OUT DICT Y/N\n")

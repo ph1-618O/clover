@@ -396,12 +396,14 @@ def get_col_names(df):
                 'TESTING FAILED::: PLEASE RENAME YOUR COLUMNS TO INCLUDE REQUIRED COLUMNS')
             rename_cols_query = 'y'
         # suggested_cols = ["Date", "Transaction", "Account", "Amount", "Balance"]
+        
         if "y" in rename_cols_query:
             # First if Required is true and there no other columns to change
-            p_slash()
-            print("IGNORING DATE, TRANSACTION & AMOUNT COLUMNS")
-            p_line()
+            
             if check_cols[0] and change_cols == None:
+                p_slash()
+                print("IGNORING DATE, TRANSACTION & AMOUNT COLUMNS")
+                p_line()
                 for i in check_cols[2]:
                     cols[i] = format_col_name(cols[i])
                 new_col_names = cols
@@ -413,15 +415,17 @@ def get_col_names(df):
                     p_line()
                     cols[i] = format_col_name(cols[i])
                 new_col_names = cols
+
                 
             else:
                 # print(f'Check_cols = {check_cols[0]} len change cols {len(change_cols)} <= 0')
-                for i in change_cols:
+                #print(change_cols)
+                for i in range(len(cols)):
                     p_slash()
                     print("REQUIRED ::: Date, Transaction, Amount")
                     p_line()
-                    cols[i] = format_col_name(cols[i])             
-            
+                    cols[i] = format_col_name(cols[i])            
+                new_col_names = cols
             renamed_cols = new_col_names
             # renamed_cols = ["date_pending, date, transaction, account, amount, balance"]
             # Testing length
@@ -429,6 +433,7 @@ def get_col_names(df):
             #print(second_check)
             if second_check[0] and second_check[1] == None and (len(renamed_cols) == len(df.columns) and (renamed_cols != list(df.columns))):
                 rename_cols_query = 'y'
+                break
             else:
                 print(f"COLUMNS {len(df.columns) - len(renamed_cols)} ENTERED DO NOT MATCH LENGTH OF {len(df.columns)}")
                 print(f"THESE ARE NAMES ENTERED PLEASE TRY AGAIN:: {renamed_cols}\n")

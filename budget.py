@@ -253,7 +253,7 @@ def save_csv(df):
         
 def save_json(dictionary):
     import json
-    with open("data/test/dictionary.json", "w") as outfile:
+    with open("data_local/test/dictionary.json", "w") as outfile:
         json_string = json.dumps(
             dictionary, default = str, sort_keys=True, indent=2)
         #dictionary, default = lambda o: o.__dict__, sort_keys=True, indent=2)
@@ -1388,7 +1388,7 @@ def main():
     import format_data
     import json
     try:
-        with open('data/test/dictionary.json') as import_dict:
+        with open('data_local/test/dictionary.json') as import_dict:
             raw_dict = json.load(import_dict)
     except:
         p_line()

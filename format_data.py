@@ -447,62 +447,12 @@ def get_col_names(df):
     p_line()
     return renamed_cols, rename_cols_query
 
-
-# def get_col_names_old(df):
-#     rename_cols_query = "test"
-#     cols = list(df.columns)
-#     while "y" not in rename_cols_query:
-#         p_line()
-#         print(f'CURRENT COLUMNS::: {" - ".join(list(df.columns))}')
-#         p_line()
-#         rename_cols_query = input("RENAME COLUMNS? Y/N\n").lower()
-#         suggested_cols = ["Date", "Transaction", "Account", "Amount", "Balance"]
-#         if "y" in rename_cols_query:
-#             p_line()
-#             print(f"PLEASE ENTER {len(df.columns)} COLUMN NAMES")
-#             p_line()
-#             print("WARNING COLUMN NAMES MUST BE UNIQUE")
-#             p_line()
-#             print(f'SUGGESTED::: {" - ".join(suggested_cols)}')
-#             p_line()
-#             print("REQUIRED ::: Date, Transaction, Amount")
-#             p_line()
-#             #renamed_cols = input("ENTER COLUMN NAMES IN ORDER\n").lower()
-#             # SEEDED DATA
-#             renamed_cols = "date_pending, date, transaction, account, amount, balance"
-#             cat = ""
-#             for i in renamed_cols:
-#                 if "," in renamed_cols:
-#                     cat += i.strip(",")
-#                 else:
-#                     cat += i
-#             cols = cat.split(" ")
-#             if (len(renamed_cols) == len(df.columns)) and (renamed_cols != list(df.columns)):
-#                 rename_cols_query = "y"
-#             else:
-#                 print(
-#                     f"COLUMNS {len(df.columns) - len(renamed_cols)} ENTERED DO NOT MATCH LENGTH OF {len(df.columns)}"
-#                 )
-#                 print(f"THESE ARE NAMES ENTERED PLEASE TRY AGAIN:: {renamed_cols}\n")
-#                 rename_cols_query = "test"
-#         elif "n" in rename_cols_query:
-#             break
-#         else:
-#             print("INVALID INPUT")
-#             exit_program = input(
-#                 "WOULD YOU LIKE TO EXIT THE PROGRAM, Y/N or Exit\n"
-#             ).lower()
-#             if "y" in exit_program or "exit" in exit_program:
-#                 exit()
-#     p_line()
-#     return renamed_cols, rename_cols_query
-
-
 # import texthero as hero
 
 
 def strip_db_space(df):
-    remove_white = [preprocessing.fillna                    # , preprocessing.lowercase
+    remove_white = [preprocessing.fillna                    
+                    # , preprocessing.lowercase
                     # , preprocessing.remove_digits
                     # , preprocessing.remove_punctuation
                     # , preprocessing.remove_diacritics

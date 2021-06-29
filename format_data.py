@@ -317,9 +317,10 @@ def remove_cols(df):
 
 
 def test_col_names(cols):
+    p_slash()
     print('TESTING COLUMN NAMES FOR REQUIRED COLUMNS')
+    p_slash()
     p_line()
-    # , "Account", "Balance"]
     suggested_cols = ["Date", "Transaction", "Amount"]
     # Lowercasing values
     required = [i.lower() for i in suggested_cols]
@@ -329,7 +330,6 @@ def test_col_names(cols):
     original = set(cols)
     test_cols = set(required)
     diff = list(original - test_cols) + list(test_cols - original)
-    # print(diff)
 
     # Second testing if any part of the suggested_col name is in the cols
     contains_index = []
@@ -341,34 +341,21 @@ def test_col_names(cols):
             if test.lower() == cols[index].lower():
                 contains.append(cols[index])
                 contains_index.append(index)
-            # if test.lower() not in cols[index].lower():
-            #     change_col.append(cols[index])
-            #     change_col_nums.append(index)
-
-    print(f'Testing contains {contains}, {contains_index}')
-
+    #print(f'Testing contains {contains}, {contains_index}')
     for col_i in range(len(cols)):
         for index in contains_index:
             if col_i not in contains_index and cols[col_i] not in change_col and col_i not in change_col_nums:
                 change_col.append(cols[col_i])
                 change_col_nums.append(col_i)
 
-    #print(f'Testing nums {change_col_nums}')
-    #print(f'Testing change cols {change_col}')
-
     # If the three req columns are all present
     if len(contains) == len(required):
-        #print(f'len req {len(required)} is same as len contains cols {len(contains)}, True {change_col_nums}')
-        return True, None
-    # elif len(contains) == len(required) and len(change_col_nums) ==  0:
-    #     return True, change_col_nums
-    #If there are the req columns in some format
+        return True, None, change_col_nums
+    # If there are the req columns in some format
     elif len(contains) < len(required) and len(change_col_nums) > 0:
-        #print(f'len req is less than len req cols, True and len {len(change_col_nums)} > 0')
         return True, change_col_nums
-    #If there are no columns in contains
+    # If there are no columns in contains
     else:
-        #print('All other options')
         return False, change_col_nums
 
 
@@ -376,20 +363,20 @@ def format_col_name(col):
     p_slash()
     print("WARNING COLUMN NAMES MUST BE UNIQUE")
     p_slash()
-    print("REQUIRED ::: Date, Transaction, Amount")
     p_line()
     renamed_col = input(
         f'PLEASE ENTER NEW COLUMN NAME FOR "{col}"\n').lower().strip()
+    p_line()
     string_check = re.compile('[@!#$%^&*()<>?/\|}{~:]')
     if(string_check.search(renamed_col) == None):
         pass
-        #new_col_names.append(renamed_col)
+        # new_col_names.append(renamed_col)
     if(string_check.search(renamed_col) != None):
         renamed_col = (re.sub('[@_!#$%^&*()<>?/\|}{~:]', '', renamed_col))
     if ' ' in renamed_col:
         renamed_col = renamed_col.replace(' ', '_')
     return renamed_col
-    
+
 
 def get_col_names(df):
     rename_cols_query = "test"
@@ -405,35 +392,41 @@ def get_col_names(df):
             rename_cols_query = input("RENAME COLUMNS? Y/N\n").lower()
         else:
             p_slash()
-            print('TESTING FAILED::: PLEASE RENAME YOUR COLUMNS TO INCLUDE REQUIRED COLUMNS')
+            print(
+                'TESTING FAILED::: PLEASE RENAME YOUR COLUMNS TO INCLUDE REQUIRED COLUMNS')
             rename_cols_query = 'y'
-        #suggested_cols = ["Date", "Transaction", "Account", "Amount", "Balance"]
+        # suggested_cols = ["Date", "Transaction", "Account", "Amount", "Balance"]
         if "y" in rename_cols_query:
             # First if Required is true and there no other columns to change
-            if check_cols[0] and len(change_cols) == 0:
+            p_slash()
+            print("IGNORING DATE, TRANSACTION & AMOUNT COLUMNS")
+            p_line()
+            if check_cols[0] and change_cols == None:
+                for i in check_cols[2]:
+                    cols[i] = format_col_name(cols[i])
                 new_col_names = cols
-                pass
-            
             # If some of the columns match the required col names
             elif check_cols[0] and len(change_cols) > 0:
-                #print(f'Check_cols = {check_cols[0]} len change cols {len(change_cols)} > 0 change cols {change_cols}')
                 for i in change_cols:
+                    p_slash()
+                    print("REQUIRED ::: Date, Transaction, Amount")
+                    p_line()
                     cols[i] = format_col_name(cols[i])
                 new_col_names = cols
                 
             else:
-                #print(f'Check_cols = {check_cols[0]} len change cols {len(change_cols)} <= 0')
+                # print(f'Check_cols = {check_cols[0]} len change cols {len(change_cols)} <= 0')
                 for i in change_cols:
+                    p_slash()
+                    print("REQUIRED ::: Date, Transaction, Amount")
+                    p_line()
                     cols[i] = format_col_name(cols[i])             
             
             renamed_cols = new_col_names
-            #print(renamed_cols)
             # renamed_cols = ["date_pending, date, transaction, account, amount, balance"]
-            
-            
             # Testing length
             second_check = test_col_names(renamed_cols)
-            print(second_check)
+            #print(second_check)
             if second_check[0] and second_check[1] == None and (len(renamed_cols) == len(df.columns) and (renamed_cols != list(df.columns))):
                 rename_cols_query = 'y'
             else:
@@ -441,7 +434,7 @@ def get_col_names(df):
                 print(f"THESE ARE NAMES ENTERED PLEASE TRY AGAIN:: {renamed_cols}\n")
                 rename_cols_query = "test"
         elif "n" in rename_cols_query:
-            break
+            return renamed_cols, rename_cols_query
         else:
             print("INVALID INPUT")
             exit_program = input(

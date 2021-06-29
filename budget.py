@@ -450,6 +450,8 @@ def constrain_input_loop(sort_query, list_options):
 
 
 global_state = []
+global_entry_count_processed = 0
+global_entry_count_remaining = 0
 
 
 def remove_city_state(tokens_removed):
@@ -1095,6 +1097,7 @@ def test_date(df, test_dict=0):
 
 def test_amounts(df):
     p_line()
+    p_slash()
     print('TESTING AMOUNTS')
     p_slash()
     # converted_col = []
@@ -1353,6 +1356,7 @@ def main():
     data_formatted = get_data_type()
     data = data_formatted[0]
     if data_formatted[1]:
+        p_slash()
         print(f"CONFIRMED DATA IS {data_formatted[1].upper()}")
         formatted_df = data_formatted[1]
         

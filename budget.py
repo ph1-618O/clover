@@ -310,7 +310,7 @@ def get_categories(categories=0):
             "pet",
             "restaurant",
             "utility",
-            "transportation",
+            "conveyance",
             "gas",
             "medical",
             "entertainment",
@@ -384,7 +384,7 @@ def get_categories(categories=0):
         cat_list2 = " - ".join([str(x) for x in [*categories[2:]]])
         c_len2 = len(cat_list2)
         print(
-            f'CATEGORIES ARE::: "{cat_list2[:int(c_len2/2)]}\n{cat_list2[int(c_len2/2):]}"'
+            f'CATEGORIES ARE::: "{cat_list2[2:int(c_len2/2)]}\n{cat_list2[int(c_len2/2):]}"'
         )
         p_line()
         p_slash()
@@ -847,7 +847,7 @@ def add_data(budget_dict, data):
     else:
         print_trans = max([str(i) for i in data if (mostly_alpha(str(i)) < 65)], key=len)
     print(
-        f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n")
+        f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[2:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n")
     location = str(
         input("CHOICE? \n"))
     sub_keys = {
@@ -856,7 +856,8 @@ def add_data(budget_dict, data):
         'fast food': 'take away',
         'fast': 'take away',
         'travel': 'holiday',
-        'trav': 'holiday'
+        'trav': 'holiday',
+        'transportation': 'conveyance'
     }
 
     for sub_key, sub_value in sub_keys.items():
@@ -1204,10 +1205,10 @@ def omit_old_data(old_data_dict, new_data_dict):
 def dict_to_Frame(data_dict):
     #pp.pprint(data_dict)
     import format_data as format
-    print("PROCCESSING DATAFRAME")
+    print("PROCESSING DATAFRAME")
     skip_list = []
     rows = []
-
+    print(data_dict['0_format'])
     if "category" not in data_dict["0_format"]:
         data_dict["0_format"] = data_dict["0_format"] + ["category"]
     else:
@@ -1229,8 +1230,9 @@ def dict_to_Frame(data_dict):
                 else:
                     rows.append(value[i] + [key])
     # PLACE TO ADD EXTRA COLUMNS
-    #pp.pprint(rows)
-    #print(cols)
+    pp.pprint(rows)
+    print(cols)
+    pp.pprint(data_dict)
     df = pd.DataFrame(
         np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
     skip_list_p = ", ".join(skip_list)
@@ -1453,9 +1455,14 @@ def main():
     if imported_dict:
         print('TESTING IMPORTED DATA FOR DUPLICATES\n')
         new_data = omit_old_data(imported_dict, trans_dict)
+        print('\n\n\n')
+        pp.pprint(new_data)
+        # print('\n\n\n')
+        # pp.pprint(imported_dict)
+        # print('\n\n\n')
+        # pp.pprint(trans_dict)
         if new_data:
             from itertools import chain
-
             merged_dict = {}
             for k, v in chain(imported_dict.items(), trans_dict.items()):
                 merged_dict.setdefault(k, []).extend(v)
@@ -1463,6 +1470,10 @@ def main():
             print("THERE IS NO NEW DATA, EXITING")
             exit()
         trans_dict = omit_old_data(trans_dict, imported_dict)
+        # print('TRANS DICT')
+        # pp.pprint(trans_dict)
+        # print('MERGED DICT')
+        # pp.pprint(merged_dict)
         final_dict = merged_dict
     
     print("SPLIT PURCHASES PROGRAM COMPLETE")

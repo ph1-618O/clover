@@ -1137,6 +1137,8 @@ def test_amounts(df):
 # there must be a strip function buried in there and some spaces or special characters that i cant find
 # so that the rows do not match
 def match_dataframes(new_DF, old_DF):
+    
+    # Cutting off all other columns old dataframe will have categories, new will not at this point
     list_match = ["date", "transaction", "amount"]
     for i in list_match:
         if i in list(new_DF.columns) and i in list(old_DF.columns):
@@ -1208,7 +1210,7 @@ def dict_to_Frame(data_dict):
     print("PROCESSING DATAFRAME")
     skip_list = []
     rows = []
-    print(data_dict['0_format'])
+    # print(data_dict['0_format'])
     if "category" not in data_dict["0_format"]:
         data_dict["0_format"] = data_dict["0_format"] + ["category"]
     else:
@@ -1230,9 +1232,9 @@ def dict_to_Frame(data_dict):
                 else:
                     rows.append(value[i] + [key])
     # PLACE TO ADD EXTRA COLUMNS
-    pp.pprint(rows)
-    print(cols)
-    pp.pprint(data_dict)
+    # pp.pprint(rows)
+    # print(cols)
+    # pp.pprint(data_dict)
     df = pd.DataFrame(
         np.array(rows), columns=cols).drop_duplicates().reset_index(drop=True)
     skip_list_p = ", ".join(skip_list)
@@ -1451,16 +1453,23 @@ def main():
         p_line()
         trans_dict = split_purchases(data.head(5), formatted_df)
     final_dict = trans_dict
+    
+    
+    #-----------------------------------------------------------------------------------------------------------
+    # This is not working, a little too complicated when considering there will be different columns, and it does not omit duplicated data
+    #-----------------------------------------------------------------------------------------------------------
+    
     # Test to see if any data is overlapping, omitting if it is
     if imported_dict:
         print('TESTING IMPORTED DATA FOR DUPLICATES\n')
         new_data = omit_old_data(imported_dict, trans_dict)
         print('\n\n\n')
         pp.pprint(new_data)
-        # print('\n\n\n')
-        # pp.pprint(imported_dict)
-        # print('\n\n\n')
-        # pp.pprint(trans_dict)
+        print('\n\n\n')
+        pp.pprint(imported_dict)
+        print('\n\n\n')
+        pp.pprint(trans_dict)
+        exit()
         if new_data:
             from itertools import chain
             merged_dict = {}
@@ -1539,31 +1548,4 @@ def main():
 if __name__ == "__main__":
     main()
     
-    # Create Seed Dictionary
-    # <<<<<<<<WORKING>>>>>>>>>>>
-    # Add import DB from mongo
-    # Right now using written in dictionary
 
-    #     dictionary = {
-    #     '0_format': ['date', 'location data', 'float amount', 'identifier', 'category'],
-    #     'home': [
-    #         ['01/24/21', 'HOME_DEPOT',  -57, 'DEPOT','home'],
-    #         ['01/12/21', 'LOWES', -100, 'LOWES', 'home'],
-    #         ['02/14/21', 'TRUE_VALUE', -60, 'TRUE', 'home']],
-
-    #     'take_away': [
-    #         ['01/28/21', 'CHICK-FIL-A', -14.99, 'CHICK-FIL-A','take_away'],
-    #         ['03/15/21', 'BOJANGLES 5555 ELIZABETH CITY NY', -12.99, 'BOJANGLES', 'take_away']
-    #         ],
-
-    #     'groceries': [
-    #         ['01/22/21', 'FOOD LION',  -200, 'FOOD LION', 'groceries'],
-    #         ['02/21/21', 'HARRIS_TEETER', -250, 'HARRIS', 'groceries'],
-    #         ['03/15/21', 'FARM_FRESH', -150, 'FRESH', 'groceries']],
-    #     'gas':[
-    #         ['03/22/21', 'SHELL OIL 2423423423423 LUCY, PA', -28, 'SHELL', 'gas']
-    #     ],
-    #     'utilities':[
-    #         ['03/18/21', 'DENVER SANITATION 489-4698-06456 CO', -80, 'SANITATION', 'utilities']
-    #         ]
-    # }

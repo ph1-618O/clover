@@ -5,14 +5,14 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 dict1 = {
-    '0_format': ['list1', 'list2', 'list3', 'list4'], 
+    '0_format': ['date', 'time', 'list3', 'list4'], 
     '1_seed': {
         'thing': [['lots of words']], 
         'thing2': [['more words']]
         },
     'apple': [['banana']]}
 dict2 = {
-    '0_format': ['list1', 'list5', 'list3'], 
+    '0_format': ['date', 'time', 'list3'], 
     '1_seed': {
     'different_thing': ['words'], 
     'thing3': ['magic']},
@@ -21,7 +21,7 @@ dict2 = {
     }
 
 dict3 = {
-    '0_format': ['list1', 'list2', 'list3', 'list4'],
+    '0_format': ['date', 'time', 'list3', 'category'],
     '1_seed': {
         'thing': [['lots of words']],
         'thing2': [['more words']]
@@ -30,7 +30,7 @@ dict3 = {
     'opal': [['1', '2', '3', 'agent']]}
 
 dict4 = {
-    '0_format': ['list1', 'list2', 'list3', 'list4', 'list5'],
+    '0_format': ['date', 'time', 'list3', 'list4', 'list5'],
     '1_seed': {
         'different_thing': ['words'],
         'thing3': ['magic']},
@@ -71,10 +71,21 @@ dict4 = {
 
 # pp.pprint(merge_dict(dict1, dict2))
 
+
+
 df1 = budget.dict_to_Frame(dict3)
 df2 = budget.dict_to_Frame(dict4)
 print(df1)
 print(df2)
-
+print('\n\n\n')
 df3 = df1.append(df2, sort = False).drop_duplicates().reset_index(drop=True)
 print(df3)
+# for index, row in df3.iterrows():
+#     if row
+
+a = df3.groupby(by=['date', 'time', 'list3'])
+a.apply(print)
+
+for index, row in df3.iterrows():
+    if row['date'][index] and row['time'][index] and row['list3']
+    

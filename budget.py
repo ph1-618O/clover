@@ -868,17 +868,17 @@ def add_data(budget_dict, data):
 
     # Adding a new key if the entered key is not already in the dictionary or part of defaults
     if location[:3] not in [i[:3] for i in budget_dict.keys()] and (location != "0_format") and (location != '1_seed'):
-        add_key = input(
-            f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n'
-        )
-        if "y" in add_key:
-            print(f'ADDITION TO "{location.upper()}" SUCCESSFUL')
-            budget_dict[location] = []
-        else:
-            location = 'other'
-            budget_dict[location] = []
-            print(f'ADDING TO "{location.upper()}" SUCCESSFUL')
-    # Matching the location input for the item to corresponding key
+            add_key = input(
+                f'"{location}":: NOT IN BUDGET FILE, WOULD YOU LIKE TO ADD IT? Y/N\n'
+            )
+            if "y" in add_key:
+                print(f'ADDITION TO "{location.upper()}" SUCCESSFUL')
+                budget_dict[location] = []
+            else:
+                location = 'other'
+                budget_dict[location] = []
+                print(f'ADDING TO "{location.upper()}" SUCCESSFUL')
+    #Matching the location input for the item to corresponding key
     for key, value in budget_dict.items():
         if location[:3] == key[:3]:
             print(
@@ -902,6 +902,8 @@ def add_data(budget_dict, data):
 
 
 def split_purchases(df, formatted_df=0, budget_dict=0):
+    global_entry_count_remaining = len(df)
+    global_entry_count_processed = 0
     # cols = confirm_cols(df, formatted_df)
     # pp.pprint(df)
     print("BEGIN PURCHASE CATEGORIZATION")
@@ -927,9 +929,18 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
     skip_rows = []
     for i in range(len(df)):
         if i not in skip_rows:
+            p_line()
+            print(
+                f'{global_entry_count_remaining - len(skip_rows)} ROWS REMAINING TO IDENTIFY OUT OF {len(df)}')
+            p_line()
+            print(df.iloc[[i]])
+            print(sort_by)
             get_col = add_transaction_type(df, i, sort_by)
-            # print(get_col)
-            identity = get_col[1]
+            # The regex is not perfect, adding to grab just the first word grouping as the key if add_trans doesn't work
+            if get_col == None:
+                identity = df['transaction'][i].split()[0]
+            else:
+                identity = get_col[1]
             # NEED TO ADD A TYPE TEST BEFORE THIS
             # print(identity)
             # print(df.select_dtypes(
@@ -944,6 +955,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
 
             # print(matching_rows)
             if len(matching_rows) >= 2:
+                #global_entry_count_processed += global_entry_count_remaining - len(matching_rows)
                 print(f"{len(matching_rows)} ROWS MATCHED IN IMPORTED DATA:::")
                 # print('ROWS MATCH\n')
                 data = []
@@ -953,6 +965,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             else:
                 data = []
                 print("NO MATCH IN IMPORTED DATA:::")
+                #global_entry_count_processed += global_entry_count_remaining - \len(matching_rows)
                 for col in cols:
                     data.append(df.iloc[i][col])
                 data.append(identity)
@@ -1345,6 +1358,7 @@ def conn_mongo(data):
 
 
 def main():
+    global_entry_count_remaining = 0
     #-----------------------------------------------------------------------------------------------------------
     # Starting the timer
     #-----------------------------------------------------------------------------------------------------------
@@ -1401,6 +1415,7 @@ def main():
         p_slash()
         import_dict = None
         dictionary_DF = None
+        raw_dict = None
         
     if raw_dict:
         #pp.pprint(raw_dict)
@@ -1425,7 +1440,7 @@ def main():
     # Default for testing frames is False or None because the default is no old data
     testing_frames = False
     if dictionary_DF is not None:
-        testing_frames = match_dataframes(data.head(5), dictionary_DF)
+        testing_frames = match_dataframes(data, dictionary_DF)
 
     #-----------------------------------------------------------------------------------------------------------
     # Sending new dataframe to split purchases
@@ -1434,11 +1449,15 @@ def main():
     #pp.pprint(imported_dict)
     #print(testing_frames[1].head(5))
     # If there is both a Database file, and a True Value 
+    p_line()
+    global_entry_count_remaining = len(data)
+    print(f'EVALUATING {global_entry_count_remaining} LINES OF DATA')
+    p_line()
     if imported_dict and (testing_frames[0] == False):
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 1")
         p_line()
-        trans_dict = split_purchases(data.head(5), formatted_df, imported_dict)
+        trans_dict = split_purchases(data, formatted_df, imported_dict)
         
     elif imported_dict and (testing_frames[0] == True):
         p_slash()
@@ -1451,7 +1470,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 2")
         p_line()
-        trans_dict = split_purchases(data.head(5), formatted_df)
+        trans_dict = split_purchases(data, formatted_df)
     final_dict = trans_dict
     
     
@@ -1463,28 +1482,27 @@ def main():
     if imported_dict:
         print('TESTING IMPORTED DATA FOR DUPLICATES\n')
         new_data = omit_old_data(imported_dict, trans_dict)
-        print('\n\n\n')
-        pp.pprint(new_data)
-        print('\n\n\n')
-        pp.pprint(imported_dict)
-        print('\n\n\n')
-        pp.pprint(trans_dict)
-        exit()
-        if new_data:
-            from itertools import chain
-            merged_dict = {}
-            for k, v in chain(imported_dict.items(), trans_dict.items()):
-                merged_dict.setdefault(k, []).extend(v)
-        else:
-            print("THERE IS NO NEW DATA, EXITING")
-            exit()
-        trans_dict = omit_old_data(trans_dict, imported_dict)
+        # print('\n\n\n')
+        # pp.pprint(new_data)
+        # print('\n\n\n')
+        # pp.pprint(imported_dict)
+        # print('\n\n\n')
+        # pp.pprint(trans_dict)
+        # if new_data:
+        #     from itertools import chain
+        #     merged_dict = {}
+        #     for k, v in chain(imported_dict.items(), trans_dict.items()):
+        #         merged_dict.setdefault(k, []).extend(v)
+        # else:
+        #     print("THERE IS NO NEW DATA, EXITING")
+        #     exit()
+        # trans_dict = omit_old_data(trans_dict, imported_dict)
         # print('TRANS DICT')
         # pp.pprint(trans_dict)
         # print('MERGED DICT')
         # pp.pprint(merged_dict)
-        final_dict = merged_dict
-    
+        # final_dict = merged_dict
+        
     print("SPLIT PURCHASES PROGRAM COMPLETE")
     p_line()
 

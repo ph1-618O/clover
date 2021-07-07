@@ -94,7 +94,8 @@ def cities_square(lat, long, miles):
     top_left = ((lat + d_lat), (long - d_long))
     top_right = ((lat + d_lat), (long + d_long))
     bottom_right = ((lat - d_lat), (long + d_long))
-    return bottom_left   
+    #print(top_left, top_right, bottom_right, bottom_left)
+    return top_left, top_right, bottom_right, bottom_left   
 
 
 def fib(n):
@@ -129,48 +130,51 @@ def reverse_city(lat, long):
     # else its just the city/county, state
     if address:
         if address[0].count(',') >= 3:
-            #print(address[0])
-            #print(type(address[0]))
-            #print(len(address))
             city_st = ''.join(re.findall(regex_city_st1, address[0])).strip()
             #print(city_st)
             return city_st
         elif address[0].lower() == 'united states':
-            print('In the ocean')
+            pass
+            #print('In the ocean')
         else:
-            #print(address[0])
-            #print(type(address[0]))
-            #print(len(address))
             #-1 removes the following comma
             city_st = ''.join(re.findall(regex_city_st2, address[0])).strip()[:-1]
             #print(city_st)
             return city_st
 
-def main():
-    #find_location()
-    
-    
-    found = find_lat_lng('Norfolk')
-    lat = found[0]
-    lng = found[1]
-    #print(lat)
-    #print(lng)
+def spiral_locales(lat, lng, center):
     # Using 25 because that makes a radius of 50ish miles
     decrement_list = list(fib(25))
-    decrement_list = [i*0.5 for i in decrement_list]
+    phi = 1.618033988749895
+    decrement_list = [i/phi if i != 0 else 0 for i in decrement_list]
     # removing second value of 1 because redundancy
     del decrement_list[1]
     print(decrement_list)
     surrounding_locals = []
     for i in decrement_list:
-        plus_100 = cities_square(lat, lng, 25-i)
-        place = reverse_city(plus_100[0], plus_100[1])
-        if place not in surrounding_locals:
-            surrounding_locals.append(place)
+        if i > 25:
+            break
+        else:
+            expand_100 = cities_square(lat, lng, 25-i)
+            #cycles 4 times to get shrinking cities
+            for coords in expand_100:
+                place = reverse_city(coords[0], coords[1])
+                if place not in surrounding_locals:
+                    surrounding_locals.append(place)
+                if place == center:
+                    surrounding_locals.append(place)
+                    break 
     print(surrounding_locals)
-    # reverse_Fibonacci(25)
-    # print(list(fib(25)))
 
+
+def main():
+    #find_location()
+    center = 'Norfolk, VA'
+    found = find_lat_lng(center)
+    lat = found[0]
+    lng = found[1]
+    spiral_locales(lat, lng, center)
+    
 if __name__ == "__main__":
     main()
 

@@ -13,14 +13,14 @@
 from texthero import preprocessing
 import re
 import requests
-from bs4 import BeautifulSoup as soup
-from googlesearch import search
+#from bs4 import BeautifulSoup as soup
+#from googlesearch import search
 from fastnumbers import fast_float
 import random
 from random import randint
 from random import seed
 import plotly.graph_objects as go
-import squarify
+#import squarify
 from matplotlib.lines import Line2D
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt

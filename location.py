@@ -7,7 +7,7 @@
 from re import A
 from numpy.core.fromnumeric import _transpose_dispatcher
 from pandas.core.frame import DataFrame
-import geopy
+#import geopy
 import requests
 import json
 from config import gKey

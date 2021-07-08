@@ -24,14 +24,14 @@ import re
 import time
 from calendar import month_abbr
 import datetime
-import texthero as hero
+#import texthero as hero
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import nltk
 from fastnumbers import fast_float
 import pprint
 import plotly.graph_objects as go
-import squarify
+#import squarify
 from matplotlib.lines import Line2D
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
@@ -847,7 +847,7 @@ def add_data(budget_dict, data):
     else:
         print_trans = max([str(i) for i in data if (mostly_alpha(str(i)) < 65)], key=len)
     print(
-        f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[2:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n")
+        f"\n{print_trans} CHOOSE CATEGORY::: \n------------------------------------------------------------------------------------------------------\nCATEGORY OPTIONS:: {cat_options2[:len_cat]}\n{cat_options2[len_cat:]}\n------------------------------------------------------------------------------------------------------\n")
     location = str(
         input("CHOICE? \n"))
     sub_keys = {
@@ -933,8 +933,8 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             print(
                 f'{global_entry_count_remaining - len(skip_rows)} ROWS REMAINING TO IDENTIFY OUT OF {len(df)}')
             p_line()
-            print(df.iloc[[i]])
-            print(sort_by)
+            #print(df.iloc[[i]])
+            #print(sort_by)
             get_col = add_transaction_type(df, i, sort_by)
             # The regex is not perfect, adding to grab just the first word grouping as the key if add_trans doesn't work
             if get_col == None:

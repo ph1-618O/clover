@@ -39,7 +39,7 @@ dict4 = {
 }
 
 # def merge_dict(dict1, dict2):
-#     # pulling out format and seed info so it doesnt duplicate
+#     # pulling out format and seed info so it doesn't duplicate
     
 #     # Format row first
 #     if dict2['0_format'] == dict1['0_format']:

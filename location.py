@@ -142,6 +142,13 @@ def reverse_city(lat, long):
             #print(city_st)
             return city_st
 
+
+def scatter_locales(lat, lng, center):
+    expand_100 = cities_square(lat, lng, 25)
+    
+
+
+
 def spiral_locales(lat, lng, center):
     # Using 25 because that makes a radius of 50ish miles
     decrement_list = list(fib(25))

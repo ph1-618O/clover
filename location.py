@@ -99,7 +99,7 @@ def cities_square(lat, long, miles):
 
 
 def fib(n):
-    a, b = 0, 1
+    a, b = 0, 0.125
     for _ in range(n):
         yield a
         a, b = b, a + b
@@ -165,15 +165,18 @@ def spiral_locales(lat, lng, center):
                     surrounding_locals.append(place)
                     break 
     print(surrounding_locals)
-
-
-def main():
-    #find_location()
+    
+def make_location_stop_words():
     center = 'Norfolk, VA'
     found = find_lat_lng(center)
     lat = found[0]
     lng = found[1]
     spiral_locales(lat, lng, center)
+
+
+def main():
+    find_location()
+    
     
 if __name__ == "__main__":
     main()

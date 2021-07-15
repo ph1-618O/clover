@@ -201,13 +201,13 @@ def mesh_square(lat, lng, center):
     X = np.linspace(xmin, xmax, 25)
     Y = np.linspace(ymax, ymin, 25)
     xx, yy = np.meshgrid(X, Y)
-    fig= plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(xx, yy, ls='None', marker='.')
-    # Longitude and latitude go in reverse order to standard graph, rotating
-    plt.gca().invert_yaxis()
-    plt.gca().invert_xaxis()
-    plt.show()
+    # fig= plt.figure()
+    # ax = fig.add_subplot(111)
+    # ax.plot(xx, yy, ls='None', marker='.')
+    # # Longitude and latitude go in reverse order to standard graph, rotating
+    # plt.gca().invert_yaxis()
+    # plt.gca().invert_xaxis()
+    # plt.show()
     #xx//p
     #yy//p
     print(xx.shape)
@@ -218,10 +218,20 @@ def mesh_square(lat, lng, center):
     coords = list(zip(x_list, y_list))
 
     # Attempting to image on a map all of the points included to see where the error is
+    x_list = xx.flatten()
+    y_list = yy.flatten()
     coord_dict = {'longitude':x_list, 'latitude':y_list}
     coord_df = pd.DataFrame(coord_dict)
-    BBox = (())
-
+    BBox = (coord_df.longitude.min(), coord_df.longitude.max(), coord_df.latitude.min(), coord_df.latitude.max())
+    map_sq = plt.imread('..\map.png')
+    fig, ax = plt.subplots(figsize = (10,10))
+    ax.scatter(coord_df.longitude, coord_df.latitude, zorder=1, alpha= 0.2, c='b', s=1)
+    ax.set_title('Plotting Spatial Data on Map')
+    ax.set_xlim(BBox[0],BBox[1])
+    ax.set_ylim(BBox[2],BBox[3])
+    ax.imshow(map_sq, zorder=0, extent = BBox, aspect= 'equal')
+    plt.savefig('..\map_plot.png')
+    plt.show()
     #pp.pprint(coords)
     #print(len(coords))
     #print(coords)

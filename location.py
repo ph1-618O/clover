@@ -7,13 +7,38 @@
 from re import A
 from numpy.core.fromnumeric import _transpose_dispatcher
 from pandas.core.frame import DataFrame
-#import geopy
+import geopy
 import requests
 import json
 from config import gKey
 import math
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
+
+# Numpy print options
+import numpy as np
+
+class PrintArray:
+
+    def __init__(self, **kwargs):
+        self._kwargs = kwargs
+
+    def __repr__(self):
+        rpr = ('PrintArray(' + ', '.join([f'{name}={value}' for name, value in self._kwargs.items()]) + ')')
+        return rpr
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        if ufunc != np.floor_divide:
+            return NotImplemented
+        a = inputs[0]
+        with np.printoptions(**self._kwargs):
+            print(a)
+
+p = PrintArray(precision=4, linewidth=150, suppress=True)
+
+
+
+
 
 
 def find_location(target_query=None):
@@ -60,6 +85,8 @@ def find_lat_lng(target_query=None):
             lat = location["results"][0]["geometry"]["location"]["lat"]
             lng = location["results"][0]["geometry"]["location"]["lng"]
             #print(f'{target_query}: {lat}, {lng}')
+            print(l_type)
+            return lat, lng
             if l_type.lower() == 'approximate':
                 #print('returning true')
                 return lat, lng
@@ -90,6 +117,11 @@ def cities_square(lat, long, miles):
     east = long + d_long
     west = long - d_long
     
+    print(north)
+    print(south)
+    print(east)
+    print(west)
+
     bottom_left = ((lat - d_lat), (long - d_long))
     top_left = ((lat + d_lat), (long - d_long))
     top_right = ((lat + d_lat), (long + d_long))
@@ -139,14 +171,73 @@ def reverse_city(lat, long):
         else:
             #-1 removes the following comma
             city_st = ''.join(re.findall(regex_city_st2, address[0])).strip()[:-1]
-            #print(city_st)
+            #print(f'else{city_st}')
             return city_st
 
-
-def scatter_locales(lat, lng, center):
-    expand_100 = cities_square(lat, lng, 25)
     
+def mesh_square(lat, lng, center):
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import numpy as np
+    # Using 25 because that makes a radius of 50ish miles
+    surrounding_locals = []
+    expand_100 = cities_square(lat, lng, 10)
+    
+    print(expand_100)
+    # print(len(expand_100))
+    lat_sq = []
+    long_sq = []
+    for i in expand_100:
+        lat_sq.append(i[0])
+        long_sq.append(i[1])
+    #print(lat_sq)
+    #print(long_sq)
+    xmin, xmax, ymin, ymax = min(lat_sq), max(lat_sq), min(long_sq), max(long_sq)
+    print(xmin)
+    print(xmax)
+    print(ymin)
+    print(ymax)
+    #Creating a Numpy Mesh Grid of long, lat points and graphing
+    X = np.linspace(xmin, xmax, 25)
+    Y = np.linspace(ymax, ymin, 25)
+    xx, yy = np.meshgrid(X, Y)
+    fig= plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(xx, yy, ls='None', marker='.')
+    # Longitude and latitude go in reverse order to standard graph, rotating
+    plt.gca().invert_yaxis()
+    plt.gca().invert_xaxis()
+    plt.show()
+    #xx//p
+    #yy//p
+    print(xx.shape)
 
+    # Trying to pull out all of the points within the imaged mesh grid
+    x_list = xx.flatten()
+    y_list = yy.flatten()
+    coords = list(zip(x_list, y_list))
+
+    # Attempting to image on a map all of the points included to see where the error is
+    coord_dict = {'longitude':x_list, 'latitude':y_list}
+    coord_df = pd.DataFrame(coord_dict)
+    BBox = (())
+
+    #pp.pprint(coords)
+    #print(len(coords))
+    #print(coords)
+
+    exit()
+    #xx, yy = np.meshgrid(np.linspace(xmax, xmin, 7), np.linspace(ymax, ymin, 7))
+    #xx//p
+    #yy//p
+    for coord in coords:
+        place = reverse_city(coord[0], coord[1])
+        if place not in surrounding_locals:
+            surrounding_locals.append(place)
+        if place == center:
+            surrounding_locals.append(place)
+            break 
+    print(surrounding_locals)
 
 
 def spiral_locales(lat, lng, center):
@@ -178,11 +269,13 @@ def make_location_stop_words():
     found = find_lat_lng(center)
     lat = found[0]
     lng = found[1]
-    spiral_locales(lat, lng, center)
+    mesh_square(lat, lng, center)
+    #spiral_locales(lat, lng, center)
 
 
 def main():
-    find_location()
+    make_location_stop_words()
+    #find_location()
     
     
 if __name__ == "__main__":

@@ -165,7 +165,9 @@ def reverse_city(lat, long):
             city_st = ''.join(re.findall(regex_city_st1, address[0])).strip()
             #print(city_st)
             return city_st
-        elif address[0].lower() == 'united states':
+        elif 3 > address[0].count(',') > 0:
+            return address[0][:address[0].find(',')]
+        elif address[0].lower() == 'united states' or address[0].count(',') == 0:
             pass
             #print('In the ocean')
         else:
@@ -174,79 +176,108 @@ def reverse_city(lat, long):
             #print(f'else{city_st}')
             return city_st
 
-    
-def mesh_square(lat, lng, center):
-    import pandas as pd
+def graph_mesh_square(xmin, xmax, ymin, ymax):
     import matplotlib.pyplot as plt
     import numpy as np
-    # Using 25 because that makes a radius of 50ish miles
-    surrounding_locals = []
-    expand_100 = cities_square(lat, lng, 10)
-    
-    print(expand_100)
-    # print(len(expand_100))
-    lat_sq = []
-    long_sq = []
-    for i in expand_100:
-        lat_sq.append(i[0])
-        long_sq.append(i[1])
-    #print(lat_sq)
-    #print(long_sq)
-    xmin, xmax, ymin, ymax = min(lat_sq), max(lat_sq), min(long_sq), max(long_sq)
-    print(xmin)
-    print(xmax)
-    print(ymin)
-    print(ymax)
-    #Creating a Numpy Mesh Grid of long, lat points and graphing
     X = np.linspace(xmin, xmax, 25)
     Y = np.linspace(ymax, ymin, 25)
     xx, yy = np.meshgrid(X, Y)
-    # fig= plt.figure()
-    # ax = fig.add_subplot(111)
-    # ax.plot(xx, yy, ls='None', marker='.')
-    # # Longitude and latitude go in reverse order to standard graph, rotating
-    # plt.gca().invert_yaxis()
-    # plt.gca().invert_xaxis()
-    # plt.show()
+    # variable//p calls PrintArray Class pretty prints numpy arracy 
     #xx//p
     #yy//p
-    print(xx.shape)
+    fig= plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(xx, yy, ls='None', marker='.')
+    # Longitude and latitude go in reverse order to standard graph, rotating
+    plt.gca().invert_yaxis()
+    plt.gca().invert_xaxis()
+    plt.savefig('..\mesh.png')
+    plt.show()
 
-    # Trying to pull out all of the points within the imaged mesh grid
-    x_list = xx.flatten()
-    y_list = yy.flatten()
-    coords = list(zip(x_list, y_list))
-
-    # Attempting to image on a map all of the points included to see where the error is
-    x_list = xx.flatten()
-    y_list = yy.flatten()
-    coord_dict = {'longitude':x_list, 'latitude':y_list}
-    coord_df = pd.DataFrame(coord_dict)
-    BBox = (coord_df.longitude.min(), coord_df.longitude.max(), coord_df.latitude.min(), coord_df.latitude.max())
-    map_sq = plt.imread('..\map.png')
-    fig, ax = plt.subplots(figsize = (10,10))
-    ax.scatter(coord_df.longitude, coord_df.latitude, zorder=1, alpha= 0.2, c='b', s=1)
+def graph_mesh_image(xmin, xmax, ymin, ymax):
+    import matplotlib.pyplot as plt
+    import numpy as np
+    X = np.linspace(xmin, xmax, 10)
+    Y = np.linspace(ymax, ymin, 10)
+    xx, yy = np.meshgrid(X, Y)
+    fig= plt.figure()
+    ax = fig.add_subplot(111)
+    BBox = (xmin, xmax, ymin, ymax)
+    map_sq = plt.imread('..\map2.png')
+    ax.plot(xx, yy, ls='None', marker='.',  zorder=1, alpha= 0.2, c='b')
     ax.set_title('Plotting Spatial Data on Map')
     ax.set_xlim(BBox[0],BBox[1])
     ax.set_ylim(BBox[2],BBox[3])
     ax.imshow(map_sq, zorder=0, extent = BBox, aspect= 'equal')
     plt.savefig('..\map_plot.png')
     plt.show()
-    #pp.pprint(coords)
-    #print(len(coords))
-    #print(coords)
 
-    exit()
-    #xx, yy = np.meshgrid(np.linspace(xmax, xmin, 7), np.linspace(ymax, ymin, 7))
-    #xx//p
-    #yy//p
-    for coord in coords:
-        place = reverse_city(coord[0], coord[1])
-        if place not in surrounding_locals:
-            surrounding_locals.append(place)
-        if place == center:
-            surrounding_locals.append(place)
-            break 
+def graph_numpy_df(xmin, xmax, ymin, ymax):
+    import matplotlib.pyplot as plt
+    import numpy as np
+    X = np.linspace(xmin, xmax, 10)
+    Y = np.linspace(ymax, ymin, 10)
+    xx, yy = np.meshgrid(X, Y)
+    # Attempting to image on a map all of the points included to see where the error is
+    x_list = xx.flatten()
+    y_list = yy.flatten()
+    coord_dict = {'longitude':x_list, 'latitude':y_list}
+    coord_df = pd.DataFrame(coord_dict)
+    BBox = (coord_df.longitude.min(), coord_df.longitude.max(), coord_df.latitude.min(), coord_df.latitude.max())
+    map_sq = plt.imread('..\map2.png')
+    fig, ax = plt.subplots(figsize = (10,10))
+    ax.scatter(coord_df.longitude, coord_df.latitude, zorder=1, alpha= 0.2, c='b', s=1)
+    ax.set_title('Plotting Spatial Data on Map')
+    ax.set_xlim(BBox[0],BBox[1])
+    ax.set_ylim(BBox[2],BBox[3])
+    #ax.imshow(map_sq, zorder=0, extent = BBox, aspect= 'equal')
+    ax.imshow(map_sq, zorder=0, extent=BBox, aspect= 100)
+    plt.axis('scaled')
+    plt.savefig('..\map_plot2.png')
+    plt.show()
+
+def mesh_square(lat, lng, center):
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import numpy as np
+    # Using 25 because that makes a radius of 50ish miles
+    surrounding_locals = []
+    expand_100 = cities_square(lat, lng, 25)
+    
+    print(expand_100)
+    # print(len(expand_100))
+    lat_sq = []
+    long_sq = []
+    # code below is for graphing
+    # for i in expand_100:
+    #     long_sq.append(i[0])
+    #     lat_sq.append(i[1])
+    # xmin, xmax, ymin, ymax = min(lat_sq), max(lat_sq), min(long_sq), max(long_sq)
+    #graph_mesh_square(xmin, xmax, ymin, ymax)
+    #graph_mesh_image(xmin, xmax, ymin, ymax)
+
+    for i in expand_100:
+        long_sq.append(i[1])
+        lat_sq.append(i[0])
+    xmin, xmax, ymin, ymax = min(lat_sq), max(lat_sq), min(long_sq), max(long_sq)
+    X = np.linspace(xmin, xmax, 10)
+    Y = np.linspace(ymax, ymin, 10)
+    xx, yy = np.meshgrid(X, Y)
+    x_list = xx.flatten()
+    y_list = yy.flatten()
+    coords = list(zip(x_list, y_list))
+
+    counter = 0
+    while counter < 5:
+        for coord in coords:
+            place = reverse_city(coord[0], coord[1])
+            #print(place)
+            counter += 1
+            if place not in surrounding_locals and place != None:
+                surrounding_locals.append(place)
+            if place == center and place not in surrounding_locals:
+                surrounding_locals.append(place)
+                break
     print(surrounding_locals)
 
 

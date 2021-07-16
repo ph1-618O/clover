@@ -4,7 +4,8 @@
         "col",
         "data",
         "dups",
-        "nums"
+        "nums",
+        "rfind"
     ],
     "cSpell.ignoreWords": [
         "trav"

@@ -85,8 +85,9 @@ def find_lat_lng(target_query=None):
             lat = location["results"][0]["geometry"]["location"]["lat"]
             lng = location["results"][0]["geometry"]["location"]["lng"]
             #print(f'{target_query}: {lat}, {lng}')
-            print(l_type)
+            #print(l_type)
             return lat, lng
+            ########       
             if l_type.lower() == 'approximate':
                 #print('returning true')
                 return lat, lng
@@ -116,12 +117,10 @@ def cities_square(lat, long, miles):
     south = lat - d_lat
     east = long + d_long
     west = long - d_long
-    
-    print(north)
-    print(south)
-    print(east)
-    print(west)
-
+    # print(north)
+    # print(south)
+    # print(east)
+    # print(west)
     bottom_left = ((lat - d_lat), (long - d_long))
     top_left = ((lat + d_lat), (long - d_long))
     top_right = ((lat + d_lat), (long + d_long))
@@ -150,6 +149,7 @@ def reverse_Fibonacci(n):
     
 def reverse_city(lat, long):
     # sending lat and long to google api to find the city state
+    import string
     import re
     import geopy
     from geopy.geocoders import GoogleV3
@@ -163,18 +163,23 @@ def reverse_city(lat, long):
     if address:
         if address[0].count(',') >= 3:
             city_st = ''.join(re.findall(regex_city_st1, address[0])).strip()
-            #print(city_st)
+            #print(f' Greater three {city_st}')
             return city_st
         elif address[0].count(',') == 2:
-            retun address[0][:-1]
-            #return address[0][:address[0].find(',')]
+            step1 = address[0][:address[0].rfind(",")]
+            # some addresses return with zip codes, removing those nums
+            if step1[-1].isnumeric():
+                return ' '.join(step1.split()[:-1])
+            else:
+                return address[0][:address[0].rfind(",")]
+            #return address[0][:-1]
         elif address[0].lower() == 'united states' or address[0].count(',') == 0:
             pass
             #print('In the ocean')
         else:
             #-1 removes the following comma
             city_st = ''.join(re.findall(regex_city_st2, address[0])).strip()[:-1]
-            #print(f'else{city_st}')
+            print(f'else{city_st}')
             return city_st
 
 def graph_mesh_square(xmin, xmax, ymin, ymax):
@@ -245,8 +250,7 @@ def mesh_square(lat, lng, center):
     surrounding_locals = []
     expand_100 = cities_square(lat, lng, 25)
     
-    print(expand_100)
-    # print(len(expand_100))
+    #print(expand_100)
     lat_sq = []
     long_sq = []
     # code below is for graphing
@@ -268,18 +272,24 @@ def mesh_square(lat, lng, center):
     y_list = yy.flatten()
     coords = list(zip(x_list, y_list))
 
-    counter = 0
-    while counter < 5:
-        for coord in coords:
-            place = reverse_city(coord[0], coord[1])
+    for coord in coords:
+            city_state = reverse_city(coord[0], coord[1])
+            place = city_state.split(',')
             #print(place)
-            counter += 1
-            if place not in surrounding_locals and place != None:
-                surrounding_locals.append(place)
-            if place == center and place not in surrounding_locals:
-                surrounding_locals.append(place)
-                break
-    print(surrounding_locals)
+            for i in place:
+                i = i.lower()
+                if i in surrounding_locals:
+                    continue
+                elif i not in surrounding_locals and i != None:
+                    surrounding_locals.append(i)
+                else:
+                    continue
+                # if i == center and i not in surrounding_locals:
+                #     surrounding_locals.append(i.strip())
+    # for i in surrounding_locals:
+    #     print(i)
+    
+    return surrounding_locals
 
 
 def spiral_locales(lat, lng, center):
@@ -306,18 +316,19 @@ def spiral_locales(lat, lng, center):
                     break 
     print(surrounding_locals)
     
-def make_location_stop_words():
-    center = 'Norfolk, VA'
+def remove_location(center):
+    #center = 'Norfolk, VA'
     found = find_lat_lng(center)
     lat = found[0]
     lng = found[1]
-    mesh_square(lat, lng, center)
+    locations = mesh_square(lat, lng, center)
     #spiral_locales(lat, lng, center)
+    return locations
 
 
 def main():
-    make_location_stop_words()
-    #find_location()
+    #make_location_stop_words()
+    find_location()
     
     
 if __name__ == "__main__":

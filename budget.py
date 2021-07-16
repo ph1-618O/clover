@@ -449,12 +449,12 @@ def constrain_input_loop(sort_query, list_options):
                 # why is error thrown when exit == 'y' ??
 
 
-global_state = []
+#lobal_state = []
 global_entry_count_processed = 0
 global_entry_count_remaining = 0
 
 
-def remove_city_state(tokens_removed):
+def remove_city_state(global_state, tokens_removed):
     import location
     import json
     with open('data/stateAbbrv.json') as state:
@@ -601,7 +601,7 @@ def remove_stop_words(transaction_word_list):
 # \b([A-Za-z]{3, }+(?: [A-Za-z]+)*)(?<!WWW | COM | SQ | TST | bill)
 
 
-def add_transaction_type(df, i, sort_by=0):
+def add_transaction_type(df, i, global_state, sort_by=0):
     if sort_by:
         # Using re.sub to remove everyting but numbers and words
         # print(f'Sending to Remove Stop Words {df[sort_by][i]}')
@@ -613,7 +613,7 @@ def add_transaction_type(df, i, sort_by=0):
         # print('test2 remove 3 char words')
         # print(re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]))
 
-        no_city_state = remove_city_state(df[sort_by][i].split())
+        no_city_state = remove_city_state(global_state, df[sort_by][i].split())
         # no_city_state = remove_city_state(
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]).split())
 
@@ -737,7 +737,7 @@ def make_dict(categories, cols, old_dict=0):
 
 # <<<<<<<<WORKING>>>>>>>>>>>
 # Need to clean up add_Data and search_dict
-def search_dict(budget_dict, data, data_point):  # location is column name
+def search_dict(global_state, budget_dict, data, data_point):  # location is column name
     print(f"SEARCHING DICT FOR {data_point.upper()}")
     if data_point.lower() == "the" or data_point.lower() in global_state:
         pass
@@ -901,7 +901,7 @@ def add_data(budget_dict, data):
     return budget_dict
 
 
-def split_purchases(df, formatted_df=0, budget_dict=0):
+def split_purchases(df, global_state, formatted_df=0, budget_dict=0):
     global_entry_count_remaining = len(df)
     global_entry_count_processed = 0
     # cols = confirm_cols(df, formatted_df)
@@ -935,7 +935,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
             p_line()
             #print(df.iloc[[i]])
             #print(sort_by)
-            get_col = add_transaction_type(df, i, sort_by)
+            get_col = add_transaction_type(df, i, global_state, sort_by)
             # The regex is not perfect, adding to grab just the first word grouping as the key if add_trans doesn't work
             if get_col == None:
                 identity = df['transaction'][i].split()[0]
@@ -974,7 +974,7 @@ def split_purchases(df, formatted_df=0, budget_dict=0):
         else:
             continue
         # print(identity)
-        searched_dict = search_dict(trans_type, data, identity)
+        searched_dict = search_dict(global_state, trans_type, data, identity)
         new_dict = searched_dict[0]
         if "identified" not in searched_dict[1].lower():
             budget_dict = add_data(new_dict, data)
@@ -1356,6 +1356,19 @@ def conn_mongo(data):
     pprint.pprint(db.budgetDB.find())
     # db.budgetDB.find().pretty()
 
+def get_surrounding_locals():
+    import location
+    p_slash()
+    print("LOCATION QUERY")
+    p_slash()
+    p_line()
+    address = input('WHAT IS YOUR ADDRESS\n')
+    p_line()
+    p_slash()
+    print('UPDATING LOCATION IN PROGRESS..')
+    p_slash()
+    global_state = location.remove_location(address)
+    return global_state
 
 def main():
     global_entry_count_remaining = 0
@@ -1363,7 +1376,14 @@ def main():
     # Starting the timer
     #-----------------------------------------------------------------------------------------------------------
     t_start = datetime.datetime.now()
-    
+    #-----------------------------------------------------------------------------------------------------------
+    # Asking for address to create the list of city, states to remove from transaction
+    #-----------------------------------------------------------------------------------------------------------
+    timer_s = datetime.datetime.now()
+    global_state = get_surrounding_locals()
+    timer_end = datetime.datetime.now()
+    print(f"PROGRAM EXECUTION TIME {(timer_end - timer_s).total_seconds()/60}")
+    print(global_state)
     #-----------------------------------------------------------------------------------------------------------
     # # Getting new data, initiating the program
     #-----------------------------------------------------------------------------------------------------------
@@ -1457,7 +1477,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 1")
         p_line()
-        trans_dict = split_purchases(data, formatted_df, imported_dict)
+        trans_dict = split_purchases(data, global_state, formatted_df, imported_dict)
         
     elif imported_dict and (testing_frames[0] == True):
         p_slash()
@@ -1470,7 +1490,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 2")
         p_line()
-        trans_dict = split_purchases(data, formatted_df)
+        trans_dict = split_purchases(data, global_state, formatted_df)
     final_dict = trans_dict
     
     

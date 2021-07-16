@@ -165,8 +165,9 @@ def reverse_city(lat, long):
             city_st = ''.join(re.findall(regex_city_st1, address[0])).strip()
             #print(city_st)
             return city_st
-        elif 3 > address[0].count(',') > 0:
-            return address[0][:address[0].find(',')]
+        elif address[0].count(',') == 2:
+            retun address[0][:-1]
+            #return address[0][:address[0].find(',')]
         elif address[0].lower() == 'united states' or address[0].count(',') == 0:
             pass
             #print('In the ocean')

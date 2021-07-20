@@ -641,7 +641,7 @@ def add_transaction_type(df, i, global_state, sort_by=0):
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
         # )
         # p_slash()
-        # print(f'Purchase type after filters {purchase_type}')
+        print(f'Purchase type after filters {purchase_type}')
         for index in range(len(purchase_type)):
             if len(purchase_type[index]) < 3:
                 sort_by = 'transaction'  # was None to limit the id to > 3 letters but that didn't work
@@ -650,6 +650,26 @@ def add_transaction_type(df, i, global_state, sort_by=0):
                 # grabbing the edge cases that the regex fails?
                 if purchase_type[index].lower() == 'tst' or purchase_type[index].lower() == 'usa' or purchase_type[index].lower() == 'www' or purchase_type[index].lower() == 'afc':
                     continue
+                # NEW STUFF NOT WORKING
+                # elif isinstance(purchase_type, str) and purchase_type.lower() in global_state:
+                #     purchase_type = df[sort_by][i]
+                #     p_slash()
+                #     print(
+                #         f'TESTING IDENTIFIER:: "{purchase_type}"')
+                #     p_slash()
+                #     print(
+                #         f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::"{(purchase_type).upper()}"'
+                #     )
+                #     return sort_by, purchase_type
+                # elif (purchase_type[0].isalpha() and purchase_type[1].isalpha()) or (purchase_type[0] in global_state) or (purchase_type[1] in global_state):
+                #     p_slash()
+                #     print(f'TESTING IDENTIFIER:: "{purchase_type[0] + purchase_type[1]}"')
+                #     p_slash()
+                #     print(
+                #         f'SORTING TRANSACTION:: "{str(sort_by).upper()}" BY IDENTIFIER::"{(purchase_type[0] + purchase_type[1]).upper()}"'
+                #     )
+                #     first_two = purchase_type[0] + purchase_type[1]
+                #     return sort_by, first_two.lower()
                 elif purchase_type[index].lower() in global_state:
                     continue
                 else:
@@ -1383,7 +1403,7 @@ def main():
     global_state = get_surrounding_locals()
     timer_end = datetime.datetime.now()
     print(f"PROGRAM EXECUTION TIME {(timer_end - timer_s).total_seconds()/60}")
-    print(global_state)
+    #print(global_state)
     #-----------------------------------------------------------------------------------------------------------
     # # Getting new data, initiating the program
     #-----------------------------------------------------------------------------------------------------------
@@ -1477,7 +1497,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 1")
         p_line()
-        trans_dict = split_purchases(data, global_state, formatted_df, imported_dict)
+        trans_dict = split_purchases(data.head(), global_state, formatted_df, imported_dict)
         
     elif imported_dict and (testing_frames[0] == True):
         p_slash()
@@ -1490,7 +1510,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 2")
         p_line()
-        trans_dict = split_purchases(data, global_state, formatted_df)
+        trans_dict = split_purchases(data.head(), global_state, formatted_df)
     final_dict = trans_dict
     
     

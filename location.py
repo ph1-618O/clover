@@ -280,8 +280,11 @@ def mesh_square(lat, lng, center):
                 i = i.lower()
                 if i in surrounding_locals:
                     continue
-                elif i not in surrounding_locals and i != None:
+                elif i not in surrounding_locals and i != None and len(i) > 2:
                     surrounding_locals.append(i)
+                elif i not in surrounding_locals and i != None and len(i) < 2:
+                    #problem with state removing things like WA from Washington Store etc 
+                    surrounding_locals.append(' i ')
                 else:
                     continue
                 # if i == center and i not in surrounding_locals:
@@ -327,7 +330,7 @@ def remove_location(center):
 
 
 def main():
-    #make_location_stop_words()
+    #remove_location()
     find_location()
     
     

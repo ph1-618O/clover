@@ -4,6 +4,7 @@
         "col",
         "data",
         "dups",
+        "isalpha",
         "nums",
         "rfind"
     ],

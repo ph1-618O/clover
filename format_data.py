@@ -450,6 +450,8 @@ def get_col_names(df):
     p_line()
     print('RENAMING COLUMNS SUCCESS')
     p_line()
+    print(renamed_cols)
+    print(rename_cols_query)
     return renamed_cols, rename_cols_query
 
 

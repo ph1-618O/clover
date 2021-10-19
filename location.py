@@ -324,6 +324,8 @@ def remove_location(center):
     found = find_lat_lng(center)
     lat = found[0]
     lng = found[1]
+    #print(lat)
+    #print(lng)
     locations = mesh_square(lat, lng, center)
     #spiral_locales(lat, lng, center)
     return locations

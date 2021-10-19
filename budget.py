@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3su
 # coding: utf-8
 
 # Budget.py takes a given csv, clipboard copy from a table, or excel file and sorts the data
@@ -149,7 +149,27 @@ def get_data_type():
             print("CHECKING COLUMNS")
             import format_data
             check_cols = format_data.get_col_names(data)
-            data = check_cols[1]
+            data.columns = check_cols[0]
+            print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
+            print("DATASET SAMPLE")
+            p_line()
+            pp.pprint(data.head())
+            p_line()
+            print('\n\n')
+            formatted = "formatted"
+            
+        elif "csv" in import_data.lower() and "n" in query_format.lower():
+                # Normalizing the column names to lower
+            data = read_data("csv")
+            for i in data.columns:
+                data = data.rename(columns={i: i.lower()})
+            p_line()
+            print("CHECKING COLUMNS")
+            import format_data
+            check_cols = format_data.get_col_names(data)
+            data.columns = check_cols[0]
+            for i in data.columns:
+                data = data.rename(columns={i: i.lower()})
             print(f'\n"{import_data.upper()}" DATASET, ...IMPORT SUCCESS\n')
             print("DATASET SAMPLE")
             p_line()
@@ -179,6 +199,7 @@ def get_data_type():
                 print("DATASET")
                 p_line()
                 pp.pprint(data.head())
+                formatted = "formatted"
 
             elif "format" in query_format.lower() or "n" in query_format.lower():
                 data = read_data("csv")
@@ -193,9 +214,10 @@ def get_data_type():
                 p_slash()
                 print("DATASET SAMPLE")
                 p_line()
+                print(data)
                 pp.pprint(data.head())
                 p_line()
-        formatted = "formatted"
+        
 
     elif "excel" in import_data or "xls" in import_data:
         data = read_data("excel")
@@ -1097,8 +1119,15 @@ def test_date(df, test_dict=0):
                 # add second conditional here that tests the col for floats, ints and strings
                 #print("CONVERTING DATAFRAME DATES TO DATETIME")
                 #p_slash()
-                df[tested] = pd.to_datetime(
-                    df[tested], format='%Y-%m-%d %H:%M:%S')
+                try:
+                    df[tested] = pd.to_datetime(df[tested])
+                #     df[tested] = pd.to_datetime(
+                #         df[tested], format='%Y-%m-%d %H:%M:%S')
+                # df[tested].map(datetime.strptime())
+                except ValueError:
+                    print('Some kind of error')
+                #     df[tested] = pd.to_datetime(
+                #         df[tested], format='%m/%d/%Y %H:%M:%S')
         # pp.pprint(df)
         return df
 
@@ -1385,7 +1414,7 @@ def get_surrounding_locals():
     address = input('WHAT IS YOUR ADDRESS\n')
     p_line()
     p_slash()
-    print('UPDATING LOCATION IN PROGRESS..')
+    print('UPDATING LOCATION IN PROGRESS........PLEASE WAIT THIS CAN TAKE UP TO A MINUTE')
     p_slash()
     global_state = location.remove_location(address)
     return global_state

@@ -23,10 +23,10 @@ def make_table(df):
         cells=dict(values=[df.date, df.transaction, df.amount, df.identifier, df.category], fill_color='lavender', align='left'))
     ])
     fig.write_image('images/table.jpg')
-
+    #fig show prints out the jpg
     #fig.show()
 
-data = pd.read_csv('sample_data_categories.csv')
+data = pd.read_csv('../data/sample_data_categories.csv')
 col_names = []
 for col in data.columns:
     col_names.append(col)

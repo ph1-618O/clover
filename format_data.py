@@ -439,6 +439,7 @@ def get_col_names(df):
                 print(f"THESE ARE NAMES ENTERED PLEASE TRY AGAIN:: {renamed_cols}\n")
                 rename_cols_query = "test"
         elif "n" in rename_cols_query:
+            renamed_cols = df.columns
             return renamed_cols, rename_cols_query
         else:
             print("INVALID INPUT")

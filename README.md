@@ -1,6 +1,13 @@
 # Clover 🍀
 Clover is an application that utilizes banking data that the user inputs (.csv, .xls, clipboard), graphs the data, creates an interactive budget, analyzes the spending, and makes saving suggestions for future purchases.<br><br>
 # Table Examples
+
+ |   |   |   |   |   | |||
+|---|---|---|---|---|---|---|---|
+ | **Table**       | **Treemap**         | **Sunburst**     | **BarGraph** |  |
+ | health       |life insurance| essential    | fixed          | re-occuring          | 'AAA Insurance| -50     | 01/22/21| AAA INSURANCE PAYMENT 48684   |
+ | entertainment|movies        | non-essential| variable       | one-time             | 'REGAL'       | -15     | 01/12/21| CINEMA REGAL PARK WEST VA 1588|
+
 <img src="https://raw.githubusercontent.com/ph1-618O/clover/0eda1a103df41657d5cedc2c45903670b4992ff5/notebooks/table_blue.svg" alt="Tables" width="300"/>
 <img src="https://raw.githubusercontent.com/ph1-618O/clover/f0333334e149884116ec302aca78353de6c21394/notebooks/fig4.svg" alt="TreeMap" width="200"/>
 <img src="https://raw.githubusercontent.com/ph1-618O/clover/f0333334e149884116ec302aca78353de6c21394/images/sunburst.svg" alt="Sunburst" width="200"/>

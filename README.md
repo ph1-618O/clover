@@ -5,7 +5,7 @@ Clover is an application that utilizes banking data that the user inputs (.csv, 
  |   |   |   |   |
 |---|---|---|---|
  | **Table**       | **Treemap**         | **Sunburst**     | **BarGraph** |
- | <img src="https://raw.githubusercontent.com/ph1-618O/clover/0eda1a103df41657d5cedc2c45903670b4992ff5/notebooks/table_blue.svg" alt="Tables" width="300"/>      |<img src="https://raw.githubusercontent.com/ph1-618O/clover/f0333334e149884116ec302aca78353de6c21394/notebooks/fig4.svg" alt="TreeMap" width="250"/>| <img src="https://raw.githubusercontent.com/ph1-618O/clover/f0333334e149884116ec302aca78353de6c21394/images/sunburst.svg" alt="Sunburst" width="250"/>  | <img src="https://raw.githubusercontent.com/ph1-618O/clover/bd7f89d8a958eb0df11997e866e57e2e8bfb78d1/notebooks/bar.svg" alt="Bar Graph" width="250"/> || 
+ | <img src="https://raw.githubusercontent.com/ph1-618O/clover/0eda1a103df41657d5cedc2c45903670b4992ff5/notebooks/table_blue.svg" alt="Tables" width="300"/>      |<img src="https://raw.githubusercontent.com/ph1-618O/clover/f0333334e149884116ec302aca78353de6c21394/notebooks/fig4.svg" alt="TreeMap" width="250"/>| <img src="https://github.com/ph1-618O/clover/blob/main/notebooks/sunburst.svg" alt="Sunburst" width="250"/>  | <img src="https://raw.githubusercontent.com/ph1-618O/clover/bd7f89d8a958eb0df11997e866e57e2e8bfb78d1/notebooks/bar.svg" alt="Bar Graph" width="250"/> || 
  |||||| 
 
 

@@ -3,7 +3,7 @@ Clover is an application that utilizes banking data that the user inputs (.csv, 
 # Table Examples
 
  |   |   |   |   |   | |||
-|---|---|---|---|---|---|---|---|
+|---|---|---|---|---|
  | **Table**       | **Treemap**         | **Sunburst**     | **BarGraph** |  |
  | health       |life insurance| essential    | fixed          | re-occuring          | 
  | entertainment|movies        | non-essential| variable       | one-time             | 

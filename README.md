@@ -1,6 +1,9 @@
 # Clover 🍀
 Clover is an application that utilizes banking data that the user inputs (most often in the form of an excel file) and creates an interactive budget, analyzes the spending, and makes saving suggestions for future purchases.
-
+![Tables](https://github.com/ph1-618O/clover/blob/main/images/table.png?raw=true)
+![TreeMap](https://raw.githubusercontent.com/ph1-618O/clover/f0333334e149884116ec302aca78353de6c21394/notebooks/fig4.svg)
+![Starburst](https://raw.githubusercontent.com/ph1-618O/clover/f0333334e149884116ec302aca78353de6c21394/images/sunburst.svg)
+![BarGraphs](http://url/to/img.png)
 # User Instructions
 - Open terminal, or anaconda prompt
 - Navigate to the folder location of format_data.py and budget.py

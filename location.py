@@ -4,6 +4,8 @@
 # You can have up to 2,500 free directions requests per day
 # and the cost for additional requests is $0.50 USD per 1000 additional requests, up to 100,000 daily.
 # Location.py takes a string like "FOOD LION #1234 VIRGINIA BEACVA" or "AUTOZONE 1826 ARLINGTON VA" and verifies if there is a city and state located within it
+import os
+import re
 from re import A
 from numpy.core.fromnumeric import _transpose_dispatcher
 from pandas.core.frame import DataFrame
@@ -36,8 +38,20 @@ class PrintArray:
 
 p = PrintArray(precision=4, linewidth=150, suppress=True)
 
+line_size = os.get_terminal_size()
+line = line_size[0]
+def p_line():
+    line = ''
+    for i in range(line_size[0]):
+        line += '-'
+    print(line)
 
 
+def p_slash():
+    line = ''
+    for i in range(line_size[0]):
+        line += '/'
+    print(line)
 
 
 
@@ -271,27 +285,51 @@ def mesh_square(lat, lng, center):
     x_list = xx.flatten()
     y_list = yy.flatten()
     coords = list(zip(x_list, y_list))
-
+    p_line()
+    p_slash()
+    print('POPULATING NEARBY LOCATIONS')
+    p_slash()
     for coord in coords:
             city_state = reverse_city(coord[0], coord[1])
-            place = city_state.split(',')
-            #print(place)
-            for i in place:
-                i = i.lower()
-                if i in surrounding_locals:
-                    continue
-                elif i not in surrounding_locals and i != None and len(i) > 2:
-                    surrounding_locals.append(i)
-                elif i not in surrounding_locals and i != None and len(i) < 2:
-                    #problem with state removing things like WA from Washington Store etc 
-                    surrounding_locals.append(' i ')
-                else:
-                    continue
+            if city_state != None:
+                city_state = city_state.strip()
+                # Fixing #97RW+V5 Almonds, VA, removing initial code by nums and + sign
+                if re.findall('[0-9]', city_state) or re.findall('[+]', city_state):
+                    place = city_state.split()
+                    remove_nums = []
+                    for entry in range(len(place)):
+                        #print(place[entry])
+                        if re.findall('[0-9]', place[entry]) or re.findall('[+]', place[entry]):
+                            remove_nums.append(entry)
+                    def remove_multiple_elem(list_obj, loc):
+                        loc = sorted(loc, reverse=True)
+                        for index in loc:
+                            if index < len(list_obj):
+                                list_obj.pop(index)
+                    if remove_nums:
+                        new_place = remove_multiple_elem(place, remove_nums)
+                    new_place = ' '.join(place)
+                    if ',' in new_place:
+                        new_place = new_place.split(',')
+                elif ',' in city_state:
+                    new_place = city_state.split(',')
+                for i in new_place:
+                    if i != None:
+                        i = i.lower().strip()
+                    #print(i.upper())
+                    if i in surrounding_locals:
+                        continue
+                    elif i not in surrounding_locals and i != None and len(i) > 2:
+                        print(i.capitalize())
+                        surrounding_locals.append(i)
+                    elif i not in surrounding_locals and i != None and len(i) <= 2:
+                        #problem with state removing things like WA from Washington Store etc 
+                        print(i.upper())
+                        surrounding_locals.append(i)
+                    else:
+                        continue
                 # if i == center and i not in surrounding_locals:
                 #     surrounding_locals.append(i.strip())
-    # for i in surrounding_locals:
-    #     print(i)
-    
     return surrounding_locals
 
 

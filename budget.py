@@ -1526,7 +1526,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 1")
         p_line()
-        trans_dict = split_purchases(data.head(), global_state, formatted_df, imported_dict)
+        trans_dict = split_purchases(data.head(11), global_state, formatted_df, imported_dict)
         
     elif imported_dict and (testing_frames[0] == True):
         p_slash()
@@ -1539,7 +1539,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 2")
         p_line()
-        trans_dict = split_purchases(data.head(), global_state, formatted_df)
+        trans_dict = split_purchases(data.head(11), global_state, formatted_df)
     final_dict = trans_dict
     
     

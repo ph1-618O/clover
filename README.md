@@ -51,7 +51,7 @@ Clover is an application that utilizes banking data that the user inputs (.csv, 
 8. Once the entire data set is marked with category and identifier it passes the dictionary to pandas.
 9. Pandas creates a dataframe for output, it then queries the user if they'd like to save it as a CSV or add to a Database using MongoDB.
 10. Upon repeated uses of the program, once the new data is imported by the user, the app queries the database, and identifies the matching categories and ids.
-11. If any data is new and unitentifiable it queries the user for the correct category and identifier.
+11. If any data is new and unitdentifiable it queries the user for the correct category and identifier.
 
 
 For example one line of data may be:: 

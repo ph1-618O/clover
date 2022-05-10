@@ -3,7 +3,8 @@ Clover is an application that utilizes banking data that the user inputs (.csv, 
 <p align="center">
 |  # Video Demonstration | 
 |---|
-|[<img alt="Video Demo" width="600px" src="https://github.com/ph1-618O/clover/blob/main/images/%20clover_vid.png?raw=true" />](https://www.youtube.com/watch?v=SzM2wiOIGog)|</p>
+|[<img alt="Video Demo" width="600px" src="https://github.com/ph1-618O/clover/blob/main/images/%20clover_vid.png?raw=true" />](https://www.youtube.com/watch?v=SzM2wiOIGog)|
+</p>
 
 # Table Examples
 

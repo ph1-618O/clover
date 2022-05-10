@@ -1,7 +1,7 @@
 # Clover 🍀
 Clover is an application that utilizes banking data that the user inputs (.csv, .xls, clipboard), graphs the data, creates an interactive budget, analyzes the spending, and makes saving suggestions for future purchases.<br><br>
 # Video Demonstration
-<a href="{https://youtu.be/SzM2wiOIGog}" title="Clover Video"><img src="{https://github.com/ph1-618O/clover/blob/main/images/%20clover_vid.png}" alt="Clover Video" width="400"/></a>
+<a href="{https://www.youtube.com/watch?v=SzM2wiOIGog}" title="Clover Video"><img src="{https://github.com/ph1-618O/clover/blob/main/images/clover_vid.png}" alt="Clover Video" width="400"/></a>
 # Table Examples
 
  |   |   |   |   |

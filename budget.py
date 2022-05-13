@@ -645,7 +645,7 @@ def add_transaction_type(df, i, global_state, sort_by=0):
         print(df[sort_by][i])
         # Using re.sub to remove everyting but numbers and words
         # print(f'Sending to Remove Stop Words {df[sort_by][i]}')
-        regex_no_state = r"(?!WWW|COM|SQ|TST|bill)\b([A-Za-z]{3,}(?:[A-Za-z]+)*)"
+        regex_no_state = r"(?!WWW|COM| NEW|CITY|STREET|LANE|ROAD| CMG|NFO |MOB | PHR|TMF|SQ|TST|bill)\b([A-Za-z]{3,}(?:[A-Za-z]+)*)"
         # print('test1 remove state')
         # print(re.findall(regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
 

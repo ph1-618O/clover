@@ -646,18 +646,25 @@ def add_transaction_type(df, i, global_state, sort_by=0):
                 # print(f" No city state sent to remove stop {remove_stop_words(''.join(no_city_state))}")
                 purchase_type = remove_stop_words(' '.join(re.findall(
                     regex_no_state, ' '.join(no_city_state), re.IGNORECASE | re.MULTILINE)))
+                print(f'{purchase_type} 1')
+                exit()
             elif type(no_city_state) == type('s'):
                 # print('string')
                 purchase_type = remove_stop_words(' '.join(re.findall(
                     regex_no_state, no_city_state, re.IGNORECASE | re.MULTILINE)))
+                print(f'{purchase_type} 2')
+                exit()
             else:
                 print('SOME KIND OF ERROR IN TYPE')
             # print(f'Purchase type after regex {purchase_type}')
 
         else:
             # print(f'NO city state {no_city_state}, {type(no_city_state)}')
+            print(df[sort_by][i])
             purchase_type = remove_stop_words(re.findall(
                 regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
+            print(f'{purchase_type} 3')
+            exit()
 
         # purchase_type = remove_stop_words(
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])

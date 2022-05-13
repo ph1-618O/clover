@@ -64,7 +64,10 @@ def find_location(target_query=None):
         response = requests.get(base_url, params=params)
         location = response.json()
         if response.status_code == 200:
+            if location == {'results': [], 'status': 'ZERO_RESULTS'}:
+                return False
             #print('Success!')
+            #p.pprint(location)
             l_type = location["results"][0]["geometry"]['location_type']
             # Saving this to add a map location for future applications
             lat = location["results"][0]["geometry"]["location"]["lat"]

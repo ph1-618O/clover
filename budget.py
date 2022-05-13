@@ -476,7 +476,21 @@ global_entry_count_processed = 0
 global_entry_count_remaining = 0
 
 
-def remove_city_state(global_state, tokens_removed):
+def location_identifier(find_identifier, location_list):
+    words = None
+    find_identifier = find_identifier.lower()
+    for location in location_list:
+        if location in find_identifier and len(location) > 2:
+            check_word = find_identifier.split()
+            loc = []
+            for word in range(len(check_word)):
+                if check_word[word].isalpha():
+                    loc.append(check_word[word])
+            words = ' '.join(loc)
+    if words:
+        return words
+
+def remove_city_states(global_state, tokens_removed):
     import location
     import json
     with open('data/stateAbbrv.json') as state:
@@ -495,6 +509,9 @@ def remove_city_state(global_state, tokens_removed):
     # reg_pattern = r'\b([A-Za-z]+(?: [A-Za-z]+)*) ? ([A-Za-z]{2})\b'
     # removing spaces
     reg_pattern = r'(\b[A-Za-z]+(?:[A-Za-z]+)*) ? ([A-Za-z]{2})\b'
+    #print(location_identifier(test_str, global_state))
+    if location_identifier(test_str, global_state):
+        test_str = location_identifier(test_str, global_state)
     city_state = re.findall(reg_pattern, test_str,
                             re.IGNORECASE | re.MULTILINE)
 
@@ -625,6 +642,7 @@ def remove_stop_words(transaction_word_list):
 
 def add_transaction_type(df, i, global_state, sort_by=0):
     if sort_by:
+        print(df[sort_by][i])
         # Using re.sub to remove everyting but numbers and words
         # print(f'Sending to Remove Stop Words {df[sort_by][i]}')
         regex_no_state = r"(?!WWW|COM|SQ|TST|bill)\b([A-Za-z]{3,}(?:[A-Za-z]+)*)"
@@ -635,7 +653,7 @@ def add_transaction_type(df, i, global_state, sort_by=0):
         # print('test2 remove 3 char words')
         # print(re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]))
 
-        no_city_state = remove_city_state(global_state, df[sort_by][i].split())
+        no_city_state = remove_city_states(global_state, df[sort_by][i].split())
         # no_city_state = remove_city_state(
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i]).split())
 
@@ -646,14 +664,14 @@ def add_transaction_type(df, i, global_state, sort_by=0):
                 # print(f" No city state sent to remove stop {remove_stop_words(''.join(no_city_state))}")
                 purchase_type = remove_stop_words(' '.join(re.findall(
                     regex_no_state, ' '.join(no_city_state), re.IGNORECASE | re.MULTILINE)))
-                print(f'{purchase_type} 1')
-                exit()
+                # print(f'{purchase_type} 1')
+                # exit()
             elif type(no_city_state) == type('s'):
                 # print('string')
                 purchase_type = remove_stop_words(' '.join(re.findall(
                     regex_no_state, no_city_state, re.IGNORECASE | re.MULTILINE)))
-                print(f'{purchase_type} 2')
-                exit()
+                # print(f'{purchase_type} 2')
+                # exit()
             else:
                 print('SOME KIND OF ERROR IN TYPE')
             # print(f'Purchase type after regex {purchase_type}')
@@ -663,8 +681,8 @@ def add_transaction_type(df, i, global_state, sort_by=0):
             print(df[sort_by][i])
             purchase_type = remove_stop_words(re.findall(
                 regex_no_state, df[sort_by][i], re.IGNORECASE | re.MULTILINE))
-            print(f'{purchase_type} 3')
-            exit()
+            # print(f'{purchase_type} 3')
+            # exit()
 
         # purchase_type = remove_stop_words(
         #     re.sub("/^[A-Za-z0-9]{3,}/", " ", df[sort_by][i])
@@ -1412,6 +1430,28 @@ def conn_mongo(data):
     pprint.pprint(db.budgetDB.find())
     # db.budgetDB.find().pretty()
 
+def get_surrounding_locals2():
+    import location
+    from os.path import exists
+    seed_locations = exists('data_local/seed_data.py')
+    if seed_locations:
+        from data_local.seed_data import su
+        global_state = [i.lower() for i in su]
+        return global_state
+    else:
+        p_slash()
+        print("LOCATION QUERY")
+        p_slash()
+        p_line()
+        address = input('WHAT IS YOUR ADDRESS\n')
+        p_line()
+        p_slash()
+        print('UPDATING LOCATION IN PROGRESS........PLEASE WAIT THIS CAN TAKE UP TO A MINUTE')
+        p_slash()
+        global_state = location.remove_location(address)
+        return global_state
+    
+
 def get_surrounding_locals():
     import location
     p_slash()
@@ -1421,7 +1461,8 @@ def get_surrounding_locals():
     address = input('WHAT IS YOUR ADDRESS\n')
     p_line()
     p_slash()
-    print('UPDATING LOCATION IN PROGRESS........PLEASE WAIT THIS CAN TAKE UP TO A MINUTE')
+    print(
+        'UPDATING LOCATION IN PROGRESS........PLEASE WAIT THIS CAN TAKE UP TO A MINUTE')
     p_slash()
     global_state = location.remove_location(address)
     return global_state
@@ -1533,7 +1574,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 1")
         p_line()
-        trans_dict = split_purchases(data.head(), global_state, formatted_df, imported_dict)
+        trans_dict = split_purchases(data, global_state, formatted_df, imported_dict)
         
     elif imported_dict and (testing_frames[0] == True):
         p_slash()
@@ -1546,7 +1587,7 @@ def main():
         p_slash()
         print("RUNNING SPLIT PURCHASES PROGRAM 2")
         p_line()
-        trans_dict = split_purchases(data.head(), global_state, formatted_df)
+        trans_dict = split_purchases(data, global_state, formatted_df)
     final_dict = trans_dict
     
     

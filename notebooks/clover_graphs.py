@@ -55,4 +55,5 @@ def make_stacked_bar_graph(data_df, cat_order, pos_amount):
                 title="Total Spending by Category by Month")
     fig.update_layout(
         bargap=0.15)
-    fig.show()
+    fig.write_image(f'images/fig_stacked_bar.svg')
+    #fig.show()

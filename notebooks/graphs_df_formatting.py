@@ -62,6 +62,26 @@ def convert_date(df):
     return df
 
 
+def convert_amount(entry):
+    # there are entries where there is no balance listed
+    entry = str(entry).strip()
+    if "--" in entry:
+        return 0
+    # making the float negative
+    if "-" in entry:
+        return float(entry.translate({ord(i): None for i in "$-,"})) * -1
+    else:
+        return float(entry.translate({ord(i): None for i in "$-,"}))
+
+
+def make_num(df, col_name):
+    newCol = []
+    for i in range(len(df)):
+        newCol.append(convert_amount(df[col_name][i]))
+    df[col_name] = newCol
+    return df.reset_index(drop=True)
+
+
 def graph_data_formatting(data_df):
     #format dates to datetime
     data_df = convert_date(data_df)

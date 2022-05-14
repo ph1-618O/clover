@@ -17,12 +17,13 @@ pp = pprint.PrettyPrinter(indent=4)
 def convert_date(df):
     import datetime
     list_cols = [i.lower() for i in df.columns.tolist()]
-    test_cols = ["date", "day", "time", "occurrence"]
+    test_cols = ["date", "time", "occurrence"] #day
     verified_cols = []
     for col in list_cols:
         for test in test_cols:
             if test in col:
                 verified_cols.append(col)
+    #print(verified_cols)
     for tested in verified_cols:
         search_dates = df[tested].apply(
             lambda x: 'True' if isinstance(x, datetime.date) else 'False')
@@ -55,7 +56,9 @@ def convert_date(df):
             #     by=['date', 'transaction', 'amount']).reset_index(drop=True)
             # (by=['date', 'category', 'identifier', 'amount']
         else:
-            print('your dates are a mess, see your programmer')
+            print(tested)
+            print('skipping....')
+            #print('your dates are a mess, see your programmer')
     return df
 
 
@@ -87,6 +90,7 @@ def graph_data_formatting(data_df):
         if 'interest' in data_df['category']:
             data_df = data_df.loc[data_df['category'] != 'interest']
     
+    # Formatting for Stacked Bar graph
     #Getting whole month total for spending all categories
     if 'category' in data_df.columns:
         month_sum = (data_df.groupby(['month', 'long_month'])['amount'].sum()).to_frame(name='month_sum').reset_index()
@@ -106,4 +110,4 @@ def graph_data_formatting(data_df):
 
     pos_amount = [i*-1 for i in cat_order['month_sum']]
 
-    return data_df, cat_order, pos_amount
+    return data_df, cat_order, pos_amount, month_sum, month_categories

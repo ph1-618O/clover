@@ -32,7 +32,7 @@ contrast_colors = colors = ['tomato', 'lightsalmon', 'darkorange', 'gold',
                             'lightgreen', 'mediumturquoise', 'lightblue', 'lightgray', 'white']
 rainbow_colors = ['#F94144', '#f3722c', '#F9844A', '#f8961e',
                 '#F9C74F', '#90BE6D', '#43AA8B', '#4D908E', '#277DA1', '#577590']
-ainbow_colors = ['#F94144', '#f3722c', '#F9844A', '#f8961e',
+rainbow_colors = ['#F94144', '#f3722c', '#F9844A', '#f8961e',
                 '#F9C74F', '#90BE6D', '#43AA8B', '#4D908E', '#277DA1', '#577590']
 print(len(rainbow_colors))
 

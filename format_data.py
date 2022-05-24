@@ -111,6 +111,7 @@ def import_clip():
     p_slash()
     csvName = input("WHAT TYPE OF ACCOUNT FOR FILENAME?\n")
     csvName = csvName + ".csv"
+    ####LOCAL SAVING
     clipDF.to_csv(f'data_local/{csvName}', index=False)
     return pd.read_csv(csvName)
 

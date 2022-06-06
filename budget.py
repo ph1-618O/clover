@@ -909,8 +909,26 @@ def add_data(budget_dict, data):
     if isinstance(data, list) and isinstance(data[0], list):
         print_trans = max([str(i) for i in data[0] if ('Timestamp' not in str(i)) and (mostly_alpha(str(i)) < 65)], key=len)
     elif isinstance(data, list):
-        print_trans = max([str(i) for i in data if (
+        try: 
+            print_trans = max([str(i) for i in data if (
             'Timestamp' not in str(i)) and (mostly_alpha(str(i)) < 65)], key=len)
+        except:
+            print(data)
+            location = 'other'
+            for key, value in budget_dict.items():
+                if location[:3] == key[:3]:
+                    if type(data[0]) != type([]):
+                        value.append(data + [key])
+                        p_slash()
+                        print(f'ERROR IN TRANSACTION "{key.upper()}" ADDING TO OTHER')
+                        return budget_dict
+                    elif type(data[0]) == type([]) and len(data) > 1:
+                        for z in data:
+                            z.append(key)
+                            value.append(z)
+                        p_slash()
+                        print(f'ADDITION TO "{key.upper()}" SUCCESSFUL')
+                        return budget_dict
     else:
         print_trans = max([str(i) for i in data if (mostly_alpha(str(i)) < 65)], key=len)
     print(

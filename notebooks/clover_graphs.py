@@ -146,7 +146,7 @@ def make_stacked_bar_graph(data_df, cat_order, pos_amount):
     fig.update_layout(
         bargap=0.15)
     fig.write_image(f'images/fig_stacked_bar.svg')
-    #fig.show()
+    fig.show()
 
 # Sunburst
 def make_sunburst(data_df):
@@ -220,7 +220,7 @@ def make_sunburst(data_df):
 
     #can save as an svg
     fig.write_image('images/sunburst.svg')
-    #fig.show()
+    fig.show()
 
 # Part of Tables
 
@@ -273,7 +273,7 @@ def make_table(df, colors, rowOddColor, rowEvenColor, filename):
     pio.write_image(fig, '../data_local/images/table.pdf',
                     width=700, height=max_height)
     fig.write_image(f'images/table_{filename}.svg')
-    #fig.show()
+    fig.show()
 
 # Treemap
 def get_percentage(month_num, month_categories):
@@ -345,7 +345,7 @@ def make_treemap(df, months):
         )
     fig.update_layout(margin=dict(t=50, l=25, r=25, b=25))
     fig.write_image(f'images/treemap{months}.svg')
-    #fig.show()
+    fig.show()
 
 #Treemap
 def loop_plots(months, df):
